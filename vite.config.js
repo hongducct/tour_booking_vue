@@ -15,6 +15,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['localhost', '.test', 'hongducct.id.vn'],
+    allowedHosts: ['localhost', '.test', 'hongducct.id.vn', '*.hongducct.id.vn', 'travel-booking.hongducct.id.vn'],	
   },
 })
