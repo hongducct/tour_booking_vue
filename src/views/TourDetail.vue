@@ -55,6 +55,7 @@ const fetchTour = async () => {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
     const response = await axios.get(`${apiBaseUrl}/tours/${route.params.id}`)
+    console.log('Tour data:', response.data)
     tour.value = response.data
     prices.value = response.data.price
     availableDates.value = response.data.availabilities.filter(

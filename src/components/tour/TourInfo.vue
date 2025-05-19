@@ -57,7 +57,7 @@ const formatDate = (date) => {
     <div class="mb-8">
       <h2 class="text-xl font-semibold text-navy-900 mb-3">Bao gồm:</h2>
       <ul class="list-disc list-inside text-gray-600 space-y-2">
-        <li v-for="(feature, index) in JSON.parse(tour.features)" :key="index">
+        <li v-for="(feature, index) in tour.features" :key="index">
           {{ feature }}
         </li>
       </ul>
