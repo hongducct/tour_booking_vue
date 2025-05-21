@@ -1,28 +1,49 @@
 <template>
-  <section class="package-section">
-    <div class="container">
-      <!-- Tiêu đề section -->
-      <div class="section-heading text-center">
-        <div class="row">
-          <div class="col-lg-8 offset-lg-2">
-            <h5 class="dash-style">EXPLORE GREAT PLACES</h5>
-            <h2>NHỮNG TOUR ĐƯỢC YÊU THÍCH</h2>
-            <p>Các tour được đặt nhiều nhất trong tháng này.</p>
-          </div>
+  <section class="package-section py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <!-- Section heading -->
+      <div class="section-heading text-center mb-12">
+        <div class="max-w-3xl mx-auto">
+          <h5
+            class="text-yellow-500 font-medium text-sm mb-2 uppercase tracking-wider relative inline-block before:absolute before:w-8 before:h-0.5 before:bg-yellow-500 before:left-0 before:top-1/2 before:-translate-x-full before:-ml-2 after:absolute after:w-8 after:h-0.5 after:bg-yellow-500 after:right-0 after:top-1/2 after:translate-x-full after:-mr-2"
+          >
+            KHÁM PHÁ NHỮNG VÙNG ĐẤT TUYỆT VỜI
+          </h5>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            NHỮNG TOUR ĐƯỢC YÊU THÍCH
+          </h2>
+          <p class="text-gray-600">Các tour được đặt nhiều nhất trong tháng này.</p>
         </div>
       </div>
 
-      <!-- Danh sách tour -->
-      <div class="package-inner">
-        <div class="row">
-          <div class="col-lg-4 col-md-6" v-for="(tour, index) in tours" :key="index">
+      <!-- Loading state -->
+      <div v-if="loading" class="flex justify-center items-center h-64">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"
+        ></div>
+      </div>
+
+      <!-- Error state -->
+      <div v-else-if="error" class="text-center text-red-500 py-10">
+        Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.
+      </div>
+
+      <!-- Tour list -->
+      <div v-else class="package-inner">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="tour in tours" :key="tour.id">
             <TourCard :tour="tour" />
           </div>
         </div>
 
-        <!-- Nút xem thêm -->
-        <div class="btn-wrap text-center mt-6">
-          <a href="https://bookingtour.vn/tour" class="button-primary"> XEM THÊM GÓI TOUR </a>
+        <!-- View more button -->
+        <div class="text-center mt-12">
+          <RouterLink
+            to="/tour"
+            class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-8 rounded-md transition duration-300"
+          >
+            XEM THÊM GÓI TOUR
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -30,33 +51,28 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import TourCard from './TourCard.vue'
+import axios from 'axios'
 
-const tours = [
-  {
-    name: 'Tour Hạ Long',
-    img: 'https://cdn.bookingtour.vn/thumb_x460x255/upload/2024/09/21/ha-long.jpg',
-    url: 'https://bookingtour.vn/tour/ha-long.html',
-    price: '3,500,000 VNĐ',
-    duration: '3 ngày 2 đêm',
-  },
-  {
-    name: 'Tour Đà Nẵng',
-    img: 'https://cdn.bookingtour.vn/thumb_x460x255/upload/2024/09/10/da-nang.jpg',
-    url: 'https://bookingtour.vn/tour/da-nang.html',
-    price: '4,200,000 VNĐ',
-    duration: '4 ngày 3 đêm',
-  },
-  {
-    name: 'Tour Phú Quốc',
-    img: 'https://cdn.bookingtour.vn/thumb_x460x255/upload/2024/09/10/phu-quoc.jpg',
-    url: 'https://bookingtour.vn/tour/phu-quoc.html',
-    price: '5,000,000 VNĐ',
-    duration: '3 ngày 2 đêm',
-  },
-]
+const tours = ref([])
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    // Fetch featured or popular tours (limit to 6)
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+
+    const response = await axios.get(`${apiBaseUrl}/tours`, { params: { limit: 6 } })
+
+    tours.value = response.data.data // Adjust based on your API response structure
+    loading.value = false
+  } catch (err) {
+    console.error('Error fetching tours:', err)
+    error.value = err.message
+    loading.value = false
+  }
+})
 </script>
-
-<style scoped>
-/* Tuỳ chọn: thêm style riêng nếu cần */
-</style>

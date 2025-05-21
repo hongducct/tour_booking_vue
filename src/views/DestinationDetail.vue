@@ -7,9 +7,9 @@
       <div class="bg-white shadow rounded-xl p-6">
         <img
           v-if="locationData.location.image"
-          :src="`${imageBaseUrl}/${locationData.location.image}`"
+          :src="`${locationData.location.image}`"
           :alt="locationData.location.name"
-          class="w-full h-72 object-cover rounded-lg mb-4"
+          class="w-full h-full object-cover rounded-lg mb-4"
         />
         <h1 class="text-3xl font-bold mb-2">{{ locationData.location.name }}</h1>
         <p class="text-gray-600">

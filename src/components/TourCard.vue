@@ -30,18 +30,23 @@
       </div>
 
       <h3 class="text-lg font-bold mb-2">
-        <RouterLink
-          :to="`/tour/${createSlug(tour.id, tour.name)}`"
-          class="hover:text-yellow-500"
-        >
+        <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`" class="hover:text-yellow-500">
           {{ tour.name }}
         </RouterLink>
       </h3>
 
       <div class="text-sm text-gray-700 mb-3">
         <p>Điểm khởi hành: {{ tour.start_point || 'Unknown' }}</p>
-        <div class="flex gap-1 text-yellow-400">
-          <StarIcon v-for="n in 5" :key="n" class="w-4 h-4" />
+        <div class="flex items-center gap-1 text-yellow-400 text-sm">
+          <template v-if="tour.average_rating && tour.review_count > 0">
+            <template v-for="n in 5" :key="n">
+              <component :is="getStarType(n, tour.average_rating)" class="w-4 h-4" />
+            </template>
+            <span class="text-gray-600 text-xs ml-2">({{ tour.review_count }} đánh giá)</span>
+          </template>
+          <template v-else>
+            <span class="text-gray-500 text-xs">Chưa có đánh giá</span>
+          </template>
         </div>
       </div>
 
@@ -61,6 +66,7 @@
 </template>
 
 <script setup>
+import { defineComponent, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   ClockIcon,
@@ -70,15 +76,65 @@ import {
   ArrowRightIcon,
   HeartIcon,
 } from '@heroicons/vue/24/solid'
+import { StarIcon as StarOutline } from '@heroicons/vue/24/outline'
+
 
 const props = defineProps({ tour: Object })
+
+const createSlug = (id, name) => {
+  return `${id}-${name
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '')}`
+}
+const getStarType = (index, rating) => {
+  if (index <= Math.floor(rating)) {
+    return StarIcon // đầy
+  } else if (index - rating < 1 && index - rating > 0) {
+    return HalfStar // nửa (xử lý thủ công)
+  } else {
+    return StarOutline // rỗng
+  }
+}
+
+/**
+ * Sao nửa ngôi - Tự tạo component SVG
+ */
+const HalfStar = defineComponent({
+  name: 'HalfStar',
+  render() {
+    return h('svg',
+      {
+        class: 'w-4 h-4 text-yellow-400',
+        fill: 'currentColor',
+        viewBox: '0 0 20 20'
+      },
+      [
+        h('defs', {}, [
+          h('linearGradient', { id: 'half' }, [
+            h('stop', { offset: '50%', 'stop-color': 'currentColor' }),
+            h('stop', { offset: '50%', 'stop-color': 'transparent' })
+          ])
+        ]),
+        h('path', {
+          d: `M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286
+          3.95a1 1 0 00.95.69h4.155c.969 0 1.371
+          1.24.588 1.81l-3.367 2.448a1 1 0
+          00-.364 1.118l1.286 3.95c.3.921-.755
+          1.688-1.54 1.118l-3.367-2.448a1 1 0
+          00-1.176 0l-3.367 2.448c-.784.57-1.838-.197-1.539-1.118l1.285-3.95a1
+          1 0 00-.364-1.118L2.07 9.377c-.783-.57-.38-1.81.588-1.81h4.156a1
+          1 0 00.95-.69l1.286-3.95z`,
+          fill: 'url(#half)'
+        })
+      ]
+    )
+  }
+})
 
 const formatPrice = (price) => {
   const parsed = parseFloat(price)
   return parsed ? parsed.toLocaleString('vi-VN') + '₫' : '11,490,000₫'
 }
 
-const createSlug = (id, name) => {
-  return `${id}-${name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')}`
-}
 </script>

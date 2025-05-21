@@ -10,6 +10,7 @@ import BookingModal from '@/components/tour/BookingModal.vue'
 import PaymentModal from '@/components/tour/PaymentModal.vue'
 import SuccessModal from '@/components/tour/SuccessModal.vue'
 import QRCodeModal from '@/components/tour/QRCodeModal.vue'
+import TourReviews from '@/components/tour/TourReviews.vue'
 
 // Initialize
 const route = useRoute()
@@ -54,6 +55,7 @@ const paymentMethods = [
 const fetchTour = async () => {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    console.log('Fetching tour data...', route.params.id)
     const response = await axios.get(`${apiBaseUrl}/tours/${route.params.id}`)
     console.log('Tour data:', response.data)
     tour.value = response.data
@@ -323,6 +325,7 @@ onMounted(() => {
             Đặt tour ngay
           </button>
         </div>
+        <TourReviews :reviews="tour.reviews" />
       </div>
       <div v-else class="text-center text-gray-500 py-12">
         <p class="text-lg">Đang tải dữ liệu...</p>
