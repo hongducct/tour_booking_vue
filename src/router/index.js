@@ -12,6 +12,9 @@ import RegisterView from '@/views/RegisterView.vue'
 // import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import UserProfileView from '@/views/UserProfileView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import BookingsView from '../views/BookingsView.vue'
+import WishlistView from '../views/WishlistView.vue'
+import SettingsView from '../views/SettingsView.vue'
 
 import DestinationView from '@/views/DestinationView.vue'
 
@@ -35,9 +38,9 @@ import VoucherManager from '@/views/admin/VoucherManager.vue'
 
 import PaymentResult from '@/views/PaymentResult.vue'
 
+// import AuthCallback from '../views/AuthCallback.vue'
 
 import AdminSettings from '@/views/admin/AdminSettings.vue'
-
 
 // định nghĩa các route cho admin
 const adminRoutes = [
@@ -96,14 +99,12 @@ const adminRoutes = [
         name: 'AdminBlogDetail',
         component: AdminBlogDetail,
         props: true,
-
       },
       {
         path: 'blogs/edit/:id',
         name: 'AdminBlogEdit',
         component: AdminBlogEdit,
         props: true,
-
       },
       {
         path: 'reviews',
@@ -124,7 +125,7 @@ const adminRoutes = [
         path: 'test',
         name: 'Test',
         component: () => import('@/views/admin/Test.vue'),
-      }
+      },
     ],
   },
 ]
@@ -161,6 +162,11 @@ const router = createRouter({
         title: 'Register',
       },
     },
+    // {
+    //   path: '/auth/google/callback',
+    //   name: 'AuthCallback',
+    //   component: AuthCallback,
+    // },
     {
       path: '/blog',
       name: 'blog',
@@ -206,6 +212,36 @@ const router = createRouter({
       },
     },
     {
+      path: '/bookings',
+      name: 'bookings',
+      component: BookingsView,
+      props: true,
+      meta: {
+        title: 'Bookings',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/wishlist',
+      name: 'wishlist',
+      component: WishlistView,
+      props: true,
+      meta: {
+        title: 'Wishlist',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: SettingsView,
+      props: true,
+      meta: {
+        title: 'Settings',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/destination',
       name: 'destination',
       component: DestinationView,
@@ -227,7 +263,7 @@ const router = createRouter({
       path: '/payment-result',
       name: 'PaymentResult',
       component: PaymentResult,
-      props: route => ({ status: route.query.status, bookingId: route.query.booking_id }),
+      props: (route) => ({ status: route.query.status, bookingId: route.query.booking_id }),
     },
     {
       path: '/emTien',
@@ -267,6 +303,5 @@ router.beforeEach((to, from, next) => {
   //   next()
   // }
 })
-
 
 export default router

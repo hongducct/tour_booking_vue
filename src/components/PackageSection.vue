@@ -31,7 +31,7 @@
       <!-- Tour list -->
       <div v-else class="package-inner">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="tour in tours" :key="tour.id">
+          <div v-for="tour in displayedTours" :key="tour.id">
             <TourCard :tour="tour" />
           </div>
         </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import TourCard from './TourCard.vue'
 import axios from 'axios'
@@ -60,12 +60,20 @@ const tours = ref([])
 const loading = ref(true)
 const error = ref(null)
 
+// Số lượng tour muốn hiển thị
+const DISPLAY_LIMIT = 6
+
+// Computed property để chỉ hiển thị số lượng tour theo giới hạn
+const displayedTours = computed(() => {
+  return tours.value.slice(0, DISPLAY_LIMIT)
+})
+
 onMounted(async () => {
   try {
-    // Fetch featured or popular tours (limit to 6)
+    // Fetch tours (có thể lấy nhiều hơn để có dữ liệu dự phòng)
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
-    const response = await axios.get(`${apiBaseUrl}/tours`, { params: { limit: 6 } })
+    const response = await axios.get(`${apiBaseUrl}/tours`)
 
     tours.value = response.data.data // Adjust based on your API response structure
     loading.value = false

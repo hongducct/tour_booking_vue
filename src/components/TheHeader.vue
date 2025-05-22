@@ -15,11 +15,11 @@
           </div>
           <div class="flex items-center gap-1">
             <EnvelopeIcon class="w-4 h-4" />
-            <a href="mailto:bookingtourvn@gmail.com">bookingtourvn@gmail.com</a>
+            <a href="mailto:bookingtourvn@gmail.com">bookingtourvn@hongducct.id.vn</a>
           </div>
           <div class="flex items-center gap-1">
             <MapPinIcon class="w-4 h-4" />
-            <span>173 Thái Hà, Đống Đa, Hà Nội</span>
+            <span>Thang Long University</span>
           </div>
         </div>
         <div class="flex items-center space-x-4">
@@ -238,21 +238,39 @@ const checkAuth = async () => {
   }
 }
 
-const logout = async () => {
-  localStorage.removeItem('userToken')
-  isLoggedIn.value = false
-  user.value = null
-  try {
-    await axios.post(
-      `${baseUrl}/user/logout`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem('userToken')}` },
-      },
-    )
-  } catch (err) {
-    console.error('Logout error', err)
+// const logout = async () => {
+//   localStorage.removeItem('userToken')
+//   isLoggedIn.value = false
+//   user.value = null
+//   try {
+//     await axios.post(
+//       `${baseUrl}/user/logout`,
+//       {},
+//       {
+//         headers: { Authorization: `Bearer ${localStorage.getItem('userToken')}` },
+//       },
+//     )
+//   } catch (err) {
+//     console.error('Logout error', err)
+//   }
+// }
+
+const logout = () => {
+  // Lưu đường dẫn hiện tại (trừ trang login/register)
+  const currentPath = router.currentRoute.value.path
+  if (!['/login', '/register'].includes(currentPath)) {
+    localStorage.setItem('redirectAfterLogin', currentPath)
   }
+  
+  isLoggedIn.value = false
+
+  // Xóa thông tin user
+  localStorage.removeItem('userToken')
+  localStorage.removeItem('userData')
+  localStorage.removeItem('rememberedLogin')
+
+  // Chuyển hướng tới trang đăng nhập
+  // router.push('/login')
 }
 
 onMounted(() => {

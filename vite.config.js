@@ -22,5 +22,13 @@ export default defineConfig({
       '*.hongducct.id.vn',
       'travel-booking.hongducct.id.vn',
     ],
+    // hmr: {
+    //   host: 'localhost', // Hoặc 'travel-booking.hongducct.id.vn' nếu chạy qua proxy
+    //   port: 5173,
+    //   protocol: 'ws', // Sử dụng ws thay vì wss nếu không có SSL cục bộ
+    //   clientPort: 5173, // Cổng WebSocket mà client nên kết nối
+    // },
+    // host: '0.0.0.0', // Cho phép truy cập từ ngoài
+    // port: 5173,
   },
 })

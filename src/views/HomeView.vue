@@ -8,6 +8,8 @@ import DestinationSection from '@/components/DestinationSection.vue'
 import PackageSection from '@/components/PackageSection.vue'
 import BestGallerySection from '@/components/BestGallerySection.vue'
 import BlogSection from '@/components/BlogSection.vue'
+import ContactSection from '@/components/ContactSection.vue'
+console.log('localStorage', localStorage)
 </script>
 
 <template>
@@ -21,7 +23,7 @@ import BlogSection from '@/components/BlogSection.vue'
   <main>
     <TheHeader />
     <HomeSlider class="mt-27" />
-    <div class="bg-gray-100 rounded-lg shadow-xl/80 my-20 mx-auto container px-15 max-w-7xl ">
+    <div class="bg-gray-100 rounded-lg shadow-xl/80 my-20 mx-auto container px-2 max-w-7xl ">
       <div class="py-4">
         <h1 class="text-3xl font-bold text-center">Welcome to Tour Booking</h1>
         <p class="text-center text-gray-600">Your adventure starts here!</p>
@@ -32,6 +34,7 @@ import BlogSection from '@/components/BlogSection.vue'
       <BestGallerySection />
       <BlogSection />
     </div>
+    <ContactSection />
     <TheFooter />
   </main>
 </template>
