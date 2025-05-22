@@ -17,7 +17,7 @@ const bookingHistory = ref([])
 
 const fetchBookingHistory = async () => {
   try {
-    const res = await axios.get(`${baseUrl}/user/bookings`, {
+    const res = await axios.get(`${baseUrl}/bookings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     bookingHistory.value = res.data

@@ -57,8 +57,15 @@
         >
           Book Now <ArrowRightIcon class="w-4 h-4" />
         </RouterLink>
-        <button class="text-gray-400 hover:text-red-500 flex items-center gap-1">
-          <HeartIcon class="w-4 h-4" /> Wish List
+        <button
+          @click="toggleWishlist"
+          class="flex items-center gap-1"
+          :class="
+            isInWishlist ? 'text-red-500 hover:text-gray-400' : 'text-gray-400 hover:text-red-500'
+          "
+        >
+          <HeartIcon class="w-4 h-4" />
+          {{ isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
         </button>
       </div>
     </div>
@@ -66,8 +73,9 @@
 </template>
 
 <script setup>
-import { defineComponent, h } from 'vue'
-import { RouterLink } from 'vue-router'
+import { defineComponent, h, ref, onMounted } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import axios from 'axios'
 import {
   ClockIcon,
   UserGroupIcon,
@@ -78,8 +86,11 @@ import {
 } from '@heroicons/vue/24/solid'
 import { StarIcon as StarOutline } from '@heroicons/vue/24/outline'
 
-
 const props = defineProps({ tour: Object })
+const router = useRouter()
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+const token = localStorage.getItem('userToken')
+const isInWishlist = ref(false)
 
 const createSlug = (id, name) => {
   return `${id}-${name
@@ -103,18 +114,19 @@ const getStarType = (index, rating) => {
 const HalfStar = defineComponent({
   name: 'HalfStar',
   render() {
-    return h('svg',
+    return h(
+      'svg',
       {
         class: 'w-4 h-4 text-yellow-400',
         fill: 'currentColor',
-        viewBox: '0 0 20 20'
+        viewBox: '0 0 20 20',
       },
       [
         h('defs', {}, [
           h('linearGradient', { id: 'half' }, [
             h('stop', { offset: '50%', 'stop-color': 'currentColor' }),
-            h('stop', { offset: '50%', 'stop-color': 'transparent' })
-          ])
+            h('stop', { offset: '50%', 'stop-color': 'transparent' }),
+          ]),
         ]),
         h('path', {
           d: `M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286
@@ -125,16 +137,71 @@ const HalfStar = defineComponent({
           00-1.176 0l-3.367 2.448c-.784.57-1.838-.197-1.539-1.118l1.285-3.95a1
           1 0 00-.364-1.118L2.07 9.377c-.783-.57-.38-1.81.588-1.81h4.156a1
           1 0 00.95-.69l1.286-3.95z`,
-          fill: 'url(#half)'
-        })
-      ]
+          fill: 'url(#half)',
+        }),
+      ],
     )
-  }
+  },
 })
 
 const formatPrice = (price) => {
   const parsed = parseFloat(price)
   return parsed ? parsed.toLocaleString('vi-VN') + '₫' : '11,490,000₫'
 }
+
+// Kiểm tra nếu tour đã có trong wishlist
+const checkWishlistStatus = async () => {
+  if (!token) return
+
+  try {
+    const res = await axios.get(`${baseUrl}/user/wishlist/check/${props.tour.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    isInWishlist.value = res.data.isInWishlist
+  } catch (err) {
+    console.error('Kiểm tra wishlist thất bại:', err)
+  }
+}
+
+// Thêm hoặc xóa tour khỏi wishlist
+const toggleWishlist = async () => {
+  if (!token) {
+    alert('Bạn cần đăng nhập để thêm tour vào danh sách yêu thích!')
+    router.push('/login')
+    return
+  }
+
+  try {
+    if (isInWishlist.value) {
+      // Xóa khỏi wishlist
+      await axios.delete(`${baseUrl}/user/wishlist/${props.tour.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      isInWishlist.value = false
+      alert('Đã xóa khỏi danh sách yêu thích!')
+    } else {
+      // Thêm vào wishlist
+      await axios.post(
+        `${baseUrl}/user/wishlist`,
+        {
+          favoritable_id: props.tour.id,
+          favoritable_type: 'App\\Models\\Tour',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+      isInWishlist.value = true
+      alert('Đã thêm vào danh sách yêu thích!')
+    }
+  } catch (err) {
+    console.error('Thao tác với wishlist thất bại:', err)
+    alert('Không thể thực hiện thao tác. Vui lòng thử lại.')
+  }
+}
+
+onMounted(() => {
+  checkWishlistStatus()
+})
 
 </script>

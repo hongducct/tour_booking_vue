@@ -126,7 +126,7 @@ const submitPass = async () => {
 // Lấy lịch sử booking
 const fetchBookingHistory = async () => {
   try {
-    const res = await axios.get(`${baseUrl}/user/bookings`, {
+    const res = await axios.get(`${baseUrl}/bookings`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     bookingHistory.value = res.data

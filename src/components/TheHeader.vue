@@ -11,7 +11,7 @@
         <div class="hidden lg:flex space-x-6 items-center">
           <div class="flex items-center gap-1">
             <PhoneIcon class="w-4 h-4" />
-            <span>0888 822 368</span>
+            <span>0799076901</span>
           </div>
           <div class="flex items-center gap-1">
             <EnvelopeIcon class="w-4 h-4" />
@@ -93,10 +93,11 @@
         <!-- Right Section -->
         <div class="flex items-center space-x-4">
           <router-link
-            to="/tour"
+            to="/wishlist"
+            v-if="isLoggedIn"
             class="hidden lg:inline-block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-bold"
           >
-            ĐẶT TOUR
+            WISH LIST
           </router-link>
 
           <!-- User Menu -->
@@ -261,7 +262,7 @@ const logout = () => {
   if (!['/login', '/register'].includes(currentPath)) {
     localStorage.setItem('redirectAfterLogin', currentPath)
   }
-  
+
   isLoggedIn.value = false
 
   // Xóa thông tin user
