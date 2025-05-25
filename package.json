@@ -14,16 +14,21 @@
     "@mdi/js": "^7.4.47",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.1.4",
+    "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.8.4",
+    "cropperjs": "^2.0.0",
     "pinia": "^3.0.2",
     "qrcode.vue": "^3.6.0",
+    "quill": "^2.0.3",
     "simplebar-vue": "^2.4.1",
     "swiper": "^11.2.6",
     "tailwindcss": "^4.1.4",
     "unplugin-icons": "^22.1.0",
     "vue": "^3.5.13",
+    "vue-cropperjs": "^5.0.0",
     "vue-router": "^4.5.0",
-    "vue3-apexcharts": "^1.8.0"
+    "vue3-apexcharts": "^1.8.0",
+    "vue3-cropper": "^0.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

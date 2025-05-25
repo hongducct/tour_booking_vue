@@ -5,7 +5,6 @@ import './css/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-
 import App from './App.vue'
 import router from './router'
 
@@ -27,8 +26,8 @@ mainStore.fetchSampleHistory()
 
 // Set document title from route meta
 router.afterEach((to) => {
-    document.title = to.meta?.title
-      ? `${to.meta.title} — ${defaultDocumentTitle}`
-      : defaultDocumentTitle
-  })
-const defaultDocumentTitle = 'Admin One Vue 3 Tailwind'  
+  document.title = to.meta?.title
+    ? `${to.meta.title} — ${defaultDocumentTitle}`
+    : defaultDocumentTitle
+})
+const defaultDocumentTitle = 'Tour Booking'

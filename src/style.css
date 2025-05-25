@@ -22,3 +22,122 @@
 #app {
     color:#d9d9d9;
 } */
+
+/* Thêm CSS này vào file global CSS của bạn (ví dụ: app.css hoặc main.css) */
+
+/* Quill Editor Alignment Styles */
+.ql-align-center {
+  text-align: center !important;
+}
+
+.ql-align-right {
+  text-align: right !important;
+}
+
+.ql-align-left {
+  text-align: left !important;
+}
+
+.ql-align-justify {
+  text-align: justify !important;
+}
+
+/* Image alignment trong Quill */
+.ql-editor .ql-align-center img,
+.ql-align-center img {
+  display: block;
+  margin: 0 auto;
+}
+
+.ql-editor .ql-align-right img,
+.ql-align-right img {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.ql-editor .ql-align-left img,
+.ql-align-left img {
+  display: block;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Styling cho content được render ra ngoài editor */
+.blog-content .ql-align-center {
+  text-align: center;
+}
+
+.blog-content .ql-align-right {
+  text-align: right;
+}
+
+.blog-content .ql-align-left {
+  text-align: left;
+}
+
+.blog-content .ql-align-justify {
+  text-align: justify;
+}
+
+.blog-content .ql-align-center img {
+  display: block;
+  margin: 0 auto;
+}
+
+.blog-content .ql-align-right img {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.blog-content .ql-align-left img {
+  display: block;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Custom styling for poem/poetry content */
+.poetry-block,
+.poem-block {
+  text-align: center;
+  font-style: italic;
+  line-height: 1.8;
+  margin: 2rem 0;
+  padding: 1rem;
+  border-left: 3px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+/* Responsive image styling */
+.ql-editor img,
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced spacing for better readability */
+.ql-editor p,
+.blog-content p {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6,
+.blog-content h1, .blog-content h2, .blog-content h3, .blog-content h4, .blog-content h5, .blog-content h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+/* Blockquote styling */
+.ql-editor blockquote,
+.blog-content blockquote {
+  border-left: 4px solid #e2e8f0;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #64748b;
+}
