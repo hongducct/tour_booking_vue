@@ -28,10 +28,11 @@ import AdminTourEdit from '@/views/admin/TourEdit.vue'
 import AdminBookings from '@/views/admin/BookingList.vue'
 import AdminUsers from '@/views/admin/UserList.vue'
 import AdminDestination from '@/views/admin/DestinationList.vue'
-import AdminBlog from '@/views/admin/BlogList.vue'
 
+import AdminBlog from '@/views/admin/BlogList.vue'
 import AdminBlogDetail from '@/views/admin/BlogDetail.vue'
 import AdminBlogEdit from '@/views/admin/BlogEdit.vue'
+import AdminBlogCreate from '@/views/admin/BlogCreate.vue'
 
 import ReviewList from '@/views/admin/ReviewList.vue'
 import VoucherManager from '@/views/admin/VoucherManager.vue'
@@ -52,79 +53,101 @@ const adminRoutes = [
         path: 'login',
         name: 'AdminLogin',
         component: AdminLogin,
+        meta: { title: 'Admin Login' },
       },
       {
         path: 'dashboard',
         name: 'AdminDashboard',
         component: AdminDashboard,
+        meta: { title: 'Admin Dashboard' },
       },
       {
         path: 'tours',
         name: 'AdminTours',
         component: AdminTours,
+        meta: { title: 'Manage Tours' },
       },
       {
         path: 'tours/create',
         name: 'AdminTourCreate',
         component: AdminTourCreate,
+        meta: { title: 'Create Tour' },
       },
       {
         path: 'tours/:id/edit',
         name: 'AdminTourEdit',
         component: AdminTourEdit,
         props: true,
+        meta: { title: 'Edit Tour' },
       },
       {
         path: 'bookings',
         name: 'AdminBookings',
         component: AdminBookings,
+        meta: { title: 'Manage Bookings' },
       },
       {
         path: 'users',
         name: 'AdminUsers',
         component: AdminUsers,
+        meta: { title: 'Manage Users' },
       },
       {
         path: 'destinations',
         name: 'AdminDestinations',
         component: AdminDestination,
+        meta: { title: 'Manage Destinations' },
       },
       {
         path: 'blogs',
         name: 'AdminBlog',
         component: AdminBlog,
+        meta: { title: 'Manage Blogs' },
       },
       {
         path: 'blogs/:id',
         name: 'AdminBlogDetail',
         component: AdminBlogDetail,
         props: true,
+        meta: { title: 'Blog Detail' },
       },
       {
         path: 'blogs/edit/:id',
         name: 'AdminBlogEdit',
         component: AdminBlogEdit,
         props: true,
+        meta: { title: 'Edit Blog' },
+      },
+      {
+        path: 'blogs/create',
+        name: 'AdminBlogCreate',
+        component: AdminBlogCreate,
+        props: true,
+        meta: { title: 'Create Blog' },
       },
       {
         path: 'reviews',
         name: 'AdminReviews',
         component: ReviewList,
+        meta: { title: 'Manage Reviews' },
       },
       {
         path: 'settings',
         name: 'AdminSettings',
         component: AdminSettings,
+        meta: { title: 'Admin Settings' },
       },
       {
         path: 'vouchers',
         name: 'VoucherManager',
         component: VoucherManager,
+        meta: { title: 'Voucher Manager' },
       },
       {
         path: 'test',
         name: 'Test',
         component: () => import('@/views/admin/Test.vue'),
+        meta: { title: 'Admin Test' },
       },
     ],
   },
@@ -162,11 +185,6 @@ const router = createRouter({
         title: 'Register',
       },
     },
-    // {
-    //   path: '/auth/google/callback',
-    //   name: 'AuthCallback',
-    //   component: AuthCallback,
-    // },
     {
       path: '/blog',
       name: 'blog',
@@ -291,17 +309,9 @@ router.beforeEach((to, from, next) => {
   // Cập nhật tiêu đề trang
   if (to.meta.title) {
     document.title = to.meta.title
-    console.log('Title:', to.meta.title)
   } else {
     document.title = 'Tour Booking'
   }
-
-  // const token = localStorage.getItem('userToken')
-  // if (to.meta.requiresAuth && !token) {
-  //   next('/login')
-  // } else {
-  //   next()
-  // }
 })
 
 export default router
