@@ -121,8 +121,6 @@ const fetchDestinations = async () => {
     } else {
       destinations.value = res.data || []
     }
-
-    console.log('Fetched destinations:', destinations.value)
   } catch (err) {
     console.error('Error fetching destinations:', err.message)
   } finally {

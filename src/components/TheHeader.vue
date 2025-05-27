@@ -103,7 +103,7 @@
           <!-- User Menu -->
           <div class="relative">
             <button @click="toggleUserMenu" class="flex items-center space-x-1">
-              <img v-if="isLoggedIn" :src="user.avatar" alt="Avatar" class="w-8 h-8 rounded-full" />
+              <img v-if="isLoggedIn" :src="user.avatar" alt="Avatar" class="w-8 h-8 rounded-full object-cover" />
               <UserIcon v-else class="w-6 h-6" />
               <span v-if="isLoggedIn" class="hidden md:block">{{ user.name }}</span>
               <ChevronDownIcon class="w-4 h-4" />

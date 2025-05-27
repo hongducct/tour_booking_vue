@@ -74,14 +74,6 @@
                   class="w-full h-64 md:h-80 lg:h-96 object-cover"
                   @error="handleImageError"
                 />
-                <!-- Status Badge -->
-                <!-- <div class="absolute top-6 left-6">
-                  <span
-                    class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg"
-                  >
-                    {{ blog.status === 'published' ? 'Đã xuất bản' : 'Bản nháp' }}
-                  </span>
-                </div> -->
                 <!-- Share Button -->
                 <div class="absolute top-6 right-6">
                   <button
@@ -190,13 +182,13 @@
 
           <!-- Related Posts -->
           <div v-if="relatedPosts.length > 0" class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-            <h3 class="text-2xl font-bold text-gray-900 mb-6">Bài viết liên quan</h3>
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">Một số bài viết khác</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <RelatedPostCard
                 v-for="post in relatedPosts"
                 :key="post.id"
                 :post="post"
-                @click="navigateToPost(post.id)"
+                @click="navigateToPost(post.id, post.title)"
               />
             </div>
           </div>
@@ -212,7 +204,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed, onUnmounted } from 'vue'
+import { onMounted, ref, computed, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import {
@@ -250,12 +242,12 @@ const relatedPosts = ref([])
 const sharePlatforms = [
   {
     name: 'Facebook',
-    icon: 'div', // You can replace with actual Facebook icon
+    icon: 'div', // Replace with actual Facebook icon
     url: (url, title) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
   {
     name: 'Twitter',
-    icon: 'div', // You can replace with actual Twitter icon
+    icon: 'div', // Replace with actual Twitter icon
     url: (url, title) =>
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
   },
@@ -266,6 +258,19 @@ const sharePlatforms = [
   },
 ]
 
+// Slug generation function
+const generateSlug = (title) => {
+  if (!title) return ''
+  return title
+    .toLowerCase()
+    .normalize('NFD') // Normalize to decompose combined characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+}
+
 const readingTime = computed(() => {
   if (!blog.value?.content) return 1
   const wordsPerMinute = 200
@@ -275,7 +280,6 @@ const readingTime = computed(() => {
 
 const formattedContent = computed(() => {
   if (!blog.value?.content) return ''
-  // Format content with proper HTML and styling
   return blog.value.content.replace(/\n\n/g, '</p><p class="mb-4">').replace(/\n/g, '<br>')
 })
 
@@ -294,6 +298,7 @@ const fetchBlogDetail = async () => {
     blog.value = {
       id: data.id,
       title: data.title,
+      slug: generateSlug(data.title),
       image: data.image_url,
       author: data.vendor_name,
       date: new Date(data.published_at).toLocaleDateString('vi-VN', {
@@ -307,8 +312,21 @@ const fetchBlogDetail = async () => {
       tags: [], // Add tags if available in your API
       views: Math.floor(Math.random() * 1000) + 100, // Simulated views
     }
+
+    // Update URL to include slug if not present or incorrect
+    const expectedPath = `/blog/${data.id}-${blog.value.slug}`
+    if (route.path !== expectedPath) {
+      router.replace(expectedPath)
+    }
+
     // Filter out current post from related posts
-    relatedPosts.value = relatedResponse.data.data.filter((post) => post.id !== data.id).slice(0, 3)
+    relatedPosts.value = relatedResponse.data.data
+      .filter((post) => post.id !== data.id)
+      .map((post) => ({
+        ...post,
+        slug: generateSlug(post.title),
+      }))
+      .slice(0, 3)
 
     // Simulated like count
     likeCount.value = Math.floor(Math.random() * 50) + 10
@@ -334,7 +352,6 @@ const shareOn = (platform) => {
 
   if (platform.action === 'copy') {
     navigator.clipboard.writeText(currentUrl)
-    // You can add a toast notification here
     showShareMenu.value = false
     return
   }
@@ -357,8 +374,9 @@ const closeBookingModal = () => {
   showBookingModal.value = false
 }
 
-const navigateToPost = (postId) => {
-  router.push(`/blog/${postId}`)
+const navigateToPost = (postId, postTitle) => {
+  const slug = generateSlug(postTitle)
+  router.push(`/blog/${postId}-${slug}`)
 }
 
 // Close share menu when clicking outside
@@ -367,6 +385,14 @@ const handleClickOutside = (event) => {
     showShareMenu.value = false
   }
 }
+
+// Watch for route changes to reload blog data
+watch(
+  () => route.params.id,
+  () => {
+    fetchBlogDetail()
+  },
+)
 
 onMounted(() => {
   fetchBlogDetail()

@@ -6,6 +6,8 @@ import {
   mdiAirplane,
   mdiBookOpenPageVariant,
   mdiCommentTextMultiple,
+  mdiTicketPercent,
+  mdiAccount,
   mdiCog,
 } from '@mdi/js'
 
@@ -46,9 +48,14 @@ export default [
     label: 'Đánh giá',
   },
   {
-    to: '/admin/pages',
-    icon: mdiBookOpenPageVariant,
-    label: 'Trang tĩnh',
+    to: '/admin/vouchers',
+    icon: mdiTicketPercent ,
+    label: 'Vouchers',
+  },
+  {
+    to: '/admin/profile',
+    icon: mdiAccount,
+    label: 'Hồ sơ',
   },
   {
     to: '/admin/settings',

@@ -164,8 +164,22 @@ const changePage = (url) => {
   fetchNews(parseInt(page))
 }
 
-const navigateToPost = (postId) => {
-  router.push(`/blog/${postId}`)
+// Slug generation function
+const generateSlug = (title) => {
+  if (!title) return ''
+  return title
+    .toLowerCase()
+    .normalize('NFD') // Normalize to decompose combined characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+}
+
+const navigateToPost = (postId, postTitle) => {
+  const slug = generateSlug(postTitle)
+  router.push(`/blog/${postId}-${slug}`)
 }
 
 onMounted(() => {

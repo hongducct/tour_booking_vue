@@ -9,7 +9,6 @@ import PackageSection from '@/components/PackageSection.vue'
 import BestGallerySection from '@/components/BestGallerySection.vue'
 import BlogSection from '@/components/BlogSection.vue'
 import ContactSection from '@/components/ContactSection.vue'
-console.log('localStorage', localStorage)
 </script>
 
 <template>

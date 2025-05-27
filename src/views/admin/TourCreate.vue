@@ -1,333 +1,393 @@
 <template>
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton title="Tạo tour mới" icon="mdiPlus" main>
-        <BaseButton label="Quay lại" color="gray" @click="$router.back()" />
+      <SectionTitleLineWithButton title="Tạo tour mới" :icon="mdiPlus" main>
+        <BaseButton label="Quay lại" color="gray" :icon="mdiArrowLeft" @click="$router.back()" />
       </SectionTitleLineWithButton>
 
-      <CardBox class="max-w-4xl mx-auto">
-        <form @submit.prevent="createTour" class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <BaseInput v-model="form.name" label="Tên tour" required class="w-full" />
-            <BaseInput
-              v-model.number="form.price"
-              label="Giá (₫)"
-              type="number"
-              required
-              class="w-full"
-            />
-            <BaseInput
-              v-model.number="form.days"
-              label="Số ngày"
-              type="number"
-              required
-              class="w-full"
-            />
-            <BaseInput
-              v-model.number="form.nights"
-              label="Số đêm"
-              type="number"
-              required
-              class="w-full"
-            />
-
-            <div>
-              <label class="block mb-1 text-sm font-medium text-gray-700">Danh mục</label>
-              <div class="flex gap-2 items-center">
-                <select
-                  v-model="form.travel_type_id"
-                  class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
-                  required
-                >
-                  <option disabled value="">Chọn danh mục</option>
-                  <option v-for="type in travelTypes" :value="type.id" :key="type.id">
-                    {{ type.name }}
-                  </option>
-                </select>
-                <BaseButton label="+Thêm" size="sm" @click.prevent="openTravelTypeModal" />
+      <CardBox class="max-w-6xl mx-auto">
+        <form @submit.prevent="createTour" class="space-y-8">
+          <!-- Basic Information Section -->
+          <div
+            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-blue-100 rounded-lg">
+                <InformationCircleIcon class="w-6 h-6 text-blue-600" />
               </div>
+              <h3 class="text-xl font-semibold text-gray-800">Thông tin cơ bản</h3>
             </div>
 
-            <div>
-              <label class="block mb-1 text-sm font-medium text-gray-700">Địa điểm</label>
-              <div class="flex gap-2 items-center">
-                <select
-                  v-model="form.location_id"
-                  class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="lg:col-span-2">
+                <BaseInput
+                  v-model="form.name"
+                  label="Tên tour"
                   required
-                >
-                  <option v-for="loc in locations" :value="loc.id" :key="loc.id">
-                    {{ loc.name }}
-                  </option>
-                </select>
-                <BaseButton label="+Thêm" size="sm" @click.prevent="openLocationModal" />
+                  class="w-full"
+                  :icon="mdiTag"
+                />
               </div>
-            </div>
 
-            <div>
-              <label class="block mb-1 text-sm font-medium text-gray-700">Nhà cung cấp</label>
-              <select
-                v-model="form.vendor_id"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
+              <BaseInput
+                v-model.number="form.price"
+                label="Giá (₫)"
+                type="number"
                 required
-              >
-                <option v-for="v in vendors" :value="v.id" :key="v.id">{{ v.company_name }}</option>
-              </select>
+                class="w-full"
+                :icon="CurrencyDollarIcon"
+              />
+
+              <BaseInput
+                v-model.number="form.days"
+                label="Số ngày"
+                type="number"
+                required
+                class="w-full"
+                :icon="CalendarDaysIcon"
+              />
+
+              <BaseInput
+                v-model.number="form.nights"
+                label="Số đêm"
+                type="number"
+                required
+                class="w-full"
+                :icon="MoonIcon"
+              />
+
+              <div>
+                <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
+                  <BuildingOfficeIcon class="w-4 h-4" />
+                  Nhà cung cấp
+                </label>
+                <select
+                  v-model="form.vendor_id"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm"
+                  required
+                >
+                  <option disabled value="">Chọn nhà cung cấp</option>
+                  <option v-for="v in vendors" :value="v.id" :key="v.id">
+                    {{ v.company_name }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <div>
-            <label class="block mb-1 text-sm font-medium text-gray-700">Mô tả</label>
-            <textarea
-              v-model="form.description"
-              rows="6"
-              class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
-              placeholder="Viết mô tả có thể in đậm, xuống dòng..."
-            ></textarea>
+          <!-- Categories and Location Section -->
+          <div
+            class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-green-100 rounded-lg">
+                <MapPinIcon class="w-6 h-6 text-green-600" />
+              </div>
+              <h3 class="text-xl font-semibold text-gray-800">Danh mục & Địa điểm</h3>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
+                  <RectangleGroupIcon class="w-4 h-4" />
+                  Danh mục
+                </label>
+                <div class="flex gap-3 items-center">
+                  <select
+                    v-model="form.travel_type_id"
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white shadow-sm"
+                    required
+                  >
+                    <option disabled value="">Chọn danh mục</option>
+                    <option v-for="type in travelTypes" :value="type.id" :key="type.id">
+                      {{ type.name }}
+                    </option>
+                  </select>
+                  <BaseButton
+                    label="Thêm"
+                    size="sm"
+                    color="success"
+                    :icon="mdiPlus"
+                    @click.prevent="openTravelTypeModal"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
+                  <GlobeAltIcon class="w-4 h-4" />
+                  Địa điểm
+                </label>
+                <div class="flex gap-3 items-center">
+                  <select
+                    v-model="form.location_id"
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white shadow-sm"
+                    required
+                  >
+                    <option disabled value="">Chọn địa điểm</option>
+                    <option v-for="loc in locations" :value="loc.id" :key="loc.id">
+                      {{ loc.name }}
+                    </option>
+                  </select>
+                  <BaseButton
+                    label="Thêm"
+                    size="sm"
+                    color="success"
+                    :icon="mdiPlus"
+                    @click.prevent="openLocationModal"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label class="block mb-1 text-sm font-medium text-gray-700">Tính năng</label>
-            <div class="flex flex-wrap gap-4">
+          <!-- Description Section -->
+          <div
+            class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-purple-100 rounded-lg">
+                <DocumentTextIcon class="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 class="text-xl font-semibold text-gray-800">Mô tả tour</h3>
+            </div>
+
+            <RichTextEditor
+              ref="tourDescriptionEditor"
+              :value="form.description"
+              @update:value="form.description = $event"
+              placeholder="Viết mô tả chi tiết về tour của bạn..."
+            />
+          </div>
+
+          <!-- Features Section -->
+          <div
+            class="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-orange-100 rounded-lg">
+                  <SparklesIcon class="w-6 h-6 text-orange-600" />
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Tính năng</h3>
+              </div>
+              <BaseButton
+                label="Thêm tính năng"
+                size="sm"
+                color="warning"
+                :icon="mdiPlus"
+                @click.prevent="openFeatureModal"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <label
                 v-for="feature in availableFeatures"
                 :key="feature.id"
-                class="flex items-center gap-2"
+                class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer group"
               >
                 <input
                   type="checkbox"
                   :value="feature.id"
                   v-model="form.features"
-                  class="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  class="h-5 w-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                 />
-                <span class="text-sm">{{ feature.name }}</span>
+                <span
+                  class="text-sm font-medium group-hover:text-orange-600 transition-colors duration-200"
+                >
+                  {{ feature.name }}
+                </span>
               </label>
-              <BaseButton label="+Thêm" size="sm" @click.prevent="openFeatureModal" />
             </div>
           </div>
 
-          <div>
-            <label class="block mb-1 text-sm font-medium text-gray-700">Ảnh</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              @change="handleImageUpload"
-              class="mb-4 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
+          <!-- Images Section -->
+          <div
+            class="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6 border border-teal-100"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-teal-100 rounded-lg">
+                <CameraIcon class="w-6 h-6 text-teal-600" />
+              </div>
+              <h3 class="text-xl font-semibold text-gray-800">Hình ảnh</h3>
+            </div>
+
+            <div class="mb-6">
+              <label
+                class="flex items-center justify-center w-full h-32 border-2 border-dashed border-teal-300 rounded-lg cursor-pointer bg-teal-50 hover:bg-teal-100 transition-colors duration-200"
+              >
+                <div class="flex flex-col items-center">
+                  <CloudArrowUpIcon class="w-8 h-8 text-teal-500 mb-2" />
+                  <span class="text-sm font-medium text-teal-600">Chọn ảnh để tải lên</span>
+                  <span class="text-xs text-teal-500 mt-1">PNG, JPG, JPEG (tối đa 10MB)</span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  @change="handleImageUpload"
+                  class="hidden"
+                />
+              </label>
+            </div>
+
             <div
               v-if="form.images.length"
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               <div
                 v-for="(image, index) in form.images"
                 :key="index"
-                class="relative"
-                :class="{ 'border-4 border-blue-500': image.is_primary }"
+                class="relative group"
+                :class="{ 'ring-4 ring-blue-500 ring-opacity-75': image.is_primary }"
               >
                 <img
                   :src="image.image_url"
                   :alt="image.caption || `Image ${index + 1}`"
-                  class="w-full h-40 object-cover rounded shadow"
+                  class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-200"
                 />
-                <button
-                  type="button"
-                  @click="removeImage(index)"
-                  class="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100"
                 >
-                  ×
-                </button>
-                <button
-                  v-if="!image.is_primary"
-                  type="button"
-                  @click="setPrimaryImage(index)"
-                  class="absolute bottom-2 right-2 bg-blue-600 text-white rounded px-2 py-1 text-xs hover:bg-blue-700"
-                >
-                  Đặt làm chính
-                </button>
-              </div>
-            </div>
-            <p v-else class="text-sm text-gray-500">Chưa có ảnh nào được tải lên.</p>
-          </div>
-
-          <div>
-            <label class="block mb-1 text-sm font-medium text-gray-700">Lịch trình khả dụng</label>
-            <div
-              v-for="(avail, index) in form.availabilities"
-              :key="index"
-              class="mb-4 border p-4 rounded"
-            >
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <BaseInput v-model="avail.date" label="Ngày" type="date" required class="w-full" />
-                <BaseInput
-                  v-model.number="avail.max_guests"
-                  label="Số khách tối đa"
-                  type="number"
-                  required
-                  min="1"
-                  class="w-full"
-                />
-                <BaseInput
-                  v-model.number="avail.available_slots"
-                  label="Số chỗ còn lại"
-                  type="number"
-                  required
-                  min="0"
-                  :max="avail.max_guests"
-                  class="w-full"
-                />
-                <div class="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    v-model="avail.is_active"
-                    class="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                  />
-                  <span class="text-sm">Kích hoạt</span>
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      @click="removeImage(index)"
+                      class="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200"
+                    >
+                      <TrashIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      v-if="!image.is_primary"
+                      type="button"
+                      @click="setPrimaryImage(index)"
+                      class="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+                    >
+                      <StarIcon class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div v-if="image.is_primary" class="absolute top-2 left-2">
+                  <div
+                    class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1"
+                  >
+                    <StarIcon class="w-3 h-3" />
+                    Ảnh chính
+                  </div>
                 </div>
               </div>
-              <BaseButton
-                label="Xóa"
-                color="danger"
-                size="sm"
-                class="mt-2"
-                @click="removeAvailability(index)"
-              />
             </div>
-            <BaseButton label="+ Thêm lịch trình" size="sm" color="info" @click="addAvailability" />
+            <p v-if="!form.images.length" class="text-center text-gray-500 py-8">
+              Chưa có ảnh nào được tải lên.
+            </p>
           </div>
 
-          <div class="flex justify-end">
-            <BaseButton type="submit" color="success" label="Tạo tour" />
+          <!-- Availability Section -->
+          <div
+            class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-100 rounded-lg">
+                  <CalendarIcon class="w-6 h-6 text-indigo-600" />
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Lịch trình khả dụng</h3>
+              </div>
+              <BaseButton
+                label="Thêm lịch trình"
+                size="sm"
+                color="info"
+                :icon="mdiPlus"
+                @click="addAvailability"
+              />
+            </div>
+
+            <div class="space-y-4">
+              <div
+                v-for="(avail, index) in form.availabilities"
+                :key="index"
+                class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <BaseInput
+                    v-model="avail.date"
+                    label="Ngày"
+                    type="date"
+                    required
+                    class="w-full"
+                    :icon="CalendarIcon"
+                  />
+                  <BaseInput
+                    v-model.number="avail.max_guests"
+                    label="Số khách tối đa"
+                    type="number"
+                    required
+                    min="1"
+                    class="w-full"
+                    :icon="UsersIcon"
+                  />
+                  <BaseInput
+                    v-model.number="avail.available_slots"
+                    label="Số chỗ còn lại"
+                    type="number"
+                    required
+                    min="0"
+                    :max="avail.max_guests"
+                    class="w-full"
+                    :icon="TicketIcon"
+                  />
+                  <div class="flex items-center gap-3 pt-6">
+                    <input
+                      type="checkbox"
+                      v-model="avail.is_active"
+                      class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <span class="text-sm font-medium text-gray-700">Kích hoạt</span>
+                  </div>
+                </div>
+                <BaseButton
+                  label="Xóa lịch trình"
+                  color="danger"
+                  size="sm"
+                  :icon="mdiTrashCan"
+                  @click="removeAvailability(index)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6">
+            <BaseButton
+              type="submit"
+              color="success"
+              label="Tạo tour"
+              size="lg"
+              :icon="mdiCheck"
+              class="px-8 py-3 text-lg font-semibold"
+            />
           </div>
         </form>
       </CardBox>
 
-      <!-- Location Creation Modal -->
-      <transition
-        name="fade"
-        enter-active-class="transition-opacity duration-300"
-        leave-active-class="transition-opacity duration-300"
-        enter-from-class="opacity-0"
-        leave-to-class="opacity-0"
-      >
-        <div
-          v-if="showLocationModal"
-          class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-40"
-        >
-          <CardBox class="w-full max-w-md">
-            <form @submit.prevent="submitLocation" class="space-y-4">
-              <h2 class="text-lg font-semibold">Tạo địa điểm mới</h2>
-              <BaseInput v-model="locationForm.name" label="Tên địa điểm" required />
-              <BaseInput v-model="locationForm.country" label="Quốc gia" required />
-              <BaseInput v-model="locationForm.city" label="Thành phố" required />
-              <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700">Mô tả</label>
-                <textarea
-                  v-model="locationForm.description"
-                  rows="4"
-                  class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
-                  placeholder="Viết mô tả địa điểm..."
-                ></textarea>
-              </div>
-              <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700">Ảnh</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  @change="handleLocationImageUpload"
-                  class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                <div v-if="locationForm.image" class="mt-2">
-                  <img
-                    :src="locationForm.image"
-                    alt="Location Image"
-                    class="w-full h-40 object-cover rounded shadow"
-                  />
-                  <BaseButton
-                    label="Xóa ảnh"
-                    color="danger"
-                    size="sm"
-                    class="mt-2"
-                    @click="locationForm.image = ''"
-                  />
-                </div>
-              </div>
-              <div class="flex justify-end gap-2">
-                <BaseButton label="Hủy" color="gray" @click="showLocationModal = false" />
-                <BaseButton type="submit" color="success" label="Tạo" />
-              </div>
-            </form>
-          </CardBox>
-        </div>
-      </transition>
+      <!-- Modals -->
+      <LocationModal
+        :show="showLocationModal"
+        @close="showLocationModal = false"
+        @created="handleLocationCreated"
+      />
 
-      <!-- Travel Type Creation Modal -->
-      <transition
-        name="fade"
-        enter-active-class="transition-opacity duration-300"
-        leave-active-class="transition-opacity duration-300"
-        enter-from-class="opacity-0"
-        leave-to-class="opacity-0"
-      >
-        <div
-          v-if="showTravelTypeModal"
-          class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-40"
-        >
-          <CardBox class="w-full max-w-md">
-            <form @submit.prevent="submitTravelType" class="space-y-4">
-              <h2 class="text-lg font-semibold">Tạo danh mục mới</h2>
-              <BaseInput v-model="travelTypeForm.name" label="Tên danh mục" required />
-              <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700">Mô tả</label>
-                <textarea
-                  v-model="travelTypeForm.description"
-                  rows="4"
-                  class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
-                  placeholder="Viết mô tả danh mục..."
-                ></textarea>
-              </div>
-              <div class="flex justify-end gap-2">
-                <BaseButton label="Hủy" color="gray" @click="showTravelTypeModal = false" />
-                <BaseButton type="submit" color="success" label="Tạo" />
-              </div>
-            </form>
-          </CardBox>
-        </div>
-      </transition>
+      <TravelTypeModal
+        :show="showTravelTypeModal"
+        @close="showTravelTypeModal = false"
+        @created="handleTravelTypeCreated"
+      />
 
-      <!-- Feature Creation Modal -->
-      <transition
-        name="fade"
-        enter-active-class="transition-opacity duration-300"
-        leave-active-class="transition-opacity duration-300"
-        enter-from-class="opacity-0"
-        leave-to-class="opacity-0"
-      >
-        <div
-          v-if="showFeatureModal"
-          class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-40"
-        >
-          <CardBox class="w-full max-w-md">
-            <form @submit.prevent="submitFeature" class="space-y-4">
-              <h2 class="text-lg font-semibold">Tạo tính năng mới</h2>
-              <BaseInput v-model="featureForm.name" label="Tên tính năng" required />
-              <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700">Mô tả</label>
-                <textarea
-                  v-model="featureForm.description"
-                  rows="4"
-                  class="w-full border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-blue-200"
-                  placeholder="Viết mô tả tính năng..."
-                ></textarea>
-              </div>
-              <div class="flex justify-end gap-2">
-                <BaseButton label="Hủy" color="gray" @click="showFeatureModal = false" />
-                <BaseButton type="submit" color="success" label="Tạo" />
-              </div>
-            </form>
-          </CardBox>
-        </div>
-      </transition>
+      <FeatureModal
+        :show="showFeatureModal"
+        @close="showFeatureModal = false"
+        @created="handleFeatureCreated"
+      />
     </SectionMain>
   </LayoutAuthenticated>
 </template>
@@ -342,6 +402,57 @@ import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithB
 import CardBox from '@/components/admin/CardBox.vue'
 import BaseInput from '@/components/admin/BaseInput.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
+import RichTextEditor from '@/components/blog/RichTextEditor.vue'
+import LocationModal from '@/components/tour/LocationModal.vue'
+import TravelTypeModal from '@/components/tour/TravelTypeModal.vue'
+import FeatureModal from '@/components/tour/FeatureModal.vue'
+
+// Heroicons imports
+import {
+  ArrowLeftIcon,
+  InformationCircleIcon,
+  TagIcon,
+  CurrencyDollarIcon,
+  CalendarDaysIcon,
+  MoonIcon,
+  BuildingOfficeIcon,
+  MapPinIcon,
+  RectangleGroupIcon,
+  GlobeAltIcon,
+  DocumentTextIcon,
+  SparklesIcon,
+  CameraIcon,
+  CloudArrowUpIcon,
+  TrashIcon,
+  StarIcon,
+  CalendarIcon,
+  UsersIcon,
+  TicketIcon,
+  CheckIcon,
+} from '@heroicons/vue/24/outline'
+
+import {
+  mdiArrowLeft,
+  mdiInformation,
+  mdiTag,
+  mdiCurrencyUsd,
+  mdiCalendarRange,
+  mdiWeatherNight,
+  mdiOfficeBuilding,
+  mdiMapMarker,
+  mdiViewGrid,
+  mdiEarth,
+  mdiPlus,
+  mdiFileDocumentOutline,
+  mdiCamera,
+  mdiCloudUpload,
+  mdiTrashCan,
+  mdiStar,
+  mdiCalendar,
+  mdiAccountGroup,
+  mdiTicket,
+  mdiCheck,
+} from '@mdi/js'
 
 const router = useRouter()
 
@@ -357,24 +468,6 @@ const form = ref({
   features: [],
   images: [],
   availabilities: [],
-})
-
-const locationForm = ref({
-  name: '',
-  description: '',
-  country: '',
-  city: '',
-  image: '',
-})
-
-const travelTypeForm = ref({
-  name: '',
-  description: '',
-})
-
-const featureForm = ref({
-  name: '',
-  description: '',
 })
 
 const availableFeatures = ref([])
@@ -467,99 +560,33 @@ const removeAvailability = (index) => {
 }
 
 const openLocationModal = () => {
-  locationForm.value = { name: '', description: '', country: '', city: '', image: '' }
   showLocationModal.value = true
 }
 
-const submitLocation = async () => {
-  try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    const payload = {
-      name: locationForm.value.name,
-      description: locationForm.value.description,
-      country: locationForm.value.country,
-      city: locationForm.value.city,
-      image: locationForm.value.image || null,
-    }
-    const response = await axios.post(`${apiBaseUrl}/locations`, payload)
-    locations.value.push(response.data)
-    form.value.location_id = response.data.id
-    showLocationModal.value = false
-    alert('Thêm địa điểm thành công!')
-  } catch (err) {
-    console.error('Lỗi khi thêm địa điểm:', err)
-    alert('Không thể thêm địa điểm: ' + (err.response?.data?.message || 'Lỗi không xác định'))
-  }
-}
-
-const handleLocationImageUpload = async (e) => {
-  const file = e.target.files[0]
-  if (!file) return
-
-  try {
-    const formData = new FormData()
-    formData.append('file', file)
-    const uploadRes = await axios.post(
-      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        params: {
-          upload_preset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-        },
-      },
-    )
-    locationForm.value.image = uploadRes.data.secure_url
-  } catch (err) {
-    console.error('Lỗi upload ảnh địa điểm:', err)
-    alert('Không thể tải ảnh địa điểm.')
-  }
-}
-
 const openTravelTypeModal = () => {
-  travelTypeForm.value = { name: '', description: '' }
   showTravelTypeModal.value = true
 }
 
-const submitTravelType = async () => {
-  try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    const payload = {
-      name: travelTypeForm.value.name,
-      description: travelTypeForm.value.description || null,
-    }
-    const response = await axios.post(`${apiBaseUrl}/travel-types`, payload)
-    travelTypes.value.push(response.data)
-    form.value.travel_type_id = response.data.id
-    showTravelTypeModal.value = false
-    alert('Thêm danh mục thành công!')
-  } catch (err) {
-    console.error('Lỗi khi thêm danh mục:', err)
-    alert('Không thể thêm danh mục: ' + (err.response?.data?.message || 'Lỗi không xác định'))
-  }
-}
-
 const openFeatureModal = () => {
-  featureForm.value = { name: '', description: '' }
   showFeatureModal.value = true
 }
 
-const submitFeature = async () => {
-  try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    const payload = {
-      name: featureForm.value.name,
-      description: featureForm.value.description || null,
-    }
-    const response = await axios.post(`${apiBaseUrl}/features`, payload)
-    availableFeatures.value.push(response.data)
-    form.value.features.push(response.data.id)
-    showFeatureModal.value = false
-    alert('Thêm tính năng thành công!')
-  } catch (err) {
-    console.error('Lỗi khi thêm tính năng:', err)
-    alert('Không thể thêm tính năng: ' + (err.response?.data?.message || 'Lỗi không xác định'))
-  }
+const handleLocationCreated = (location) => {
+  locations.value.push(location)
+  form.value.location_id = location.id
+  showLocationModal.value = false
+}
+
+const handleTravelTypeCreated = (travelType) => {
+  travelTypes.value.push(travelType)
+  form.value.travel_type_id = travelType.id
+  showTravelTypeModal.value = false
+}
+
+const handleFeatureCreated = (feature) => {
+  availableFeatures.value.push(feature)
+  form.value.features.push(feature.id)
+  showFeatureModal.value = false
 }
 
 const createTour = async () => {
@@ -607,18 +634,62 @@ onMounted(fetchData)
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
+.space-y-8 > * + * {
+  margin-top: 2rem;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+/* Custom animations */
+.group:hover .group-hover\:shadow-lg {
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.fixed.inset-0.bg-gray-800.bg-opacity-50.z-40 {
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.1);
+/* Gradient animations */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Image upload area enhancement */
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+.group:hover .bg-opacity-0 {
+  background-opacity: 0.3;
+}
+
+/* Smooth transitions */
+* {
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow,
+    transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Enhanced focus states */
+input:focus,
+select:focus {
+  outline: none;
+  ring-width: 2px;
+  ring-color: rgb(59 130 246 / 0.5);
+  border-color: rgb(59 130 246);
+}
+
+/* Custom checkbox styling */
+input[type='checkbox']:checked {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m5.707 7.293-2.414-2.414a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 11.879 .707L5.707 7.293z'/%3e%3c/svg%3e");
 }
 </style>

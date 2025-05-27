@@ -283,33 +283,33 @@ const featuredTours = [
     name: 'TOUR Thái Lan',
     description:
       'Khám phá vẻ đẹp của Thái Lan với các điểm đến hấp dẫn như Bangkok, Pattaya và Phuket.',
-    image: 'https://cdn.bookingtour.vn/thumb_x455x330/upload/2024/09/10/thai-lan2.jpg',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
     route: '/tour/thai-lan',
   },
   {
     name: 'TOUR Singapore',
     description:
       'Trải nghiệm kỳ quan hiện đại tại Đảo quốc Sư Tử với Gardens by the Bay, Marina Bay Sands.',
-    image: 'https://cdn.bookingtour.vn/thumb_x455x330/upload/2024/03/15/singapore-skyline.jpg',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
     route: '/tour/singapore',
   },
   {
     name: 'TOUR Nhật Bản',
     description:
       'Khám phá đất nước mặt trời mọc với vẻ đẹp của núi Phú Sĩ, hoa anh đào và văn hóa độc đáo.',
-    image: 'https://cdn.bookingtour.vn/thumb_x455x330/upload/2024/04/20/japan-fuji.jpg',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
     route: '/tour/nhat-ban',
   },
   {
     name: 'TOUR Hàn Quốc',
     description: 'Đắm chìm trong văn hóa K-Pop, ẩm thực và cảnh đẹp bốn mùa tại xứ sở kim chi.',
-    image: 'https://cdn.bookingtour.vn/thumb_x455x330/upload/2024/05/10/korea-palace.jpg',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664770/lwnt0iuygqnh9oap4vom.jpg',
     route: '/tour/han-quoc',
   },
   {
     name: 'TOUR Đài Loan',
     description: 'Khám phá Đài Bắc và các điểm đến hấp dẫn với ẩm thực phong phú tại Đài Loan.',
-    image: 'https://cdn.bootkingtour.vn/thumb_x455x330/upload/2024/06/05/taipei-101.jpg',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747505256/k89qj8jxmaq3bxhycgr2.jpg',
     route: '/tour/dai-loan',
   },
 ]

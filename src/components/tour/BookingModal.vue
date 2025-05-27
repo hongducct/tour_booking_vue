@@ -1,4 +1,3 @@
-```vue
 <script setup>
 import { computed } from 'vue'
 import SimpleBar from 'simplebar-vue'
@@ -39,7 +38,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:show', 'update:bookingForm', 'validate-voucher', 'submit'])
+const emit = defineEmits(['update:show', 'update:bookingForm', 'submit'])
 
 const formatPrice = (price) => {
   return Number(price).toLocaleString('vi-VN') + '₫'
@@ -61,13 +60,18 @@ const handleSubmit = () => {
   emit('submit')
 }
 
-const handleValidateVoucher = () => {
-  emit('validate-voucher')
-}
-
 const updateBookingForm = (field, value) => {
+  console.log('Updating bookingForm:', field, value, props.bookingForm)
   emit('update:bookingForm', { ...props.bookingForm, [field]: value })
 }
+
+// Computed property để hiển thị giá tạm tính (chưa áp dụng voucher)
+const tempPrice = computed(() => {
+  const adults = props.bookingForm.number_of_guests_adults || 0
+  const children = props.bookingForm.number_of_children || 0
+  const price = props.tour?.price || 0
+  return price * (adults + children * 0.5)
+})
 </script>
 
 <template>
@@ -76,7 +80,6 @@ const updateBookingForm = (field, value) => {
     class="fixed inset-0 bg-teal-900/30 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center z-50 transition-opacity duration-300 p-4 sm:p-0"
   >
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl/80 modal-content">
-      <!-- <div class="max-h-[90vh] overflow-y-auto"> -->
       <SimpleBar class="max-h-[90vh]">
         <div class="p-6 sm:p-8 pr-4 sm:pr-6 relative">
           <button
@@ -135,24 +138,19 @@ const updateBookingForm = (field, value) => {
               <p class="text-sm text-gray-500 mt-1">Lưu ý: Giá trẻ em bằng 50% giá người lớn.</p>
             </div>
             <div class="mb-5">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Mã voucher</label>
-              <div class="flex gap-2">
-                <input
-                  :value="bookingForm.voucher_code"
-                  @input="updateBookingForm('voucher_code', $event.target.value)"
-                  @blur="handleValidateVoucher"
-                  type="text"
-                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
-                />
-                <button
-                  type="button"
-                  @click="handleValidateVoucher"
-                  class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition"
-                  :disabled="!bookingForm.voucher_code"
-                >
-                  Áp dụng
-                </button>
-              </div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Mã voucher (tùy chọn)</label
+              >
+              <input
+                :value="bookingForm.voucher_code"
+                @input="updateBookingForm('voucher_code', $event.target.value)"
+                type="text"
+                placeholder="Nhập mã voucher nếu có"
+                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
+              />
+              <p class="text-sm text-gray-500 mt-1">
+                Mã voucher sẽ được kiểm tra khi bạn tiếp tục.
+              </p>
               <p
                 v-if="voucherMessage"
                 class="text-sm mt-1"
@@ -167,6 +165,7 @@ const updateBookingForm = (field, value) => {
                 :value="bookingForm.special_requests"
                 @input="updateBookingForm('special_requests', $event.target.value)"
                 rows="4"
+                placeholder="Nhập yêu cầu đặc biệt nếu có..."
                 class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
               ></textarea>
             </div>
@@ -179,17 +178,31 @@ const updateBookingForm = (field, value) => {
                 @input="updateBookingForm('contact_phone', $event.target.value)"
                 type="tel"
                 required
+                placeholder="Nhập số điện thoại"
                 class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 px-3"
               />
             </div>
-            <div class="mb-5">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tổng giá</label>
-              <p class="text-lg font-semibold text-navy-900">{{ formatPrice(totalPrice) }}</p>
-              <p v-if="discount > 0" class="text-sm text-teal-500">
-                Đã giảm: {{ formatPrice(discount) }}
-              </p>
+            <div class="mb-5 bg-gray-50 p-4 rounded-lg">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Chi tiết giá</label>
+              <div class="space-y-1">
+                <div class="flex justify-between text-sm">
+                  <span>Giá tạm tính:</span>
+                  <span>{{ formatPrice(tempPrice) }}</span>
+                </div>
+                <div v-if="discount > 0" class="flex justify-between text-sm text-teal-600">
+                  <span>Giảm giá (voucher):</span>
+                  <span>-{{ formatPrice(discount) }}</span>
+                </div>
+                <hr class="my-2" />
+                <div class="flex justify-between text-lg font-semibold text-navy-900">
+                  <span>Tổng cộng:</span>
+                  <span>{{ formatPrice(totalPrice) }}</span>
+                </div>
+              </div>
             </div>
-            <div v-if="errorMessage" class="text-red-500 mb-5 text-sm">{{ errorMessage }}</div>
+            <div v-if="errorMessage" class="text-red-500 mb-5 text-sm bg-red-50 p-3 rounded-lg">
+              {{ errorMessage }}
+            </div>
             <div class="flex justify-end gap-4">
               <button
                 type="button"
@@ -207,7 +220,6 @@ const updateBookingForm = (field, value) => {
             </div>
           </form>
         </div>
-        <!-- </div> -->
       </SimpleBar>
     </div>
   </div>
@@ -301,4 +313,3 @@ button:disabled {
   opacity: 0.6;
 }
 </style>
-```

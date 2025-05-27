@@ -9,6 +9,8 @@ import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithB
 import BaseButton from '@/components/admin/BaseButton.vue'
 import { mdiHeart, mdiClock, mdiMapMarker, mdiAccountHeart  } from '@mdi/js'
 import TourCard from '@/components/TourCard.vue'
+import UserSidebar from '@/components/user/UserSidebar.vue'
+
 import {
   ClockIcon,
   UserGroupIcon,
@@ -34,7 +36,10 @@ const fetchWishlist = async () => {
   try {
     const res = await axios.get(`${baseUrl}/user/wishlist`, {
       headers: { Authorization: `Bearer ${token}` },
-      params: { perPage: perPage.value },
+      params: { 
+        perPage: perPage.value,
+        type: 'tour', // Chỉ lấy tour wishlist
+      },
     })
     wishlist.value = res.data.data || []
   } catch (err) {
@@ -87,32 +92,10 @@ onMounted(() => {
   <TheHeader />
   <div class="flex mt-30">
     <!-- Sidebar -->
-    <div class="w-64 bg-gray-100 p-4 h-screen fixed">
-      <h2 class="text-xl font-bold mb-4">Tài khoản của tôi</h2>
-      <ul class="space-y-2">
-        <li>
-          <router-link to="/profile" class="block p-2 hover:bg-gray-200 rounded">Hồ sơ</router-link>
-        </li>
-        <li>
-          <router-link to="/bookings" class="block p-2 hover:bg-gray-200 rounded"
-            >Lịch sử đặt tour</router-link
-          >
-        </li>
-        <li>
-          <router-link to="/wishlist" class="block p-2 hover:bg-gray-200 rounded"
-            >Danh sách yêu thích</router-link
-          >
-        </li>
-        <li>
-          <router-link to="/settings" class="block p-2 hover:bg-gray-200 rounded"
-            >Cài đặt</router-link
-          >
-        </li>
-      </ul>
-    </div>
+    <UserSidebar />
 
     <!-- Main Content -->
-    <div class="ml-64 flex-1">
+    <div class="ml-80 flex-1">
       <SectionMain>
         <SectionTitleLineWithButton :icon="mdiHeart" title="Danh sách yêu thích" main />
 

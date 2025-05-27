@@ -7,16 +7,16 @@ import TourDetail from '@/views/TourDetail.vue'
 
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
-// import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
-// import ResetPasswordView from '@/views/ResetPasswordView.vue'
-// import ChangePasswordView from '@/views/ChangePasswordView.vue'
-import UserProfileView from '@/views/UserProfileView.vue'
-import ProfileView from '@/views/ProfileView.vue'
-import BookingsView from '../views/BookingsView.vue'
-import WishlistView from '../views/WishlistView.vue'
+import ProfileView from '@/views//user/ProfileView.vue'
+import BookingsView from '@/views/user/BookingsView.vue'
+import BookingDetail from '@/views/user/BookingDetail.vue'
+import WishlistView from '../views/user/WishlistView.vue'
+import WishlistBlog from '@/views/user/WishlistBlog.vue'
 import SettingsView from '../views/SettingsView.vue'
 
 import DestinationView from '@/views/DestinationView.vue'
+
+import PaymentResult from '@/views/PaymentResult.vue'
 
 // route admin
 import AdminLogin from '@/views/admin/AdminLogin.vue'
@@ -33,15 +33,12 @@ import AdminBlog from '@/views/admin/BlogList.vue'
 import AdminBlogDetail from '@/views/admin/BlogDetail.vue'
 import AdminBlogEdit from '@/views/admin/BlogEdit.vue'
 import AdminBlogCreate from '@/views/admin/BlogCreate.vue'
-
 import ReviewList from '@/views/admin/ReviewList.vue'
 import VoucherManager from '@/views/admin/VoucherManager.vue'
-
-import PaymentResult from '@/views/PaymentResult.vue'
+import AdminSettings from '@/views/admin/AdminSettings.vue'
+import AdminProfile from '@/views/admin/AdminProfile.vue'
 
 // import AuthCallback from '../views/AuthCallback.vue'
-
-import AdminSettings from '@/views/admin/AdminSettings.vue'
 
 // định nghĩa các route cho admin
 const adminRoutes = [
@@ -144,6 +141,12 @@ const adminRoutes = [
         meta: { title: 'Voucher Manager' },
       },
       {
+        path: 'profile',
+        name: 'AdminProfile',
+        component: AdminProfile,
+        meta: { title: 'Admin Profile' },
+      },
+      {
         path: 'test',
         name: 'Test',
         component: () => import('@/views/admin/Test.vue'),
@@ -195,7 +198,7 @@ const router = createRouter({
     },
     {
       path: '/blog/:id',
-      name: 'blogdetail',
+      name: 'BlogDetail',
       component: BlogDetail,
       props: true,
       meta: {
@@ -240,12 +243,32 @@ const router = createRouter({
       },
     },
     {
-      path: '/wishlist',
-      name: 'wishlist',
+      path: '/booking/:id',
+      name: 'booking-detail',
+      component: BookingDetail,
+      props: true,
+      meta: {
+        title: 'Booking Detail',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/wishlist/tours',
+      name: 'wishlistTours',
       component: WishlistView,
       props: true,
       meta: {
         title: 'Wishlist',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/wishlist/blogs',
+      name: 'wishlistBlogs',
+      component: WishlistBlog,
+      props: true,
+      meta: {
+        title: 'Wishlist Blogs',
         requiresAuth: true,
       },
     },
@@ -298,20 +321,29 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAdminRoute = to.path.startsWith('/admin') && to.name !== 'AdminLogin'
-  const isLoggedIn = localStorage.getItem('adminToken') // hoặc flag bạn muốn
+  const isAdminLoggedIn = localStorage.getItem('adminToken')
+  const isUserLoggedIn = localStorage.getItem('userToken')
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
-  if (isAdminRoute && !isLoggedIn) {
-    next({ name: 'AdminLogin' })
-  } else {
-    next()
+  // Chặn admin chưa đăng nhập
+  if (isAdminRoute && !isAdminLoggedIn) {
+    return next({ name: 'AdminLogin' })
   }
 
-  // Cập nhật tiêu đề trang
+  // Chặn người dùng chưa đăng nhập
+  if (requiresAuth && !isUserLoggedIn) {
+    return next({ name: 'login' })
+  }
+
+  // Cập nhật tiêu đề
   if (to.meta.title) {
     document.title = to.meta.title
   } else {
     document.title = 'Tour Booking'
   }
+
+  // Cho phép chuyển route
+  next()
 })
 
 export default router

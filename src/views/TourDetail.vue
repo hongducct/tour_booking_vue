@@ -45,7 +45,7 @@ const today = new Date().toISOString().split('T')[0]
 
 // Payment methods
 const paymentMethods = [
-  { value: 'cash', label: 'Tiền mặt (Liên hệ SDT/Zalo: 0799076901)' },
+  { value: 'cash', label: 'Thanh toán sau (Liên hệ SDT/Zalo: 079.9076.901)' },
   // { value: 'bank_transfer', label: 'Chuyển khoản ngân hàng' },
   // { value: 'credit_card', label: 'Thẻ tín dụng' },
   { value: 'vnpay', label: 'VNPay' },
@@ -98,21 +98,26 @@ const calculateTotalPrice = () => {
   }
 }
 
-// Validate voucher
+// Validate voucher (moved logic here)
 const validateVoucher = async () => {
   if (!bookingForm.value.voucher_code) {
     voucherMessage.value = null
     discount.value = 0
-    calculateTotalPrice()
-    return
+    return true // No voucher is valid
   }
+
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    const tempPrice =
+      basePrice.value *
+      (bookingForm.value.number_of_guests_adults + bookingForm.value.number_of_children * 0.5)
+
     const response = await axios.post(
       `${apiBaseUrl}/vouchers/apply`,
       {
         code: bookingForm.value.voucher_code,
         tour_id: tour.value.id,
+        total_price: tempPrice,
       },
       {
         headers: {
@@ -120,23 +125,22 @@ const validateVoucher = async () => {
         },
       },
     )
-    const voucher = response.data.voucher
-    discount.value =
-      basePrice.value *
-      (bookingForm.value.number_of_guests_adults + bookingForm.value.number_of_children * 0.5) *
-      (voucher.discount_percentage / 100)
+
+    console.log('Voucher response:', response.data)
+
+    discount.value = response.data.data.discount_amount
     voucherMessage.value = {
       text: `Áp dụng voucher thành công! Giảm ${formatPrice(discount.value)}.`,
       isError: false,
     }
-    calculateTotalPrice()
+    return true
   } catch (error) {
     discount.value = 0
     voucherMessage.value = {
       text: error.response?.data?.message || 'Mã voucher không hợp lệ.',
       isError: true,
     }
-    calculateTotalPrice()
+    return false
   }
 }
 
@@ -153,9 +157,12 @@ watch(
 )
 
 // Watch changes in start date
-watch(() => bookingForm.value.start_date, () => {
-  fetchPrice()
-})
+watch(
+  () => bookingForm.value.start_date,
+  () => {
+    fetchPrice()
+  },
+)
 
 // Open booking modal
 const openBookingModal = () => {
@@ -187,8 +194,13 @@ const closeBookingModal = () => {
   selectedPaymentMethod.value = null
 }
 
-// Open payment modal
-const openPaymentModal = () => {
+// Open payment modal with voucher validation
+const openPaymentModal = async () => {
+  // Clear previous messages
+  errorMessage.value = ''
+  voucherMessage.value = null
+
+  // Check availability
   const selectedDate = availableDates.value.find(
     (avail) => avail.date === bookingForm.value.start_date,
   )
@@ -200,6 +212,18 @@ const openPaymentModal = () => {
     errorMessage.value = 'Số chỗ yêu cầu vượt quá số chỗ còn lại cho ngày này.'
     return
   }
+
+  // Validate voucher if provided
+  const isVoucherValid = await validateVoucher()
+  if (!isVoucherValid && bookingForm.value.voucher_code) {
+    errorMessage.value = voucherMessage.value.text
+    return
+  }
+
+  // Recalculate total price with discount
+  calculateTotalPrice()
+
+  // Proceed to payment modal
   showBookingModal.value = false
   showPaymentModal.value = true
 }
@@ -226,6 +250,8 @@ const submitBooking = async () => {
   loading.value = true
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    console.log('Submitting booking with data:', bookingForm.value)
+    console.log('Selected payment method:', selectedPaymentMethod.value)
     const bookingResponse = await axios.post(
       `${apiBaseUrl}/bookings`,
       {
@@ -341,8 +367,10 @@ onMounted(() => {
       :voucherMessage="voucherMessage"
       :errorMessage="errorMessage"
       @update:show="showBookingModal = $event"
-      @update:bookingForm="bookingForm = $event; calculateTotalPrice()"
-      @validate-voucher="validateVoucher"
+      @update:bookingForm="
+        bookingForm = $event,
+        calculateTotalPrice()
+      "
       @submit="openPaymentModal"
     />
     <PaymentModal
@@ -373,8 +401,8 @@ onMounted(() => {
 
 <style scoped>
 :root {
-  --teal-500: #2DD4BF;
-  --teal-600: #0D9488;
+  --teal-500: #2dd4bf;
+  --teal-600: #0d9488;
 }
 
 button:not(:disabled):hover {
