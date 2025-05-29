@@ -97,11 +97,17 @@
           </div>
           <div class="flex items-center">
             <ChatBubbleLeftIcon class="w-4 h-4 mr-1" />
-            <span>{{ Math.floor(Math.random() * 20) }}</span>
+            <span>{{ formatNumber(post.review_count || 0) }}</span>
           </div>
           <div class="flex items-center">
             <ShareIcon class="w-4 h-4 mr-1" />
             <span>{{ Math.floor(Math.random() * 50) }}</span>
+          </div>
+          <!-- Rating Display (if available) -->
+          <div v-if="post.average_rating > 0" class="flex items-center">
+            <StarIcon class="w-4 h-4 mr-1 text-yellow-500 fill-current" />
+            <span class="font-medium">{{ post.average_rating.toFixed(1) }}</span>
+            <span class="text-xs text-gray-400 ml-1">({{ post.review_count }})</span>
           </div>
         </div>
 
@@ -176,6 +182,9 @@ import {
   ClockIcon,
   TagIcon,
 } from '@heroicons/vue/24/outline'
+
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 const props = defineProps({
   post: {
@@ -348,11 +357,26 @@ const toggleWishlist = async () => {
         },
       )
       isInWishlist.value = true
+      toast.success('Đã thêm vào danh sách yêu thích!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
       emit('toggle-wishlist', props.post.id, 'blog')
     }
   } catch (err) {
     console.error('Thao tác với wishlist thất bại:', err)
-    alert('Không thể thực hiện thao tác. Vui lòng thử lại.')
+    toast.error('Không thể thực hiện thao tác. Vui lòng thử lại!', {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
   }
 }
 

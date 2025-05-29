@@ -93,7 +93,7 @@
         <!-- Right Section -->
         <div class="flex items-center space-x-4">
           <router-link
-            to="/wishlist"
+            to="/wishlist/tours"
             v-if="isLoggedIn"
             class="hidden lg:inline-block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-bold"
           >

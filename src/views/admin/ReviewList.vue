@@ -463,8 +463,15 @@ async function changeReviewStatus(review, newStatus) {
     const oldStatus = review.status
     review.status = newStatus
     activeDropdown.value = null
-
-    await axios.put(`${baseUrl}/reviews/${review.id}`, { status: newStatus })
+    await axios.put(
+      `${baseUrl}/reviews/${review.id}`,
+      { status: newStatus },
+      {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+      },
+      }
+    )
 
     // Show success message
     const statusText = getStatusText(newStatus)

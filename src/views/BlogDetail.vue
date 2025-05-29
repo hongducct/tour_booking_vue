@@ -1,3 +1,4 @@
+<!-- views/BlogDetail.vue -->
 <template>
   <div class="min-h-screen bg-gray-50 mt-27">
     <TheHeader />
@@ -146,6 +147,14 @@
             <div class="prose prose-lg max-w-none" v-html="formattedContent"></div>
           </div>
 
+          <!-- Reviews Section -->
+          <TourReviews
+            :reviews="blog.reviews"
+            :reviewableId="blog.id"
+            :reviewableType="'App\\Models\\News'"
+            title="Đánh giá bài viết"
+          />
+
           <!-- Article Actions -->
           <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
             <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
@@ -225,6 +234,7 @@ import TheFooter from '@/components/TheFooter.vue'
 import BlogDetailSkeleton from '@/components/blog/BlogDetailSkeleton.vue'
 import RelatedPostCard from '@/components/blog/RelatedPostCard.vue'
 import BookingModal from '@/components/blog/BookingModal.vue'
+import TourReviews from '@/components/tour/TourReviews.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -242,12 +252,12 @@ const relatedPosts = ref([])
 const sharePlatforms = [
   {
     name: 'Facebook',
-    icon: 'div', // Replace with actual Facebook icon
+    icon: 'div', // Replace with actual icon
     url: (url, title) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
   {
     name: 'Twitter',
-    icon: 'div', // Replace with actual Twitter icon
+    icon: 'div', // Replace with actual icon
     url: (url, title) =>
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
   },
@@ -258,17 +268,16 @@ const sharePlatforms = [
   },
 ]
 
-// Slug generation function
 const generateSlug = (title) => {
   if (!title) return ''
   return title
     .toLowerCase()
-    .normalize('NFD') // Normalize to decompose combined characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
 }
 
 const readingTime = computed(() => {
@@ -295,6 +304,7 @@ const fetchBlogDetail = async () => {
     ])
 
     const data = blogResponse.data.data
+    console.log('Blog detail data:', data)
     blog.value = {
       id: data.id,
       title: data.title,
@@ -306,20 +316,19 @@ const fetchBlogDetail = async () => {
         month: 'long',
         day: 'numeric',
       }),
+      reviews: data.reviews || [],
       publishedAt: data.published_at,
       content: data.content || 'Nội dung đang cập nhật...',
       status: data.blog_status,
-      tags: [], // Add tags if available in your API
-      views: Math.floor(Math.random() * 1000) + 100, // Simulated views
+      tags: data.tags || [],
+      views: Math.floor(Math.random() * 1000) + 100,
     }
-
-    // Update URL to include slug if not present or incorrect
+    console.log('Blog data:', blog.value)
     const expectedPath = `/blog/${data.id}-${blog.value.slug}`
     if (route.path !== expectedPath) {
       router.replace(expectedPath)
     }
 
-    // Filter out current post from related posts
     relatedPosts.value = relatedResponse.data.data
       .filter((post) => post.id !== data.id)
       .map((post) => ({
@@ -328,7 +337,6 @@ const fetchBlogDetail = async () => {
       }))
       .slice(0, 3)
 
-    // Simulated like count
     likeCount.value = Math.floor(Math.random() * 50) + 10
   } catch (err) {
     error.value = err.response?.data?.message || 'Không thể tải bài viết. Vui lòng thử lại sau.'
@@ -379,14 +387,12 @@ const navigateToPost = (postId, postTitle) => {
   router.push(`/blog/${postId}-${slug}`)
 }
 
-// Close share menu when clicking outside
 const handleClickOutside = (event) => {
   if (showShareMenu.value && !event.target.closest('.share-menu')) {
     showShareMenu.value = false
   }
 }
 
-// Watch for route changes to reload blog data
 watch(
   () => route.params.id,
   () => {
@@ -438,23 +444,19 @@ onUnmounted(() => {
 .prose p {
   margin-bottom: 1.5rem;
 }
-
 .prose a {
   color: #3b82f6;
   text-decoration: underline;
 }
-
 .prose a:hover {
   color: #1d4ed8;
 }
-
 .prose img {
   border-radius: 0.5rem;
   margin: 2rem 0;
   max-width: 100%;
   height: auto;
 }
-
 .prose blockquote {
   border-left: 4px solid #e5e7eb;
   padding-left: 1rem;
@@ -462,24 +464,20 @@ onUnmounted(() => {
   color: #6b7280;
   margin: 2rem 0;
 }
-
 .prose ul,
 .prose ol {
   margin: 1.5rem 0;
   padding-left: 2rem;
 }
-
 .prose li {
   margin: 0.5rem 0;
 }
-
 .prose code {
   background-color: #f3f4f6;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
 }
-
 .prose pre {
   background-color: #1f2937;
   color: #f9fafb;
@@ -488,7 +486,6 @@ onUnmounted(() => {
   overflow-x: auto;
   margin: 2rem 0;
 }
-
 .prose pre code {
   background-color: transparent;
   padding: 0;
