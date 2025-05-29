@@ -484,13 +484,6 @@ onMounted(() => {
   animation: fadeInUp 0.6s ease-out;
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .group {
-    margin: 0 1rem;
-  }
-}
-
 @media (min-width: 1024px) {
   .group.lg\:flex {
     min-height: 320px;
