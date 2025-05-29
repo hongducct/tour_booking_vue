@@ -17,7 +17,6 @@
               </div>
               <h3 class="text-xl font-semibold text-gray-800">Thông tin cơ bản</h3>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div class="lg:col-span-2">
                 <BaseInput
@@ -28,16 +27,23 @@
                   :icon="mdiTag"
                 />
               </div>
-
-              <BaseInput
-                v-model.number="form.price"
-                label="Giá (₫)"
-                type="number"
-                required
-                class="w-full"
-                :icon="CurrencyDollarIcon"
-              />
-
+              <!-- Updated Price Input with Vietnamese Currency Formatting -->
+              <div>
+                <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
+                  <CurrencyDollarIcon class="w-4 h-4" />
+                  Giá (₫)
+                </label>
+                <input
+                  type="text"
+                  v-model="formattedPrice"
+                  @input="handlePriceInput"
+                  @blur="handlePriceBlur"
+                  @focus="handlePriceFocus"
+                  placeholder="0 ₫"
+                  required
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm"
+                />
+              </div>
               <BaseInput
                 v-model.number="form.days"
                 label="Số ngày"
@@ -46,7 +52,6 @@
                 class="w-full"
                 :icon="CalendarDaysIcon"
               />
-
               <BaseInput
                 v-model.number="form.nights"
                 label="Số đêm"
@@ -55,7 +60,6 @@
                 class="w-full"
                 :icon="MoonIcon"
               />
-
               <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
                   <BuildingOfficeIcon class="w-4 h-4" />
@@ -85,7 +89,6 @@
               </div>
               <h3 class="text-xl font-semibold text-gray-800">Danh mục & Địa điểm</h3>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
@@ -112,7 +115,6 @@
                   />
                 </div>
               </div>
-
               <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
                   <GlobeAltIcon class="w-4 h-4" />
@@ -151,7 +153,6 @@
               </div>
               <h3 class="text-xl font-semibold text-gray-800">Mô tả tour</h3>
             </div>
-
             <RichTextEditor
               ref="tourDescriptionEditor"
               :value="form.description"
@@ -179,7 +180,6 @@
                 @click.prevent="openFeatureModal"
               />
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <label
                 v-for="feature in availableFeatures"
@@ -211,7 +211,6 @@
               </div>
               <h3 class="text-xl font-semibold text-gray-800">Hình ảnh</h3>
             </div>
-
             <div class="mb-6">
               <label
                 class="flex items-center justify-center w-full h-32 border-2 border-dashed border-teal-300 rounded-lg cursor-pointer bg-teal-50 hover:bg-teal-100 transition-colors duration-200"
@@ -230,7 +229,6 @@
                 />
               </label>
             </div>
-
             <div
               v-if="form.images.length"
               class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -301,7 +299,6 @@
                 @click="addAvailability"
               />
             </div>
-
             <div class="space-y-4">
               <div
                 v-for="(avail, index) in form.availabilities"
@@ -356,6 +353,102 @@
             </div>
           </div>
 
+          <!-- Itineraries Section -->
+          <div
+            class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-100"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-yellow-100 rounded-lg">
+                  <ClipboardDocumentListIcon class="w-6 h-6 text-yellow-600" />
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Lộ trình tour</h3>
+              </div>
+              <BaseButton
+                label="Thêm lộ trình"
+                size="sm"
+                color="warning"
+                :icon="mdiPlus"
+                @click="openItineraryModal(null)"
+              />
+            </div>
+            <div class="space-y-4">
+              <div
+                v-for="(itinerary, index) in form.itineraries"
+                :key="index"
+                class="border border-gray-200 rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <div class="flex justify-between items-center mb-4">
+                  <h4 class="text-lg font-semibold text-gray-800">
+                    Ngày {{ itinerary.day }}: {{ itinerary.title }}
+                  </h4>
+                  <div class="flex gap-2">
+                    <BaseButton
+                      label="Chỉnh sửa"
+                      size="sm"
+                      color="info"
+                      :icon="mdiPencil"
+                      @click="openItineraryModal(index)"
+                    />
+                    <BaseButton
+                      label="Xóa"
+                      size="sm"
+                      color="danger"
+                      :icon="mdiTrashCan"
+                      @click="removeItinerary(index)"
+                    />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-600">
+                      <strong>Mô tả:</strong> {{ itinerary.description || 'Không có mô tả' }}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Hoạt động:</strong>
+                      {{
+                        itinerary.activities.length
+                          ? itinerary.activities.join(', ')
+                          : 'Không có hoạt động'
+                      }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600">
+                      <strong>Thời gian:</strong>
+                      {{
+                        itinerary.start_time && itinerary.end_time
+                          ? `${itinerary.start_time} - ${itinerary.end_time}`
+                          : 'Không xác định'
+                      }}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Nơi nghỉ:</strong> {{ itinerary.accommodation || 'Không xác định' }}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Bữa ăn:</strong> {{ itinerary.meals || 'Không xác định' }}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  v-if="itinerary.images.length"
+                  class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4"
+                >
+                  <img
+                    v-for="(image, imgIndex) in itinerary.images"
+                    :key="imgIndex"
+                    :src="image.image_path"
+                    :alt="`Itinerary image ${imgIndex + 1}`"
+                    class="w-full h-24 object-cover rounded-lg shadow-sm"
+                  />
+                </div>
+              </div>
+              <p v-if="!form.itineraries.length" class="text-center text-gray-500 py-8">
+                Chưa có lộ trình nào được thêm.
+              </p>
+            </div>
+          </div>
+
           <!-- Submit Button -->
           <div class="flex justify-end pt-6">
             <BaseButton
@@ -376,17 +469,22 @@
         @close="showLocationModal = false"
         @created="handleLocationCreated"
       />
-
       <TravelTypeModal
         :show="showTravelTypeModal"
         @close="showTravelTypeModal = false"
         @created="handleTravelTypeCreated"
       />
-
       <FeatureModal
         :show="showFeatureModal"
         @close="showFeatureModal = false"
         @created="handleFeatureCreated"
+      />
+      <ItineraryModal
+        :show="showItineraryModal"
+        :itinerary="editingItinerary"
+        :editing-index="editingItineraryIndex"
+        @close="closeItineraryModal"
+        @save="handleItinerarySave"
       />
     </SectionMain>
   </LayoutAuthenticated>
@@ -406,6 +504,7 @@ import RichTextEditor from '@/components/blog/RichTextEditor.vue'
 import LocationModal from '@/components/tour/LocationModal.vue'
 import TravelTypeModal from '@/components/tour/TravelTypeModal.vue'
 import FeatureModal from '@/components/tour/FeatureModal.vue'
+import ItineraryModal from '@/components/tour/ItineraryModal.vue'
 
 // Heroicons imports
 import {
@@ -429,6 +528,7 @@ import {
   UsersIcon,
   TicketIcon,
   CheckIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/vue/24/outline'
 
 import {
@@ -452,6 +552,7 @@ import {
   mdiAccountGroup,
   mdiTicket,
   mdiCheck,
+  mdiPencil,
 } from '@mdi/js'
 
 const router = useRouter()
@@ -468,7 +569,13 @@ const form = ref({
   features: [],
   images: [],
   availabilities: [],
+  itineraries: [], // Added itineraries array
 })
+
+
+// Price formatting states
+const formattedPrice = ref('')
+const isEditingPrice = ref(false)
 
 const availableFeatures = ref([])
 const locations = ref([])
@@ -477,6 +584,76 @@ const travelTypes = ref([])
 const showLocationModal = ref(false)
 const showTravelTypeModal = ref(false)
 const showFeatureModal = ref(false)
+const showItineraryModal = ref(false)
+const editingItinerary = ref(null)
+const editingItineraryIndex = ref(null)
+
+// Vietnamese currency formatting function
+const formatVNDCurrency = (amount) => {
+  if (!amount && amount !== 0) return ''
+  
+  // Convert to number if it's a string
+  const num = typeof amount === 'string' ? parseFloat(amount.replace(/[^\d]/g, '')) : amount
+  
+  if (isNaN(num)) return ''
+  
+  return new Intl.NumberFormat('vi-VN').format(num) + ' ₫'
+}
+
+// Remove formatting to get raw number
+const parseVNDCurrency = (formattedString) => {
+  if (!formattedString) return 0
+  return parseFloat(formattedString.replace(/[^\d]/g, '')) || 0
+}
+
+// Handle price input with real-time formatting
+const handlePriceInput = (event) => {
+  const input = event.target
+  const cursorPosition = input.selectionStart
+  
+  // Get raw number value
+  const rawValue = input.value.replace(/[^\d]/g, '')
+  
+  if (rawValue === '') {
+    formattedPrice.value = ''
+    form.value.price = 0
+    return
+  }
+  
+  // Update the actual price value
+  form.value.price = parseInt(rawValue)
+  
+  // Format for display
+  const formatted = formatVNDCurrency(form.value.price)
+  formattedPrice.value = formatted
+  
+  // Maintain cursor position (approximate)
+  setTimeout(() => {
+    const newCursorPos = Math.min(cursorPosition, formatted.length)
+    input.setSelectionRange(newCursorPos, newCursorPos)
+  }, 0)
+}
+
+const handlePriceFocus = () => {
+  isEditingPrice.value = true
+}
+
+const handlePriceBlur = () => {
+  isEditingPrice.value = false
+  // Ensure the formatted value is properly set
+  if (form.value.price > 0) {
+    formattedPrice.value = formatVNDCurrency(form.value.price)
+  }
+}
+
+// Initialize formatted price when form.price changes
+const initializeFormattedPrice = () => {
+  if (form.value.price > 0) {
+    formattedPrice.value = formatVNDCurrency(form.value.price)
+  } else {
+    formattedPrice.value = ''
+  }
+}
 
 const fetchData = async () => {
   try {
@@ -520,7 +697,8 @@ const handleImageUpload = async (e) => {
         id: null,
         image_url: uploadRes.data.secure_url,
         caption: null,
-        is_primary: form.value.images.length === 0 ? true : false,
+        is_primary: false, // Set primary image logic can be handled later
+        // is_primary: form.value.images.length === 0 ? true : false,
       }
     })
 
@@ -571,6 +749,41 @@ const openFeatureModal = () => {
   showFeatureModal.value = true
 }
 
+const openItineraryModal = (index = null) => {
+  if (index !== null) {
+    console.log('Editing itinerary at index:', index)
+    // If editing, populate the form with existing itinerary data
+    console.log('Current itineraries:', { ...form.value.itineraries[index] })
+    editingItinerary.value = { ...form.value.itineraries[index] }
+    editingItineraryIndex.value = index
+  } else {
+    editingItinerary.value = null
+    editingItineraryIndex.value = null
+  }
+  showItineraryModal.value = true
+}
+
+const closeItineraryModal = () => {
+  showItineraryModal.value = false
+  editingItinerary.value = null
+  editingItineraryIndex.value = null
+}
+
+const handleItinerarySave = (itineraryData, editingIndex) => {
+  if (editingIndex !== null) {
+    // Update existing itinerary
+    form.value.itineraries[editingIndex] = { ...itineraryData }
+  } else {
+    // Add new itinerary
+    form.value.itineraries.push({ ...itineraryData })
+  }
+  showItineraryModal.value = false
+}
+
+const removeItinerary = (index) => {
+  form.value.itineraries.splice(index, 1)
+}
+
 const handleLocationCreated = (location) => {
   locations.value.push(location)
   form.value.location_id = location.id
@@ -598,6 +811,16 @@ const createTour = async () => {
         return
       }
     }
+
+    // Validate itineraries
+    if (form.value.itineraries.length > 0) {
+      const maxDay = Math.max(...form.value.itineraries.map((it) => it.day))
+      if (maxDay > form.value.days) {
+        alert('Ngày trong lộ trình không được vượt quá số ngày của tour.')
+        return
+      }
+    }
+
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
     const payload = {
       name: form.value.name,
@@ -620,7 +843,22 @@ const createTour = async () => {
         available_slots: avail.available_slots,
         is_active: avail.is_active,
       })),
+      itineraries: form.value.itineraries.map((itinerary) => ({
+        day: itinerary.day,
+        title: itinerary.title,
+        description: itinerary.description || null,
+        activities: itinerary.activities.length ? itinerary.activities : null,
+        accommodation: itinerary.accommodation || null,
+        meals: itinerary.meals || null,
+        start_time: itinerary.start_time || null,
+        end_time: itinerary.end_time || null,
+        notes: itinerary.notes || null,
+        images: itinerary.images.map((img) => ({
+          image_path: img.image_path,
+        })),
+      })),
     }
+
     await axios.post(`${apiBaseUrl}/tours`, payload)
     alert('Tạo tour thành công!')
     router.push('/admin/tours')

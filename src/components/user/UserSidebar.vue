@@ -48,12 +48,12 @@ const handleEscapeKey = (event) => {
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  // document.addEventListener('click', handleClickOutside)
   document.addEventListener('keydown', handleEscapeKey)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+  // document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleEscapeKey)
 })
 
