@@ -475,7 +475,7 @@ onMounted(() => {
                     <div class="flex justify-between items-center mb-2">
                       <span class="text-green-700 font-medium">{{ booking.voucher.code }}</span>
                       <span class="text-green-600 font-semibold"
-                        >-{{ formatPrice(booking.voucher.discount) }}</span
+                        >-{{ formatPrice(booking.voucher_usage.discount_applied) }}</span
                       >
                     </div>
                     <p class="text-xs text-green-600">Áp dụng thành công</p>
@@ -492,7 +492,14 @@ onMounted(() => {
                   <div class="space-y-3">
                     <div class="flex justify-between items-center">
                       <span class="text-gray-600">Giá tour:</span>
-                      <span class="text-gray-900">{{ formatPrice(booking.payment.amount) }}</span>
+                      <span class="text-gray-900">
+                        {{
+                          formatPrice(
+                            (Number(booking.payment?.amount) || 0) +
+                            (Number(booking.voucher_usage?.discount_applied) || 0)
+                          )
+                        }}
+                      </span>
                     </div>
 
                     <div
@@ -500,7 +507,7 @@ onMounted(() => {
                       class="flex justify-between items-center text-green-600"
                     >
                       <span>Giảm giá:</span>
-                      <span>-{{ formatPrice(booking.voucher.discount) }}</span>
+                      <span>-{{ formatPrice(booking.voucher_usage.discount_applied) }}</span>
                     </div>
 
                     <div class="pt-3 border-t border-gray-200">

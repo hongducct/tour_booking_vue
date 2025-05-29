@@ -40,14 +40,13 @@ const basePrice = ref(0)
 const selectedPaymentMethod = ref(null)
 const isAuthenticated = ref(!!localStorage.getItem('userToken'))
 const loading = ref(false)
+const voucherValidated = ref(false) // State to track voucher validation
 
 const today = new Date().toISOString().split('T')[0]
 
 // Payment methods
 const paymentMethods = [
   { value: 'cash', label: 'Thanh toán sau (Liên hệ SDT/Zalo: 079.9076.901)' },
-  // { value: 'bank_transfer', label: 'Chuyển khoản ngân hàng' },
-  // { value: 'credit_card', label: 'Thẻ tín dụng' },
   { value: 'vnpay', label: 'VNPay' },
 ]
 
@@ -98,7 +97,7 @@ const calculateTotalPrice = () => {
   }
 }
 
-// Validate voucher (moved logic here)
+// Validate voucher
 const validateVoucher = async () => {
   if (!bookingForm.value.voucher_code) {
     voucherMessage.value = null
@@ -153,6 +152,7 @@ watch(
   [() => bookingForm.value.number_of_guests_adults, () => bookingForm.value.number_of_children],
   () => {
     calculateTotalPrice()
+    voucherValidated.value = false // Reset voucher validation when guest numbers change
   },
 )
 
@@ -161,6 +161,15 @@ watch(
   () => bookingForm.value.start_date,
   () => {
     fetchPrice()
+    voucherValidated.value = false // Reset voucher validation when date changes
+  },
+)
+
+// Watch changes in voucher code
+watch(
+  () => bookingForm.value.voucher_code,
+  () => {
+    voucherValidated.value = false // Reset voucher validation when voucher code changes
   },
 )
 
@@ -172,6 +181,7 @@ const openBookingModal = () => {
     return
   }
   showBookingModal.value = true
+  voucherValidated.value = false // Reset voucher validation when opening modal
 }
 
 // Close booking modal
@@ -192,6 +202,7 @@ const closeBookingModal = () => {
   discount.value = 0
   basePrice.value = 0
   selectedPaymentMethod.value = null
+  voucherValidated.value = false // Reset voucher validation
 }
 
 // Open payment modal with voucher validation
@@ -213,17 +224,19 @@ const openPaymentModal = async () => {
     return
   }
 
-  // Validate voucher if provided
-  const isVoucherValid = await validateVoucher()
-  if (!isVoucherValid && bookingForm.value.voucher_code) {
-    errorMessage.value = voucherMessage.value.text
-    return
+  if (bookingForm.value.voucher_code && !voucherValidated.value) {
+    // If voucher code exists and hasn't been validated, validate it
+    let isVoucherValid = await validateVoucher()
+    if (!isVoucherValid) {
+      errorMessage.value = voucherMessage.value.text
+      return
+    }
+    calculateTotalPrice()
+    voucherValidated.value = true // Mark voucher as validated
+    return // Stay in BookingModal to show updated price/voucher message
   }
 
-  // Recalculate total price with discount
-  calculateTotalPrice()
-
-  // Proceed to payment modal
+  // No voucher code or voucher already validated, proceed to payment modal
   showBookingModal.value = false
   showPaymentModal.value = true
 }
@@ -271,7 +284,6 @@ const submitBooking = async () => {
       },
     )
     bookingId.value = bookingResponse.data.booking.id
-    // if (['credit_card', 'bank_transfer'].includes(selectedPaymentMethod.value)) {
     if ('vnpay'.includes(selectedPaymentMethod.value)) {
       const vnpayResponse = await axios.post(
         `${apiBaseUrl}/payments/vnpay`,
@@ -288,8 +300,6 @@ const submitBooking = async () => {
       )
       vnpayUrl.value = vnpayResponse.data.vnpay_url
       showPaymentModal.value = false
-      // showQRModal.value = true
-      // Chuyển hướng người dùng đến trang VNPay
       window.location.href = vnpayUrl.value
       const paymentId = vnpayResponse.data.payment.id
       const statusInterval = setInterval(async () => {
@@ -298,11 +308,9 @@ const submitBooking = async () => {
             headers: { Authorization: `Bearer ${localStorage.getItem('userToken')}` },
           })
           if (statusResponse.data.payment.status === 'completed') {
-            // showQRModal.value = false
             showSuccessModal.value = true
             clearInterval(statusInterval)
           } else if (statusResponse.data.payment.status === 'failed') {
-            // showQRModal.value = false
             errorMessage.value = 'Thanh toán thất bại, vui lòng thử lại.'
             showBookingModal.value = true
             clearInterval(statusInterval)
@@ -351,7 +359,14 @@ onMounted(() => {
             Đặt tour ngay
           </button>
         </div>
-        <TourReviews :reviews="tour.reviews" />
+        <TourReviews
+            :reviews="tour.reviews"
+            :reviewableId="tour.id"
+            :reviewableType="'App\\Models\\Tour'"
+            title="Đánh giá tour"
+          />
+        <!-- <TourReviews :reviews="tour.reviews" :tourId="tour.id" /> -->
+        <!-- <TourReviews :reviews="tour.reviews" /> -->
       </div>
       <div v-else class="text-center text-gray-500 py-12">
         <p class="text-lg">Đang tải dữ liệu...</p>
@@ -366,11 +381,9 @@ onMounted(() => {
       :discount="discount"
       :voucherMessage="voucherMessage"
       :errorMessage="errorMessage"
+      :voucherValidated="voucherValidated"
       @update:show="showBookingModal = $event"
-      @update:bookingForm="
-        bookingForm = $event,
-        calculateTotalPrice()
-      "
+      @update:bookingForm="((bookingForm = $event), calculateTotalPrice())"
       @submit="openPaymentModal"
     />
     <PaymentModal

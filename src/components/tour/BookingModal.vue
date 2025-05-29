@@ -36,6 +36,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  voucherValidated: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:show', 'update:bookingForm', 'submit'])
@@ -214,8 +218,11 @@ const tempPrice = computed(() => {
               <button
                 type="submit"
                 class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+                :disabled="!bookingForm.start_date || !bookingForm.contact_phone"
               >
-                Tiếp tục
+                {{
+                  bookingForm.voucher_code && !voucherValidated ? 'Kiểm tra voucher' : 'Tiếp tục'
+                }}
               </button>
             </div>
           </form>
