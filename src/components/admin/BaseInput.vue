@@ -8,8 +8,13 @@
       :placeholder="placeholder"
       v-model="inputValue"
       :required="required"
-      class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+      :class="[
+        'w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2',
+        error ? 'border-red-500 focus:ring-red-500' : 'focus:ring-primary-500 dark:border-gray-600',
+        'dark:bg-gray-800 dark:text-white',
+      ]"
     />
+    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
   </div>
 </template>
 
@@ -25,6 +30,7 @@ const props = defineProps({
     type: String,
     default: 'text',
   },
+  error: [String, Array], // 👈 Thêm dòng này
 })
 
 const emit = defineEmits(['update:modelValue'])

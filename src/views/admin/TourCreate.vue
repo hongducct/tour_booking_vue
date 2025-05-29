@@ -245,7 +245,7 @@
                   class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-200"
                 />
                 <div
-                  class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100"
+                  class="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100"
                 >
                   <div class="flex gap-2">
                     <button
@@ -278,6 +278,10 @@
             <p v-if="!form.images.length" class="text-center text-gray-500 py-8">
               Chưa có ảnh nào được tải lên.
             </p>
+            <!-- hiển thị lỗi errors.images-->
+            <div v-if="errors" class="text-red-500 text-sm mt-2">
+              <p v-for="(error, index) in errors.images" :key="index">{{ error }}</p>
+            </div>
           </div>
 
           <!-- Availability Section -->
@@ -588,6 +592,8 @@ const showItineraryModal = ref(false)
 const editingItinerary = ref(null)
 const editingItineraryIndex = ref(null)
 
+const errors = ref(null)
+
 // Vietnamese currency formatting function
 const formatVNDCurrency = (amount) => {
   if (!amount && amount !== 0) return ''
@@ -864,6 +870,11 @@ const createTour = async () => {
     router.push('/admin/tours')
   } catch (err) {
     console.error('Lỗi khi tạo tour:', err)
+    if (err.response?.data?.errors) {
+      errors.value = err.response.data.errors
+    } else {
+      errors.value = { general: 'Không thể tạo tour. Vui lòng thử lại sau.' }
+    }
     alert('Không thể tạo tour: ' + (err.response?.data?.message || 'Lỗi không xác định'))
   }
 }
@@ -929,5 +940,20 @@ select:focus {
 /* Custom checkbox styling */
 input[type='checkbox']:checked {
   background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m5.707 7.293-2.414-2.414a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 11.879 .707L5.707 7.293z'/%3e%3c/svg%3e");
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.absolute.inset-0.bg-black.bg-opacity-10 {
+  backdrop-filter: blur(2px);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

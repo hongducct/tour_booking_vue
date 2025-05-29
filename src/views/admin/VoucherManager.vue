@@ -1,7 +1,7 @@
 <template>
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton title="Quản lý Voucher" icon="mdiTicket" main>
+      <SectionTitleLineWithButton title="Quản lý Voucher" :icon="mdiTicket" main>
         <BaseButton label="Tạo Voucher" color="success" @click="showCreateForm = true" />
       </SectionTitleLineWithButton>
 
@@ -248,13 +248,20 @@
       <!-- Create/Edit Form Modal -->
       <div
         v-if="showCreateForm || editingVoucher"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-gray-800 bg-opacity-70 flex items-center justify-center z-50"
         @click.self="cancelForm"
       >
-        <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto touch-auto"
+        >
           <h3 class="text-lg font-semibold mb-4">
             {{ editingVoucher ? 'Chỉnh sửa Voucher' : 'Tạo Voucher mới' }}
           </h3>
+
+          <div v-if="tourStore.loading" class="flex justify-center items-center mb-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-2">Đang tải danh sách tour...</span>
+          </div>
 
           <form @submit.prevent="saveVoucher" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -290,6 +297,12 @@
                 :error="errors.discount_percentage"
               />
             </div>
+            <div
+              v-if="voucherForm.discount && voucherForm.discount_percentage"
+              class="text-red-600 text-sm mt-1"
+            >
+              Chỉ được chọn một trong hai: Giảm giá cố định hoặc Giảm giá (%)
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <BaseInput
@@ -307,21 +320,25 @@
                 :error="errors.end_date"
               />
             </div>
-
             <div>
               <label class="block mb-2 text-sm font-medium text-gray-700">
                 Áp dụng cho tour (để trống = áp dụng tất cả)
               </label>
-              <select
+              <VueSelect
                 v-model="voucherForm.applicable_tour_ids"
+                :options="tourStore.tours"
+                :reduce="tour => tour.id"
+                label="name"
                 multiple
-                class="w-full border border-gray-300 rounded px-3 py-2 h-32"
-              >
-                <option v-for="tour in tours" :value="tour.id" :key="tour.id">
-                  {{ tour.name }}
-                </option>
-              </select>
-              <div class="text-sm text-gray-500 mt-1">Giữ Ctrl (Cmd) để chọn nhiều tour</div>
+                placeholder="Chọn tour..."
+                :disabled="tourStore.loading"
+                filterable
+                :close-on-select="false"
+                :selectable="() => true"
+              />
+              <div class="text-sm text-gray-500 mt-1">
+                Nhấp vào từng tour để chọn nhiều, giữ Ctrl/Cmd để chọn nhiều mục cùng lúc
+              </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t">
@@ -330,7 +347,7 @@
                 type="submit"
                 color="success"
                 :label="editingVoucher ? 'Cập nhật' : 'Tạo mới'"
-                :disabled="saving"
+                :disabled="saving || tourStore.loading"
               />
             </div>
           </form>
@@ -423,18 +440,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
+import VueSelect from 'vue-select'
+import 'vue-select/dist/vue-select.css'
+import { useTourStore } from '@/stores/tourStore'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionMain from '@/components/admin/SectionMain.vue'
 import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithButton.vue'
 import CardBox from '@/components/admin/CardBox.vue'
 import BaseInput from '@/components/admin/BaseInput.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
+import { mdiTicket } from '@mdi/js'
+
+// Khởi tạo store
+const tourStore = useTourStore()
 
 // Reactive data
 const vouchers = ref([])
-const tours = ref([])
 const statistics = ref({
   total_vouchers: 0,
   active_vouchers: 0,
@@ -443,7 +466,6 @@ const statistics = ref({
   total_usage: 0,
   total_discount_given: 0,
 })
-
 const showCreateForm = ref(false)
 const editingVoucher = ref(null)
 const viewingVoucher = ref(null)
@@ -499,6 +521,11 @@ const debounceSearch = () => {
   }, 500)
 }
 
+// Ngăn scroll phần nền khi modal mở
+const toggleBodyScroll = (disable) => {
+  document.body.style.overflow = disable ? 'hidden' : 'auto'
+}
+
 // API functions
 const getApiHeaders = () => {
   const token = localStorage.getItem('adminToken')
@@ -550,18 +577,6 @@ const fetchVouchers = async (page = 1) => {
   }
 }
 
-const fetchTours = async () => {
-  try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    const response = await axios.get(`${apiBaseUrl}/tours`, {
-      headers: getApiHeaders(),
-    })
-    tours.value = response.data.data
-  } catch (err) {
-    console.error('Lỗi khi lấy danh sách tour:', err)
-  }
-}
-
 const saveVoucher = async () => {
   saving.value = true
   errors.value = {}
@@ -591,6 +606,7 @@ const saveVoucher = async () => {
     } else {
       alert('Lưu voucher thất bại.')
     }
+    console.log('errors:', errors.value)
   } finally {
     saving.value = false
   }
@@ -653,6 +669,7 @@ const deleteVoucher = async (id) => {
 
 const viewVoucherDetails = (voucher) => {
   viewingVoucher.value = voucher
+  toggleBodyScroll(true)
 }
 
 const cancelForm = () => {
@@ -668,25 +685,79 @@ const cancelForm = () => {
     applicable_tour_ids: [],
   }
   errors.value = {}
+  toggleBodyScroll(false)
 }
+
+// Đóng modal chi tiết và khôi phục scroll
+watch(viewingVoucher, (newValue) => {
+  toggleBodyScroll(!!newValue)
+})
+
+// Đóng modal form và khôi phục scroll
+watch([showCreateForm, editingVoucher], ([newShowCreateForm, newEditingVoucher]) => {
+  const isModalOpen = newShowCreateForm || newEditingVoucher
+  toggleBodyScroll(isModalOpen)
+})
 
 const changePage = (page) => {
   fetchVouchers(page)
 }
 
 const refreshData = async () => {
-  await Promise.all([fetchStatistics(), fetchVouchers(pagination.value.current_page), fetchTours()])
+  await Promise.all([fetchStatistics(), fetchVouchers(pagination.value.current_page)])
 }
+
+// Lazy load tours khi form mở và làm mới nếu cần
+watch([showCreateForm, editingVoucher], async ([newShowCreateForm, newEditingVoucher]) => {
+  if (newShowCreateForm || newEditingVoucher) {
+    try {
+      // Làm mới danh sách tour để đảm bảo có tour mới nhất
+      await tourStore.refreshTours()
+    } catch (err) {
+      alert('Không thể tải danh sách tour.')
+    }
+  }
+})
 
 // Mount
 onMounted(() => {
   refreshData()
+})
+
+// Khôi phục scroll khi component bị hủy
+onUnmounted(() => {
+  toggleBodyScroll(false)
 })
 </script>
 
 <style scoped>
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fixed.inset-0.bg-gray-800.bg-opacity-70.z-50 {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.fixed.inset-0.bg-black.bg-opacity-50.z-50 {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.touch-auto {
+  touch-action: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes spin {
