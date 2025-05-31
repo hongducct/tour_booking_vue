@@ -6,6 +6,53 @@ const phoneNumber = ref('0799076901')
 const address = ref('Thang Long University, Hanoi, Vietnam')
 const imgUrl = ref('https://cdn.bookingtour.vn/upload/timetotravel.png?v')
 
+const email = ref('')
+const message = ref('')
+const messageType = ref('')
+const isLoading = ref(false)
+const subscribe = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+  if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    message.value = 'Please enter a valid email address.'
+    messageType.value = 'error'
+    isLoading.value = false
+    return
+  }
+
+  try {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL
+    const response = await fetch(`${apiUrl}/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ email: email.value }),
+    })
+
+    const data = await response.json()
+    if (response.ok) {
+      message.value = 'Thanks for subscribing! Check your email for travel deals.'
+      messageType.value = 'success'
+      email.value = ''
+    } else {
+      message.value = data.message || 'Subscription failed. Please try again.'
+      messageType.value = 'error'
+    }
+  } catch (error) {
+    message.value = 'An error occurred. Please try again later.'
+    messageType.value = 'error'
+  }
+
+  // Clear message after 5 seconds
+  setTimeout(() => {
+    message.value = ''
+    messageType.value = ''
+  }, 5000)
+  isLoading.value = false
+}
+
 // Animation on scroll effect
 onMounted(() => {
   const observer = new IntersectionObserver(
@@ -160,16 +207,29 @@ onMounted(() => {
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <input
                 type="email"
+                v-model="email"
                 placeholder="Your email address"
                 class="px-6 py-3 rounded-full w-full sm:w-auto text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <a
-                href="https://bookingtour.vn/blog/gioi-thieu-du-an-bookingtour.html"
-                class="px-6 py-3 bg-white text-blue-700 rounded-full font-bold hover:bg-blue-50 transition-colors duration-300 w-full sm:w-auto"
+              <button
+                @click="subscribe"
+                :disabled="isLoading"
+                class="px-6 py-3 bg-white text-blue-700 rounded-full font-bold hover:bg-blue-50 transition-colors duration-300 w-full sm:w-auto hover:shadow-lg disabled:opacity-20 disabled:cursor-not-allowed"
+                :class="{
+                  'bg-blue-100 hover:bg-blue-300 hover:text-gray-600': !isLoading,
+                  'bg-gray-400': isLoading,
+                }"
               >
-                SUBSCRIBE NOW
-              </a>
+                {{ isLoading ? 'Subscribing...' : 'SUBSCRIBE NOW' }}
+              </button>
             </div>
+            <p
+              v-if="message"
+              class="mt-2 text-sm"
+              :class="messageType === 'success' ? 'text-green-400' : 'text-red-400'"
+            >
+              {{ message }}
+            </p>
           </div>
         </div>
       </div>

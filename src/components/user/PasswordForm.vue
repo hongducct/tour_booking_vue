@@ -38,17 +38,32 @@ const passwordForm = reactive({
   current_password: '',
   password: '',
   password_confirmation: '',
+  otp: '',
 })
 
 const errors = ref({})
 const isSubmittingPassword = ref(false)
+const isSendingOtp = ref(false)
+const otpSent = ref(false)
 const showPasswords = reactive({
   current: false,
   new: false,
   confirm: false,
 })
+const hasPassword = ref(true)
 
-// Password strength validation
+const fetchUserProfile = async () => {
+  try {
+    const response = await axios.get(`${baseUrl}/user/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    hasPassword.value = response.data.has_password
+  } catch (err) {
+    console.error('Failed to fetch user profile:', err)
+  }
+}
+fetchUserProfile()
+
 const passwordStrength = computed(() => {
   const password = passwordForm.password
   if (!password) return { level: 0, text: '', color: '', checks: {} }
@@ -79,6 +94,34 @@ const togglePasswordVisibility = (field) => {
   showPasswords[field] = !showPasswords[field]
 }
 
+const sendOtp = async () => {
+  isSendingOtp.value = true
+  errors.value = {}
+
+  try {
+    await axios.post(
+      `${baseUrl}/user/send-otp`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    )
+    otpSent.value = true
+    props.notifySuccess('OTP sent to your email!')
+  } catch (err) {
+    console.error('Failed to send OTP:', err)
+    if (err.response?.data?.errors) {
+      errors.value = err.response.data.errors
+      props.notifyError('Failed to send OTP. Please check the errors.')
+    } else {
+      errors.value.general = 'Failed to send OTP. Please try again.'
+      props.notifyError('Failed to send OTP. Please try again.')
+    }
+  } finally {
+    isSendingOtp.value = false
+  }
+}
+
 const submitPass = async () => {
   errors.value = {}
 
@@ -93,22 +136,27 @@ const submitPass = async () => {
   isSubmittingPassword.value = true
 
   try {
-    await axios.put(
-      `${baseUrl}/user/profile`,
-      {
-        current_password: passwordForm.current_password,
-        password: passwordForm.password,
-        password_confirmation: passwordForm.password_confirmation,
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    )
+    const payload = {
+      password: passwordForm.password,
+      password_confirmation: passwordForm.password_confirmation,
+    }
+    if (!hasPassword.value) {
+      payload.otp = passwordForm.otp
+    } else {
+      payload.current_password = passwordForm.current_password
+    }
+    console.log('Submitting password change:', payload)
+    await axios.put(`${baseUrl}/user/profile`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
 
     props.notifySuccess('Password changed successfully!')
     passwordForm.current_password = ''
     passwordForm.password = ''
     passwordForm.password_confirmation = ''
+    passwordForm.otp = ''
+    otpSent.value = false
+    hasPassword.value = true
   } catch (err) {
     console.error('Password change failed:', err)
     if (err.response?.data?.errors) {
@@ -161,14 +209,13 @@ const submitPass = async () => {
           </div>
         </div>
 
-        <!-- Current Password Field -->
-        <div class="space-y-3">
+        <!-- Current Password Field (for users with password) -->
+        <div v-if="hasPassword" class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <ShieldCheckIcon class="w-4 h-4 text-blue-500" />
             Current Password
             <span class="text-red-500">*</span>
           </label>
-
           <div class="relative">
             <div class="relative">
               <LockClosedIcon
@@ -194,13 +241,52 @@ const submitPass = async () => {
               </button>
             </div>
           </div>
-
           <div
             v-if="errors.current_password"
             class="flex items-center gap-2 text-sm text-red-600 mt-2"
           >
             <ExclamationCircleIcon class="w-4 h-4 flex-shrink-0" />
             <span>{{ errors.current_password[0] }}</span>
+          </div>
+        </div>
+
+        <!-- Send OTP Button and OTP Field (for users without password) -->
+        <div v-else class="space-y-3">
+          <button
+            type="button"
+            @click="sendOtp"
+            :disabled="isSendingOtp"
+            class="relative w-full sm:w-auto min-w-48 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg shadow-blue-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/50 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg overflow-hidden"
+          >
+            <div class="flex items-center justify-center gap-3 relative z-10">
+              <ArrowPathIcon v-if="isSendingOtp" class="w-5 h-5 animate-spin" />
+              <ShieldCheckIcon v-else class="w-5 h-5" />
+              <span>{{ isSendingOtp ? 'Sending OTP...' : 'Send OTP' }}</span>
+            </div>
+          </button>
+
+          <!-- OTP Input Field (shown after OTP is sent) -->
+          <div v-if="otpSent" class="space-y-3 mt-4">
+            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <ShieldCheckIcon class="w-4 h-4 text-blue-500" />
+              OTP
+              <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input
+                v-model="passwordForm.otp"
+                type="text"
+                class="w-full pl-12 pr-16 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
+                :class="{ 'border-red-300 bg-red-50/50': errors.otp }"
+                placeholder="Enter OTP sent to your email"
+                required
+                autocomplete="one-time-code"
+              />
+            </div>
+            <div v-if="errors.otp" class="flex items-center gap-2 text-sm text-red-600 mt-2">
+              <ExclamationCircleIcon class="w-4 h-4 flex-shrink-0" />
+              <span>{{ errors.otp[0] }}</span>
+            </div>
           </div>
         </div>
 
@@ -213,7 +299,6 @@ const submitPass = async () => {
             New Password
             <span class="text-red-500">*</span>
           </label>
-
           <div class="relative">
             <div class="relative">
               <KeyIcon
@@ -239,7 +324,6 @@ const submitPass = async () => {
               </button>
             </div>
           </div>
-
           <!-- Password Strength Indicator -->
           <div v-if="passwordForm.password" class="mt-4 space-y-3">
             <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -310,7 +394,6 @@ const submitPass = async () => {
               </div>
             </div>
           </div>
-
           <div v-if="errors.password" class="flex items-center gap-2 text-sm text-red-600 mt-2">
             <ExclamationCircleIcon class="w-4 h-4 flex-shrink-0" />
             <span>{{ errors.password[0] }}</span>
@@ -324,7 +407,6 @@ const submitPass = async () => {
             Confirm New Password
             <span class="text-red-500">*</span>
           </label>
-
           <div class="relative">
             <div class="relative">
               <ShieldCheckIcon
@@ -352,8 +434,6 @@ const submitPass = async () => {
                 <EyeSlashIcon v-if="showPasswords.confirm" class="w-5 h-5" />
                 <EyeIcon v-else class="w-5 h-5" />
               </button>
-
-              <!-- Password Match Indicator -->
               <div
                 v-if="passwordsMatch !== null"
                 class="absolute right-4 top-1/2 transform -translate-y-1/2"
@@ -363,8 +443,6 @@ const submitPass = async () => {
               </div>
             </div>
           </div>
-
-          <!-- Password Match Status -->
           <div v-if="passwordsMatch !== null" class="mt-2">
             <div v-if="passwordsMatch" class="flex items-center gap-2 text-sm text-green-600">
               <CheckCircleIcon class="w-4 h-4" />
@@ -375,7 +453,6 @@ const submitPass = async () => {
               <span>Passwords do not match</span>
             </div>
           </div>
-
           <div
             v-if="errors.password_confirmation"
             class="flex items-center gap-2 text-sm text-red-600 mt-2"
@@ -389,7 +466,9 @@ const submitPass = async () => {
         <div class="mt-8 pt-6 border-t border-gray-100">
           <button
             type="submit"
-            :disabled="isSubmittingPassword || passwordsMatch === false"
+            :disabled="
+              isSubmittingPassword || passwordsMatch === false || (!hasPassword && !otpSent)
+            "
             class="relative w-full sm:w-auto min-w-48 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg shadow-blue-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/50 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-lg overflow-hidden"
           >
             <div class="flex items-center justify-center gap-3 relative z-10">

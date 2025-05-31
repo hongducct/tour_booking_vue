@@ -6,6 +6,7 @@ import TourView from '@/views/TourView.vue'
 import TourDetail from '@/views/TourDetail.vue'
 
 import LoginView from '@/views/LoginView.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views//user/ProfileView.vue'
 import BookingsView from '@/views/user/BookingsView.vue'
@@ -178,6 +179,14 @@ const router = createRouter({
       component: LoginView,
       meta: {
         title: 'Login',
+      },
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPassword,
+      meta: {
+        title: 'Forgot Password',
       },
     },
     {
