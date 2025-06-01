@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import menuAside from '@/menuAside.js'
 import menuNavBar from '@/menuNavBar.js'
 import { useDarkModeStore } from '@/stores/darkMode.js'
+import { useMainStore } from '@/stores/main.js'
 import BaseIcon from '@/components/admin/BaseIcon.vue'
 import FormControl from '@/components/admin/FormControl.vue'
 import NavBar from '@/components/admin/NavBar.vue'
@@ -15,6 +16,7 @@ import FooterBar from '@/components/admin/FooterBar.vue'
 const layoutAsidePadding = 'xl:pl-60'
 
 const darkModeStore = useDarkModeStore()
+const mainStore = useMainStore()
 
 const router = useRouter()
 
@@ -33,6 +35,7 @@ const menuClick = (event, item) => {
 
   if (item.isLogout) {
     darkModeStore.set(false)
+    mainStore.clearAdmin()
     localStorage.removeItem('adminToken')
     // localStorage.removeItem('token')
     // localStorage.removeItem('user')
@@ -79,8 +82,8 @@ const menuClick = (event, item) => {
       <slot />
       <FooterBar>
         Get more with
-        <a href="https://tailwind-vue.justboil.me/" target="_blank" class="text-blue-600"
-          >Premium version</a
+        <a href="https://github.com/hongducct/travelbook-app" target="_blank" class="text-blue-600"
+          >hongducct (github)</a
         >
       </FooterBar>
     </div>

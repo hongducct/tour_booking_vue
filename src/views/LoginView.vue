@@ -1,10 +1,12 @@
 <script setup>
 import { reactive, ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const form = reactive({
@@ -48,8 +50,7 @@ const showSuccessMessage = () => {
 
 onMounted(() => {
   // Check if user is already logged in
-  const token = localStorage.getItem('userToken')
-  if (token) {
+  if (authStore.isLoggedIn) {
     const redirectPath = localStorage.getItem('redirectAfterLogin') || '/'
     router.push(redirectPath)
   }
@@ -73,21 +74,20 @@ const handleGoogleCallback = async (code) => {
     loading.value = true
     error.value = ''
 
-    // Gửi code tới backend để lấy token
     const response = await axios.get(`${baseUrl}/auth/google/callback`, {
       params: { code },
     })
 
     const { token, user } = response.data
 
-    // Lưu token và user info
+    // Update auth store
+    authStore.isLoggedIn = true
+    authStore.user = user
     localStorage.setItem('userToken', token)
     localStorage.setItem('userData', JSON.stringify(user))
 
-    // Hiển thị thông báo thành công
     showSuccessMessage()
 
-    // Redirect tới trang trước đó hoặc trang chủ
     const redirectPath = localStorage.getItem('redirectAfterLogin') || '/'
     localStorage.removeItem('redirectAfterLogin')
 
@@ -111,45 +111,36 @@ const submit = async () => {
     const res = await axios.post(`${baseUrl}/user/login`, {
       login: form.login,
       password: form.password,
-      remember_me: rememberMe.value,
+      // remember_me: rememberMe.value,
     })
 
-    // Save token
+    // Update auth store
     localStorage.setItem('userToken', res.data.token)
-
-    // Save user info
     localStorage.setItem('userData', JSON.stringify(res.data.user))
 
     // Handle remember me
-    if (rememberMe.value) {
-      localStorage.setItem('rememberedLogin', form.login)
-    } else {
-      localStorage.removeItem('rememberedLogin')
-    }
+    // if (rememberMe.value) {
+    //   localStorage.setItem('rememberedLogin', form.login)
+    // } else {
+    //   localStorage.removeItem('rememberedLogin')
+    // }
 
-    // Redirect
-    const redirectPath = localStorage.getItem('redirectAfterLogin') || '/'
-    localStorage.removeItem('redirectAfterLogin')
-
-    // Show success message briefly
     showSuccessMessage()
 
-    setTimeout(() => {
-      router.push(redirectPath)
-    }, 1000)
+    const redirectPath = localStorage.getItem('redirectAfterLogin') || '/'
+    localStorage.removeItem('redirectAfterLogin')
+    authStore.isLoggedIn = true
+    authStore.user = res.data.user
+
+    router.push(redirectPath)
   } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      error.value = err.response.data.message
-    } else {
-      error.value = 'Đăng nhập thất bại. Vui lòng thử lại.'
-    }
+    error.value = err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
   } finally {
     loading.value = false
   }
 }
 
 const googleLogin = () => {
-  // Redirect to Google OAuth endpoint
   window.location.href = `${baseUrl}/auth/google`
 }
 
@@ -163,16 +154,6 @@ const togglePasswordVisibility = () => {
 
 const forgotPassword = () => {
   router.push('/forgot-password')
-}
-
-const quickLogin = (type) => {
-  if (type === 'admin') {
-    form.login = 'admin@example.com'
-    form.password = 'password123'
-  } else if (type === 'user') {
-    form.login = 'user@example.com'
-    form.password = 'password123'
-  }
 }
 </script>
 
@@ -214,25 +195,6 @@ const quickLogin = (type) => {
         </h2>
         <p class="text-gray-600 mt-2 text-sm md:text-base">Đăng nhập để tiếp tục sử dụng dịch vụ</p>
       </div>
-
-      <!-- Demo Quick Login (for development)
-      <div class="mb-6 p-4 bg-gray-50 rounded-xl">
-        <p class="text-xs text-gray-500 mb-2">Demo nhanh (môi trường phát triển):</p>
-        <div class="flex gap-2">
-          <button
-            @click="quickLogin('admin')"
-            class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-md hover:bg-blue-200 transition"
-          >
-            Admin
-          </button>
-          <button
-            @click="quickLogin('user')"
-            class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-md hover:bg-green-200 transition"
-          >
-            User
-          </button>
-        </div>
-      </div> -->
 
       <form @submit.prevent="submit" class="space-y-6">
         <!-- Error Message -->

@@ -10,41 +10,43 @@ import {
   mdiThemeLightDark,
   mdiGithub,
   mdiReact,
+  mdiFacebook,
 } from '@mdi/js'
 
 export default [
-  {
-    icon: mdiMenu,
-    label: 'Sample menu',
-    menu: [
-      {
-        icon: mdiClockOutline,
-        label: 'Item One',
-      },
-      {
-        icon: mdiCloud,
-        label: 'Item Two',
-      },
-      {
-        isDivider: true,
-      },
-      {
-        icon: mdiCrop,
-        label: 'Item Last',
-      },
-    ],
-  },
+  // {
+  //   icon: mdiMenu,
+  //   label: 'Sample menu',
+  //   menu: [
+  //     {
+  //       icon: mdiClockOutline,
+  //       label: 'Item One',
+  //     },
+  //     {
+  //       icon: mdiCloud,
+  //       label: 'Item Two',
+  //     },
+  //     {
+  //       isDivider: true,
+  //     },
+  //     {
+  //       icon: mdiCrop,
+  //       label: 'Item Last',
+  //     },
+  //   ],
+  // },
   {
     isCurrentUser: true,
     menu: [
       {
         icon: mdiAccount,
         label: 'My Profile',
-        to: '/profile',
+        to: '/admin/profile',
       },
       {
         icon: mdiCogOutline,
-        label: 'Settings',
+        label: 'Create Account Admin',
+        to: '/admin/create-account',
       },
       {
         icon: mdiEmail,
@@ -70,14 +72,14 @@ export default [
     icon: mdiGithub,
     label: 'GitHub',
     isDesktopNoLabel: true,
-    href: 'https://github.com/justboil/admin-one-vue-tailwind',
+    href: 'https://github.com/hongducct/tour_booking_vue',
     target: '_blank',
   },
   {
-    icon: mdiReact,
-    label: 'React version',
+    icon: mdiFacebook,
+    label: 'Facebook',
     isDesktopNoLabel: true,
-    href: 'https://github.com/justboil/admin-one-react-tailwind',
+    href: 'https://facebook.com/hongducct23',
     target: '_blank',
   },
   {

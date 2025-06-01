@@ -38,6 +38,7 @@ import ReviewList from '@/views/admin/ReviewList.vue'
 import VoucherManager from '@/views/admin/VoucherManager.vue'
 import AdminSettings from '@/views/admin/AdminSettings.vue'
 import AdminProfile from '@/views/admin/AdminProfile.vue'
+import CreateAccountAdmin from '@/views/admin/CreateAccountAdmin.vue'
 
 // import AuthCallback from '../views/AuthCallback.vue'
 
@@ -146,6 +147,12 @@ const adminRoutes = [
         name: 'AdminProfile',
         component: AdminProfile,
         meta: { title: 'Admin Profile' },
+      },
+      {
+        path: 'create-account',
+        name: 'CreateAccountAdmin',
+        component: CreateAccountAdmin,
+        meta: { title: 'Create Account Admin' },
       },
       {
         path: 'test',

@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useMainStore } from '@/stores/main'
 import {
   LockClosedIcon,
   UserIcon,
@@ -12,6 +13,7 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
+const mainStore = useMainStore()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const form = reactive({
@@ -31,9 +33,20 @@ const submit = async () => {
       password: form.password,
     })
 
-    localStorage.setItem('adminToken', res.data.token)
+    // Store admin data and token in Pinia
+    mainStore.setAdmin({
+      id: res.data.admin.id,
+      username: res.data.admin.username,
+      email: res.data.admin.email,
+      first_name: res.data.admin.first_name,
+      last_name: res.data.admin.last_name,
+      phone_number: res.data.admin.phone_number,
+      avatar: res.data.admin.avatar,
+      admin_status: res.data.admin.admin_status,
+      token: res.data.token,
+    })
+
     router.push('/admin/dashboard')
-    console.log('Admin token:', res.data.token)
   } catch (err) {
     if (err.response && err.response.data && err.response.data.message) {
       error.value = err.response.data.message

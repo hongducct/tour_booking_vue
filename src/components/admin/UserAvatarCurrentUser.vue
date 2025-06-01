@@ -6,7 +6,7 @@ const mainStore = useMainStore()
 </script>
 
 <template>
-  <UserAvatar :username="mainStore.userName" :avatar="mainStore.userAvatar">
+  <UserAvatar :username="mainStore.admin.username" :avatar="mainStore.admin.avatar">
     <slot />
   </UserAvatar>
 </template>

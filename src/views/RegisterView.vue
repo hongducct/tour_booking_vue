@@ -1,10 +1,13 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
+import { UserIcon, PhoneIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const form = reactive({
@@ -113,15 +116,18 @@ const submit = async () => {
       phone_number: form.phone_number,
     })
 
-    success.value = 'Đăng ký thành công! Đang chuyển hướng...'
+    // Update auth store
+    authStore.isLoggedIn = true
+    authStore.user = res.data.user
     localStorage.setItem('userToken', res.data.token)
     localStorage.setItem('userData', JSON.stringify(res.data.user))
 
+    success.value = 'Đăng ký thành công! Đang chuyển hướng...'
     showSuccessMessage()
 
     setTimeout(() => {
       router.push('/')
-    }, 2000)
+    }, 1000)
   } catch (err) {
     if (err.response && err.response.data) {
       const data = err.response.data
@@ -147,11 +153,42 @@ const submit = async () => {
   }
 }
 
+const handleGoogleCallback = async (code) => {
+  try {
+    loading.value = true
+    error.value = ''
+    success.value = ''
+
+    const response = await axios.get(`${baseUrl}/auth/google/callback`, {
+      params: { code },
+    })
+
+    const { token, user } = response.data
+
+    // Update auth store
+    authStore.isLoggedIn = true
+    authStore.user = user
+    localStorage.setItem('userToken', token)
+    localStorage.setItem('userData', JSON.stringify(user))
+
+    success.value = 'Đăng ký/Đăng nhập bằng Google thành công!'
+    showSuccessMessage()
+
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Đăng nhập bằng Google thất bại. Vui lòng thử lại.'
+  } finally {
+    loading.value = false
+  }
+}
+
 const showSuccessMessage = () => {
   const toast = document.createElement('div')
   toast.className =
     'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
-  toast.textContent = 'Đăng ký thành công!'
+  toast.textContent = success.value || 'Đăng ký thành công!'
   document.body.appendChild(toast)
 
   setTimeout(() => {
@@ -184,24 +221,14 @@ const googleRegister = () => {
 
 onMounted(() => {
   // Check if user is already logged in
-  const token = localStorage.getItem('userToken')
-  if (token) {
+  if (authStore.isLoggedIn) {
     router.push('/')
   }
 
-  console.log('RegisterView mounted')
-  console.log('token:', token)
-  console.log('route:', route)
-  console.log('route.query:', route.query)
   // Handle Google OAuth callback
-  const tokenGG = route.query.token
-  if (tokenGG) {
-    localStorage.setItem('userToken', token)
-    success.value = 'Đăng ký/Đăng nhập bằng Google thành công!'
-    showSuccessMessage()
-    setTimeout(() => {
-      router.push('/')
-    }, 2000)
+  const code = route.query.code
+  if (code) {
+    handleGoogleCallback(code)
   }
 
   // Initialize avatar preview
@@ -211,7 +238,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 px-4 py-8 flex items-center justify-center"
+    class="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 px-4 py-8 flex items-center justify-center"
   >
     <!-- Background Animation -->
     <div class="absolute inset-0 overflow-hidden">
@@ -232,7 +259,7 @@ onMounted(() => {
       <!-- Header -->
       <div class="text-center mb-8">
         <div
-          class="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4"
+          class="mx-auto w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4"
         >
           <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -244,7 +271,7 @@ onMounted(() => {
           </svg>
         </div>
         <h2
-          class="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+          class="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
         >
           Tạo tài khoản mới
         </h2>
@@ -260,7 +287,7 @@ onMounted(() => {
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
           <div
-            class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
+            class="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all duration-500"
             :style="{ width: `${(step / 3) * 100}%` }"
           ></div>
         </div>
@@ -319,20 +346,13 @@ onMounted(() => {
             <label class="block mb-2 text-sm font-semibold text-gray-700">Tên</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
+                <UserIcon class="w-5 h-5" />
               </span>
               <input
                 v-model="form.first_name"
                 type="text"
                 placeholder="Nhập tên của bạn"
-                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.first_name,
                   'border-green-300 bg-green-50': form.first_name,
@@ -365,20 +385,13 @@ onMounted(() => {
             <label class="block mb-2 text-sm font-semibold text-gray-700">Họ và tên đệm</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
+                <UserIcon class="w-5 h-5" />
               </span>
               <input
                 v-model="form.last_name"
                 type="text"
                 placeholder="Nhập họ và tên đệm"
-                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.last_name,
                   'border-green-300 bg-green-50': form.last_name,
@@ -411,20 +424,13 @@ onMounted(() => {
             <label class="block mb-2 text-sm font-semibold text-gray-700">Số điện thoại</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11 ਜ11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  ></path>
-                </svg>
+                <PhoneIcon class="w-5 h-5" />
               </span>
               <input
                 v-model="form.phone_number"
                 type="tel"
                 placeholder="Nhập số điện thoại"
-                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.phone_number,
                   'border-green-300 bg-green-50':
@@ -487,10 +493,11 @@ onMounted(() => {
                 @input="validateUsername"
                 type="text"
                 placeholder="Nhập tên đăng nhập (tối thiểu 3 ký tự)"
-                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.username,
-                  'border-green-300 bg-green-50': form.username.length >= 3,
+                  'border-green-300 bg-green-50':
+                    form.username.length >= 3 && !fieldErrors.username,
                 }"
                 minlength="3"
                 required
@@ -544,7 +551,7 @@ onMounted(() => {
                 @input="validateEmail"
                 type="email"
                 placeholder="Nhập địa chỉ email"
-                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.email,
                   'border-green-300 bg-green-50': form.email && isValidEmail,
@@ -588,7 +595,7 @@ onMounted(() => {
             <label class="block mb-2 text-sm font-semibold text-gray-700">Mật khẩu</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 23">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -601,7 +608,7 @@ onMounted(() => {
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
-                class="w-full pl-12 pr-12 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-12 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{ 'border-red-300 bg-red-50': fieldErrors.password }"
                 minlength="6"
                 required
@@ -691,7 +698,7 @@ onMounted(() => {
                 v-model="form.password_confirmation"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 placeholder="Xác nhận mật khẩu"
-                class="w-full pl-12 pr-12 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                class="w-full pl-12 pr-12 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 :class="{
                   'border-red-300 bg-red-50': fieldErrors.password_confirmation,
                   'border-green-300 bg-green-50':
@@ -751,7 +758,7 @@ onMounted(() => {
               id="agree-terms"
               v-model="form.agree_terms"
               type="checkbox"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition"
+              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition"
               required
             />
             <label
@@ -759,11 +766,11 @@ onMounted(() => {
               class="ml-2 block text-sm text-gray-700 select-none cursor-pointer"
             >
               Tôi đồng ý với
-              <a href="/privacy-policy" target="_blank" class="text-blue-600 hover:underline"
+              <a href="/privacy-policy" target="_blank" class="text-indigo-600 hover:underline"
                 >Điều khoản dịch vụ</a
               >
               và
-              <a href="/privacy-policy" target="_blank" class="text-blue-600 hover:underline"
+              <a href="/privacy-policy" target="_blank" class="text-indigo-600 hover:underline"
                 >Chính sách bảo mật</a
               >
             </label>
@@ -788,7 +795,7 @@ onMounted(() => {
             type="button"
             @click="nextStep"
             :disabled="step === 1 ? !isStep1Valid : !isStep2Valid"
-            class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+            class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
           >
             Tiếp tục
           </button>
@@ -796,7 +803,7 @@ onMounted(() => {
             v-if="step === 3"
             type="submit"
             :disabled="loading || !isStep3Valid"
-            class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+            class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
           >
             <svg
               v-if="loading"
@@ -868,7 +875,7 @@ onMounted(() => {
           <button
             type="button"
             @click="goToLogin"
-            class="font-semibold text-blue-600 hover:text-blue-800 focus:outline-none hover:underline transition ml-1"
+            class="font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none hover:underline transition ml-1"
           >
             Đăng nhập
           </button>
