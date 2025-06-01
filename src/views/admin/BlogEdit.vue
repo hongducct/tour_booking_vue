@@ -12,7 +12,7 @@
           <div class="inline-flex items-center justify-center mb-4">
             <ArrowPathIcon class="w-8 h-8 text-blue-500 animate-spin" />
           </div>
-          <p class="text-gray-600 text-lg">Đang tải dữ liệu bài viết...</p>
+          <p class="text-gray-600 text-lg dark:text-gray-200 ">Đang tải dữ liệu bài viết...</p>
         </div>
       </div>
 
@@ -21,8 +21,8 @@
         <div class="text-center max-w-md">
           <div class="bg-red-50 border border-red-200 rounded-2xl p-8">
             <ExclamationTriangleIcon class="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">Có lỗi xảy ra</h3>
-            <p class="text-gray-600 mb-6">{{ error }}</p>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2 dark:text-gray-200 ">Có lỗi xảy ra</h3>
+            <p class="text-gray-600 mb-6 dark:text-gray-200">{{ error }}</p>
             <BaseButton
               label="Thử lại"
               color="danger"
@@ -39,14 +39,15 @@
         <form @submit.prevent="updatePost" class="space-y-6 p-6">
           <!-- Title Input -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
               <DocumentTextIcon class="w-4 h-4 mr-2" />
               Tiêu đề bài viết *
             </label>
             <input
               v-model="form.title"
               type="text"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              :class="{'border-red-500': updateError}"
               placeholder="Nhập tiêu đề bài viết..."
               required
               @input="markAsChanged"
@@ -64,7 +65,7 @@
 
           <!-- Rich Text Editor -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
               <PencilSquareIcon class="w-4 h-4 mr-2" />
               Nội dung bài viết *
             </label>
@@ -84,13 +85,13 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Status -->
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
                 <CheckCircleIcon class="w-4 h-4 mr-2" />
                 Trạng thái
               </label>
               <select
                 v-model="form.blog_status"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 @change="markAsChanged"
               >
                 <option value="draft">Bản nháp</option>
@@ -102,14 +103,15 @@
 
             <!-- Author Info (Read-only) -->
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
                 <UserIcon class="w-4 h-4 mr-2" />
                 Tác giả
               </label>
               <input
                 :value="getAuthorName()"
                 type="text"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                :class="{'border-red-500': updateError}"
                 readonly
               />
             </div>
@@ -118,26 +120,26 @@
           <!-- Timestamps (Read-only) -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
                 <CalendarDaysIcon class="w-4 h-4 mr-2" />
                 Ngày xuất bản
               </label>
               <input
                 :value="formatDateTime(form.published_at)"
                 type="text"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 readonly
               />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
                 <PlusCircleIcon class="w-4 h-4 mr-2" />
                 Ngày tạo
               </label>
               <input
                 :value="formatDateTime(form.created_at)"
                 type="text"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 readonly
               />
             </div>

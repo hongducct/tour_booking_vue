@@ -41,18 +41,18 @@ const router = useRouter()
 
 const slides = [
   {
-    image: 'https://bookingtour.vn/templates/themes/images/slider-banner-1.jpg?v3',
+    image: 'https://besthuecitytour.com/wp-content/uploads/2020/09/Things-To-Do-In-Da-Nang-Best-Hue-City-Tour-Travel-1.jpg',
     title: 'BẠN ĐANG MUỐN ĐI ĐÂU?',
-    description: 'Hãy để BookingTour tư vấn cho bạn chuyến đi tuyệt vời nhất!',
+    description: 'Hãy để Travel Booking tư vấn cho bạn chuyến đi tuyệt vời nhất!',
     buttonText: 'XEM TIẾP',
     route: '/tour',
   },
   {
-    image: 'https://bookingtour.vn/templates/themes/images/slider-banner-2.jpg?v3',
-    title: "EXPERIENCE THE NATURE'S BEAUTY",
+    image: 'https://cdn.tourradar.com/s3/tour/1500x800/130299_5e2041e57bdc5.jpg',
+    title: "TRẢI NGHIỆM VẺ ĐẸP CỦA THIÊN NHIÊN",
     description:
-      'Taciti quasi, sagittis excepteur hymenaeos, id temporibus hic proident ullam, eaque donec delectus tempor consectetur nunc.',
-    buttonText: 'CONTINUE READING',
+      'Khám phá những điểm đến tuyệt đẹp và tận hưởng hành trình du lịch đáng nhớ cùng dịch vụ chuyên nghiệp của chúng tôi.',
+    buttonText: 'XEM THÊM',
     route: '/blog',
   },
 ]

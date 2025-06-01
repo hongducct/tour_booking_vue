@@ -5,7 +5,7 @@
       <div class="mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-200">
               Quản lý Đặt chỗ
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">
@@ -36,10 +36,10 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+          class="bg-white dark:bg-gray-500 rounded-xl p-6 shadow-sm border border-gray-400 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
         >
           <div class="flex items-center">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
               <svg
                 class="w-6 h-6 text-blue-600 dark:text-blue-400"
                 fill="none"
@@ -56,7 +56,7 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng đặt chỗ</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-200">
                 {{ bookings.length }}
               </p>
             </div>
@@ -64,15 +64,15 @@
         </div>
 
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+          class="bg-white dark:bg-gray-500 rounded-xl p-6 shadow-sm border border-gray-400 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
         >
           <div class="flex items-center">
-            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+            <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
               <CheckIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Đã xác nhận</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-200">
                 {{ confirmedCount }}
               </p>
             </div>
@@ -80,29 +80,29 @@
         </div>
 
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+          class="bg-white dark:bg-gray-500 rounded-xl p-6 shadow-sm border border-gray-400 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
         >
           <div class="flex items-center">
-            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <ClockIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
+              <ClockIcon class="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Chờ xác nhận</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ pendingCount }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-200">{{ pendingCount }}</p>
             </div>
           </div>
         </div>
 
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+          class="bg-white dark:bg-gray-500 rounded-xl p-6 shadow-sm border border-gray-400 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
         >
           <div class="flex items-center">
-            <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <XCircleIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
+              <XCircleIcon class="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Đã hủy</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-200">
                 {{ cancelledCount }}
               </p>
             </div>
@@ -111,72 +111,77 @@
       </div>
 
       <!-- Booking Cards Grid -->
-      <div class="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div class="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         <div
           v-for="booking in bookings"
           :key="booking.id"
           :class="{
-            'ring-2 ring-blue-500 ring-offset-2':
+            'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900':
               selectedBooking && selectedBooking.id === booking.id,
           }"
-          class="bg-white dark:bg-gray-100 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 overflow-hidden group"
+          class="bg-white dark:bg-gray-500 rounded-xl shadow-xl border border-gray-400 dark:border-gray-700 hover:shadow-xl/30 transition-all duration-300 overflow-hidden group"
         >
           <!-- Card Header -->
-          <div class="p-6 pb-4">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h3 class="font-bold text-lg dark:text-gray-600 text-gray-600">
-                    #{{ booking.id }}
-                  </h3>
-                  <span
-                    :class="statusClass(booking.status)"
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  >
-                    {{ statusText(booking.status) }}
-                  </span>
-                  <!-- hiển thị create at -->
-                  <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    >{{ formatDate(booking.created_at) }}</span
-                  >
-                </div>
-                <div class="space-y-1">
-                  <div class="flex items-center text-gray-600 dark:text-gray-400 text-sm">
-                    <UserIcon class="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span class="truncate"
-                      >{{ booking.user.first_name }} {{ booking.user.last_name }}</span
-                    >
-                  </div>
-                  <div class="flex items-center text-gray-600 dark:text-gray-400 text-sm">
-                    <MapPinIcon class="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span class="truncate">{{ booking.bookable.name }}</span>
-                  </div>
-                </div>
+          <div class="p-4 lg:p-5">
+            <!-- Booking ID and Status Row -->
+            <div class="flex items-start justify-between mb-3">
+              <h3 class="font-bold text-lg text-gray-900 dark:text-gray-200">#{{ booking.id }}</h3>
+              <span
+                :class="statusClass(booking.status)"
+                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+              >
+                {{ statusText(booking.status) }}
+              </span>
+            </div>
+
+            <!-- Created Date -->
+            <div class="mb-4">
+              <span
+                class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+              >
+                {{ formatDate(booking.created_at) }}
+              </span>
+            </div>
+
+            <!-- User and Location Info -->
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-700 dark:text-gray-300 text-sm">
+                <UserIcon class="w-4 h-4 mr-2 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                <span class="truncate font-medium">
+                  {{ booking.user.first_name }} {{ booking.user.last_name }}
+                </span>
+              </div>
+              <div class="flex items-center text-gray-700 dark:text-gray-300 text-sm">
+                <MapPinIcon class="w-4 h-4 mr-2 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                <span class="truncate">{{ booking.bookable.name }}</span>
               </div>
             </div>
 
             <!-- Booking Details -->
             <div class="space-y-3 mb-4">
               <div class="grid grid-cols-1 gap-2">
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <CalendarIcon class="w-4 h-4 mr-2 text-green-500" />
-                  <span>{{ formatDate(booking.start_date) }}</span>
+                <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                  <CalendarIcon
+                    class="w-4 h-4 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+                  />
+                  <span class="font-medium">{{ formatDate(booking.start_date) }}</span>
                 </div>
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <CalendarIcon class="w-4 h-4 mr-2 text-red-500" />
-                  <span>{{ formatDate(booking.end_date) }}</span>
+                <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                  <CalendarIcon class="w-4 h-4 mr-2 text-red-500 dark:text-red-400 flex-shrink-0" />
+                  <span class="font-medium">{{ formatDate(booking.end_date) }}</span>
                 </div>
               </div>
 
               <div class="flex items-center justify-between text-sm">
-                <div class="flex items-center text-gray-600 dark:text-gray-400">
-                  <UserGroupIcon class="w-4 h-4 mr-2" />
-                  <span
-                    >{{ booking.number_of_guests_adults + booking.number_of_children }} khách</span
-                  >
+                <div class="flex items-center text-gray-700 dark:text-gray-300">
+                  <UserGroupIcon
+                    class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400 flex-shrink-0"
+                  />
+                  <span class="font-medium">
+                    {{ booking.number_of_guests_adults + booking.number_of_children }} khách
+                  </span>
                 </div>
-                <div class="font-bold text-lg text-gray-900 dark:text-white">
+                <div class="font-bold text-lg text-gray-900 dark:text-gray-200">
                   {{ formatCurrency(booking.total_price) }}
                 </div>
               </div>
@@ -185,43 +190,44 @@
 
           <!-- Card Actions -->
           <div
-            class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-600"
+            class="px-4 lg:px-5 py-4 bg-gray-100 dark:bg-gray-600/50 border-t border-gray-400 dark:border-gray-600"
           >
-            <div class="flex flex-col sm:flex-row gap-4">
-              <!-- Action Buttons -->
-              <div class="flex flex-1">
-                <button
-                  @click="viewBookingDetails(booking)"
-                  class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
-                >
-                  <EyeIcon class="w-4 h-4" />
-                  Chi tiết
-                </button>
-                <button
-                  @click="editBooking(booking.id)"
-                  class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors duration-200"
-                >
-                  <PencilSquareIcon class="w-4 h-4" />
-                  Sửa
-                </button>
-                <button
-                  @click="deleteBooking(booking.id)"
-                  class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-200"
-                >
-                  <TrashIcon class="w-4 h-4" />
-                  Xóa
-                </button>
-                <!-- Status Selector -->
-                <select
-                  v-model="booking.status"
-                  @change="updateBookingStatus(booking.id, booking.status)"
-                  class="dark:bg-white bg-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-5"
-                >
-                  <option value="pending">Chờ xác nhận</option>
-                  <option value="confirmed">Đã xác nhận</option>
-                  <option value="cancelled">Đã hủy</option>
-                </select>
-              </div>
+            <!-- Action Buttons Row -->
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <button
+                @click="viewBookingDetails(booking)"
+                class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
+              >
+                <EyeIcon class="w-3.5 h-3.5" />
+                <span class="hidden sm:inline">Chi tiết</span>
+              </button>
+              <button
+                @click="editBooking(booking.id)"
+                class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors duration-200"
+              >
+                <PencilSquareIcon class="w-3.5 h-3.5" />
+                <span class="hidden sm:inline">Sửa</span>
+              </button>
+              <button
+                @click="deleteBooking(booking.id)"
+                class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-200"
+              >
+                <TrashIcon class="w-3.5 h-3.5" />
+                <span class="hidden sm:inline">Xóa</span>
+              </button>
+            </div>
+
+            <!-- Status Selector -->
+            <div class="w-full">
+              <select
+                v-model="booking.status"
+                @change="updateBookingStatus(booking.id, booking.status)"
+                class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+              >
+                <option value="pending">Chờ xác nhận</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
             </div>
           </div>
         </div>
@@ -229,10 +235,11 @@
 
       <!-- Empty State -->
       <div v-if="bookings.length === 0" class="text-center py-12">
-        <ClipboardIcon class="mx-auto h-12 w-12 text-gray-400" />
-
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Chưa có đặt chỗ nào</h3>
-        <p class="mt-1 text-sm text-gray-500">Các đặt chỗ sẽ hiển thị ở đây khi có.</p>
+        <ClipboardIcon class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">Chưa có đặt chỗ nào</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Các đặt chỗ sẽ hiển thị ở đây khi có.
+        </p>
       </div>
     </SectionMain>
 
@@ -259,14 +266,18 @@
           leave-to-class="opacity-0 scale-95"
         >
           <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-full overflow-hidden"
+            class="bg-white dark:bg-gray-500 rounded-2xl shadow-2xl w-full max-w-4xl max-h-full overflow-hidden"
           >
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+            <div
+              class="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 px-6 py-4 text-white"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <h2 class="text-xl font-bold">Chi tiết Đặt chỗ #{{ selectedBooking.id }}</h2>
-                  <p class="text-blue-100 text-sm mt-1">Thông tin chi tiết về đặt chỗ</p>
+                  <p class="text-blue-100 dark:text-blue-200 text-sm mt-1">
+                    Thông tin chi tiết về đặt chỗ
+                  </p>
                 </div>
                 <button
                   @click="closeModal"
@@ -290,19 +301,23 @@
                 <!-- General Information -->
                 <div>
                   <h3
-                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center"
+                    class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4 flex items-center"
                   >
-                    <InformationCircleIcon class="w-5 h-5 mr-2 text-blue-600" />
+                    <InformationCircleIcon class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                     Thông tin Chung
                   </h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">ID Đặt chỗ</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         #{{ selectedBooking.id }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Trạng thái</div>
                       <span
                         :class="statusClass(selectedBooking.status)"
@@ -311,27 +326,35 @@
                         {{ statusText(selectedBooking.status) }}
                       </span>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Tổng giá</div>
-                      <div class="font-bold text-lg text-gray-900 dark:text-white">
+                      <div class="font-bold text-lg text-gray-900 dark:text-gray-200">
                         {{ formatCurrency(selectedBooking.total_price) }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Ngày bắt đầu</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ formatDate(selectedBooking.start_date) }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Ngày kết thúc</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ formatDate(selectedBooking.end_date) }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Số ngày</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ calculateDays(selectedBooking.start_date, selectedBooking.end_date) }}
                         ngày
                       </div>
@@ -342,33 +365,41 @@
                 <!-- User Information -->
                 <div>
                   <h3
-                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center"
+                    class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4 flex items-center"
                   >
-                    <UserIcon class="w-5 h-5 mr-2 text-green-600" />
+                    <UserIcon class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                     Thông tin Khách hàng
                   </h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Họ và tên</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.user.first_name }} {{ selectedBooking.user.last_name }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Email</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.user.email }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Số điện thoại</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.contact_phone }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Địa chỉ</div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
+                      <div class="font-semibold text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.user.address }}
                       </div>
                     </div>
@@ -378,15 +409,17 @@
                 <!-- Tour Information -->
                 <div>
                   <h3
-                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center"
+                    class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4 flex items-center"
                   >
-                    <MapPinIcon class="w-5 h-5 mr-2 text-purple-600" />
+                    <MapPinIcon class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
                     Thông tin Tour
                   </h3>
-                  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                  <div
+                    class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-400 dark:border-gray-600"
+                  >
                     <div class="mb-4">
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Tên Tour</div>
-                      <div class="font-semibold text-lg text-gray-900 dark:text-white">
+                      <div class="font-semibold text-lg text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.bookable.name }}
                       </div>
                     </div>
@@ -402,28 +435,33 @@
                 <!-- Guest Information -->
                 <div>
                   <h3
-                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center"
+                    class="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4 flex items-center"
                   >
-                    <UserGroupIcon class="w-5 h-5 mr-2 text-orange-600" />
-
+                    <UserGroupIcon class="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
                     Thông tin Khách
                   </h3>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Người lớn</div>
-                      <div class="font-semibold text-2xl text-gray-900 dark:text-white">
+                      <div class="font-semibold text-2xl text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.number_of_guests_adults }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Trẻ em</div>
-                      <div class="font-semibold text-2xl text-gray-900 dark:text-white">
+                      <div class="font-semibold text-2xl text-gray-900 dark:text-gray-200">
                         {{ selectedBooking.number_of_children }}
                       </div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-400 dark:border-gray-600"
+                    >
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Tổng khách</div>
-                      <div class="font-semibold text-2xl text-gray-900 dark:text-white">
+                      <div class="font-semibold text-2xl text-gray-900 dark:text-gray-200">
                         {{
                           selectedBooking.number_of_guests_adults +
                           selectedBooking.number_of_children
@@ -437,11 +475,11 @@
 
             <!-- Modal Footer -->
             <div
-              class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex justify-end"
+              class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-400 dark:border-gray-600 flex justify-end"
             >
               <button
                 @click="closeModal"
-                class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 font-medium"
+                class="px-6 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 font-medium"
               >
                 Đóng
               </button>
@@ -680,37 +718,6 @@ button:hover {
 /* Backdrop blur for better modal visibility */
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);
-}
-
-/* Dark mode improvements */
-@media (prefers-color-scheme: dark) {
-  .dark\:bg-gray-800 {
-    background-color: rgb(31 41 55);
-  }
-
-  .dark\:bg-gray-700 {
-    background-color: rgb(55 65 81);
-  }
-
-  .dark\:text-white {
-    color: rgb(255 255 255);
-  }
-
-  .dark\:text-gray-300 {
-    color: rgb(209 213 219);
-  }
-
-  .dark\:text-gray-400 {
-    color: rgb(156 163 175);
-  }
-
-  .dark\:border-gray-600 {
-    border-color: rgb(75 85 99);
-  }
-
-  .dark\:border-gray-700 {
-    border-color: rgb(55 65 81);
-  }
 }
 
 /* Enhanced focus states for accessibility */

@@ -17,7 +17,7 @@ const menuClick = (event, item) => {
 </script>
 
 <template>
-  <ul>
+  <div class="space-y-1">
     <AsideMenuItem
       v-for="(item, index) in menu"
       :key="index"
@@ -25,5 +25,5 @@ const menuClick = (event, item) => {
       :is-dropdown-list="isDropdownList"
       @menu-click="menuClick"
     />
-  </ul>
+  </div>
 </template>

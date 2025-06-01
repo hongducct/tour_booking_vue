@@ -29,6 +29,7 @@ const handleScroll = debounce(() => {
 }, 100)
 
 const toggleUserMenu = () => {
+  event.stopPropagation() // Ngăn chặn sự kiện click lan truyền
   showUserMenu.value = !showUserMenu.value
 }
 
@@ -55,17 +56,22 @@ const closeAllMenus = () => {
   openDropdown.value = false
 }
 
+// Xử lý click ra ngoài để đóng menu
+const handleClickOutside = (event) => {
+  const menuContainer = document.querySelector('.menu-container')
+  if (menuContainer && !menuContainer.contains(event.target)) {
+    showUserMenu.value = false
+  }
+}
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
-  // document.addEventListener('click', (e) => {
-  //   if (!e.target.closest('.menu-container')) {
-  //     closeAllMenus()
-  //   }
-  // })
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -83,7 +89,7 @@ onUnmounted(() => {
       v-if="!isScroll"
       class="bg-gradient-to-r from-slate-500 to-slate-700 text-white border-b border-white/10"
     >
-      <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 text-sm">
+      <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-2 text-sm">
         <div class="hidden lg:flex space-x-8 items-center">
           <div
             class="flex items-center gap-2 hover:text-emerald-300 transition-colors duration-300"
@@ -96,7 +102,7 @@ onUnmounted(() => {
           >
             <EnvelopeIcon class="w-4 h-4" />
             <a href="mailto:bookingtourvn@hongducct.id.vn" class="font-medium">
-              bookingtour@hongducct.id.vn
+              travelbooking@hongducct.id.vn
             </a>
           </div>
           <div
@@ -129,7 +135,7 @@ onUnmounted(() => {
         isScroll ? 'bg-white text-gray-800 shadow-sm' : 'bg-white/10 backdrop-blur-sm text-white',
       ]"
     >
-      <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-2">
         <!-- Logo -->
         <router-link to="/" class="flex items-center group" @click="closeAllMenus">
           <div class="relative">

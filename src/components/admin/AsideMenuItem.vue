@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { mdiMinus, mdiPlus } from '@mdi/js'
+import { mdiChevronDown, mdiChevronRight } from '@mdi/js'
 import { getButtonColor } from '@/colors.js'
 import BaseIcon from '@/components/admin/BaseIcon.vue'
 import AsideMenuList from '@/components/admin/AsideMenuList.vue'
@@ -18,18 +18,34 @@ const emit = defineEmits(['menu-click'])
 
 const hasColor = computed(() => props.item && props.item.color)
 
-const asideMenuItemActiveStyle = computed(() =>
-  hasColor.value ? '' : 'aside-menu-item-active font-bold',
-)
-
 const isDropdownActive = ref(false)
 
-const componentClass = computed(() => [
-  props.isDropdownList ? 'py-3 px-6 text-sm' : 'py-3',
-  hasColor.value
-    ? getButtonColor(props.item.color, false, true)
-    : `aside-menu-item dark:text-slate-300 dark:hover:text-white`,
-])
+const componentClass = computed(() => {
+  const baseClasses = [
+    'flex items-center w-full text-left rounded-lg transition-all duration-200 group',
+    props.isDropdownList ? 'py-2 px-3 text-sm ml-4' : 'py-3 px-4',
+  ]
+
+  if (hasColor.value) {
+    if (props.item.color === 'danger') {
+      return [
+        ...baseClasses,
+        'text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20',
+      ]
+    }
+    return [...baseClasses, getButtonColor(props.item.color, false, true)]
+  }
+
+  return [
+    ...baseClasses,
+    'text-slate-700 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50',
+  ]
+})
+
+const activeClass = computed(
+  () =>
+    'bg-blue-100 text-blue-700 border-r-2 border-blue-600 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-400 font-semibold',
+)
 
 const hasDropdown = computed(() => !!props.item.menu)
 
@@ -43,46 +59,64 @@ const menuClick = (event) => {
 </script>
 
 <template>
-  <li>
+  <div>
+    <!-- RouterLink case -->
+    <RouterLink
+      v-if="item.to"
+      :to="item.to"
+      :class="[
+        componentClass,
+        $route.path === item.to || $route.path.startsWith(item.to + '/') ? activeClass : '',
+      ]"
+      @click="menuClick"
+    >
+      <BaseIcon v-if="item.icon" :path="item.icon" class="flex-shrink-0 mr-3" :size="20" />
+      <span class="flex-1 font-medium truncate">
+        {{ item.label }}
+      </span>
+      <BaseIcon
+        v-if="hasDropdown"
+        :path="isDropdownActive ? mdiChevronDown : mdiChevronRight"
+        class="flex-shrink-0 ml-2 transition-transform duration-200"
+        :size="16"
+      />
+    </RouterLink>
+
+    <!-- Regular button/link case -->
     <component
-      :is="item.to ? RouterLink : 'a'"
-      v-slot="vSlot"
-      :to="item.to ?? null"
+      v-else
+      :is="item.href ? 'a' : 'button'"
       :href="item.href ?? null"
       :target="item.target ?? null"
-      class="flex cursor-pointer"
       :class="componentClass"
       @click="menuClick"
     >
-      <BaseIcon
-        v-if="item.icon"
-        :path="item.icon"
-        class="flex-none"
-        :class="[vSlot && vSlot.isExactActive ? asideMenuItemActiveStyle : '']"
-        w="w-16"
-        :size="18"
-      />
-      <span
-        class="grow text-ellipsis line-clamp-1"
-        :class="[
-          { 'pr-12': !hasDropdown },
-          vSlot && vSlot.isExactActive ? asideMenuItemActiveStyle : '',
-        ]"
-        >{{ item.label }}</span
-      >
+      <BaseIcon v-if="item.icon" :path="item.icon" class="flex-shrink-0 mr-3" :size="20" />
+      <span class="flex-1 font-medium truncate">
+        {{ item.label }}
+      </span>
       <BaseIcon
         v-if="hasDropdown"
-        :path="isDropdownActive ? mdiMinus : mdiPlus"
-        class="flex-none"
-        :class="[vSlot && vSlot.isExactActive ? asideMenuItemActiveStyle : '']"
-        w="w-12"
+        :path="isDropdownActive ? mdiChevronDown : mdiChevronRight"
+        class="flex-shrink-0 ml-2 transition-transform duration-200"
+        :size="16"
       />
     </component>
-    <AsideMenuList
+
+    <div
       v-if="hasDropdown"
-      :menu="item.menu"
-      :class="['aside-menu-dropdown', isDropdownActive ? 'block dark:bg-slate-800/50' : 'hidden']"
-      is-dropdown-list
-    />
-  </li>
+      :class="[
+        'overflow-hidden transition-all duration-300 ease-in-out',
+        isDropdownActive ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
+      ]"
+    >
+      <div class="mt-1 ml-4 pl-4 border-l-2 border-slate-200 dark:border-slate-600">
+        <AsideMenuList
+          :menu="item.menu"
+          is-dropdown-list
+          @menu-click="emit('menu-click', $event)"
+        />
+      </div>
+    </div>
+  </div>
 </template>

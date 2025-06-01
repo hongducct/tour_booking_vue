@@ -88,7 +88,7 @@ const getDiscountDisplay = (voucher) => {
     return {
       value: props.formatCurrency(voucher.discount),
       type: 'Giảm tiền',
-      classes: 'text-green-600 bg-green-50',
+      classes: 'text-green-600 /dark:bg-green-50 dark:text-green-400',
       icon: CurrencyDollarIcon,
     }
   }
@@ -96,7 +96,7 @@ const getDiscountDisplay = (voucher) => {
     return {
       value: `${voucher.discount_percentage}%`,
       type: 'Giảm %',
-      classes: 'text-blue-600 bg-blue-50',
+      classes: 'text-blue-600 dark:text-blue-600',
       icon: TagIcon,
     }
   }
@@ -127,13 +127,13 @@ const paginationInfo = computed(() => {
   <div class="space-y-6">
     <!-- Desktop Table View -->
     <div class="hidden lg:block">
-      <CardBox class="overflow-hidden shadow-sm border border-gray-200">
+      <CardBox class="overflow-hidden shadow-sm border border-gray-200 rounded-lg">
         <div class="overflow-x-auto">
           <table class="w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-gray-600">
               <tr>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   <div class="flex items-center space-x-2">
                     <GiftIcon class="w-4 h-4" />
@@ -141,7 +141,7 @@ const paginationInfo = computed(() => {
                   </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   <div class="flex items-center space-x-2">
                     <CurrencyDollarIcon class="w-4 h-4" />
@@ -149,7 +149,7 @@ const paginationInfo = computed(() => {
                   </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   <div class="flex items-center space-x-2">
                     <CalendarIcon class="w-4 h-4" />
@@ -157,7 +157,7 @@ const paginationInfo = computed(() => {
                   </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   <div class="flex items-center space-x-2">
                     <UsersIcon class="w-4 h-4" />
@@ -165,17 +165,17 @@ const paginationInfo = computed(() => {
                   </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   Trạng thái
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   Tour áp dụng
                 </th>
                 <th
-                  class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-100"
                 >
                   Hành động
                 </th>
@@ -274,7 +274,7 @@ const paginationInfo = computed(() => {
                 <!-- Status -->
                 <td class="px-6 py-4">
                   <div class="flex items-center space-x-2">
-                    <component :is="getStatusConfig(voucher).icon" class="w-4 h-4 flex-shrink-0" />
+                    <component :is="getStatusConfig(voucher).icon" class="w-4 h-4 flex-shrink-0 dark:text-gray-900" />
                     <span
                       class="px-3 py-1 rounded-full text-xs font-medium border"
                       :class="getStatusConfig(voucher).classes"

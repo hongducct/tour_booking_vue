@@ -12,11 +12,15 @@
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-2">
             <!-- Status Filter -->
             <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700">Trạng thái:</label>
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Trạng thái:</label>
               <select
                 v-model="statusFilter"
                 @change="fetchPosts(1)"
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                :class="{
+                  'dark:focus:ring-blue-500 dark:focus:border-blue-500': statusFilter !== '',
+                  'dark:focus:ring-gray-500 dark:focus:border-gray-500': statusFilter === '',
+                }"
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="draft">Nháp</option>
@@ -28,11 +32,11 @@
             </div>
             <!-- Author Type Filter -->
             <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700">Tác giả:</label>
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Tác giả:</label>
               <select
                 v-model="authorTypeFilter"
                 @change="fetchPosts(1)"
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               >
                 <option value="">Tất cả tác giả</option>
                 <option value="admin">Admin</option>
@@ -46,7 +50,11 @@
                 @keyup.enter="fetchPosts(1)"
                 type="text"
                 placeholder="Tìm kiếm tiêu đề..."
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 w-full sm:w-64"
+                :class="{
+                  'dark:focus:ring-blue-500 dark:focus:border-blue-500': search !== '',
+                  'dark:focus:ring-gray-500 dark:focus:border-gray-500': search === '',
+                }"
               />
               <BaseButton
                 label="Tìm"
@@ -69,7 +77,7 @@
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-10">
           <i class="mdi mdi-loading mdi-spin text-3xl text-blue-500"></i>
-          <p class="text-gray-600 mt-2">Đang tải bài viết...</p>
+          <p class="text-gray-600 mt-2 dark:text-gray-200">Đang tải bài viết...</p>
         </div>
 
         <!-- Posts Grid -->
@@ -80,7 +88,7 @@
           <div
             v-for="post in posts"
             :key="post.id"
-            class="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+            class="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           >
             <!-- Image and Status -->
             <div class="relative cursor-pointer" @click="goToDetail(post.id)">
@@ -117,7 +125,7 @@
             <!-- Post Content -->
             <div class="flex-1 p-4 flex flex-col">
               <h3
-                class="text-lg font-semibold text-blue-700 mb-2 cursor-pointer hover:underline"
+                class="text-lg font-semibold text-gray-700 mb-2 cursor-pointer hover:text-blue-400 dark:text-gray-300 dark:hover:text-blue-300"
                 @click="goToDetail(post.id)"
               >
                 {{ post.title }}

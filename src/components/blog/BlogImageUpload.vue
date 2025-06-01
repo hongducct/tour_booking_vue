@@ -2,7 +2,7 @@
   <div>
     <!-- Ảnh đại diện Section -->
     <div class="mb-6">
-      <label class="block mb-3 text-sm font-semibold text-gray-800">
+      <label class="block mb-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
         <span class="flex items-center gap-2">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -21,7 +21,8 @@
           v-model="imageUrl"
           type="text"
           placeholder="Nhập URL ảnh"
-          class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+          :class="{ 'border-red-500': urlError }"
           @input="handleUrlInput"
         />
         <p v-if="urlError" class="text-xs text-red-500 mt-1">{{ urlError }}</p>

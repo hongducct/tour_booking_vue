@@ -25,7 +25,7 @@
               @keyup.enter="fetchDestinations(1)"
               type="text"
               placeholder="Tìm kiếm địa điểm..."
-              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:placeholder-gray-500"
             />
           </div>
 
@@ -37,7 +37,7 @@
                 <select
                   v-model="countryFilter"
                   @change="fetchDestinations(1)"
-                  class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out min-w-[140px]"
+                  class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out min-w-[140px] dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 >
                   <option value="">🌍 Tất cả quốc gia</option>
                   <option v-for="country in uniqueCountries" :key="country" :value="country">
@@ -54,7 +54,7 @@
                 <select
                   v-model="cityFilter"
                   @change="fetchDestinations(1)"
-                  class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out min-w-[140px]"
+                  class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out min-w-[140px] dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                 >
                   <option value="">🏙️ Tất cả thành phố</option>
                   <option v-for="city in uniqueCities" :key="city" :value="city">
@@ -130,7 +130,7 @@
           <div
             v-for="destination in destinations"
             :key="destination.id"
-            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1"
+            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1 dark:bg-gray-600 dark:text-white dark:border-gray-500"
           >
             <!-- Image Container -->
             <div class="relative overflow-hidden h-48">
@@ -168,19 +168,19 @@
             <div class="p-6 space-y-4">
               <div>
                 <h3
-                  class="text-lg font-bold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors duration-200 line-clamp-2 group-hover:text-blue-600"
+                  class="text-lg font-bold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors duration-200 line-clamp-2 group-hover:text-blue-400 dark:text-gray-200 dark:hover:text-blue-300"
                   @click="viewTours(destination.id)"
                 >
                   {{ destination.name }}
                 </h3>
 
-                <div class="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-3 dark:text-gray-200 ">
                   <BuildingOfficeIcon class="w-4 h-4 text-gray-400" />
                   <span>{{ destination.city }}</span>
                 </div>
               </div>
 
-              <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed">
+              <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed dark:text-gray-200 ">
                 {{ destination.description || 'Chưa có mô tả cho địa điểm này.' }}
               </p>
 
@@ -196,7 +196,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <BuildingStorefrontIcon class="w-5 h-5 text-indigo-500" />
-                  <span class="text-sm font-medium text-gray-700">Tours:</span>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-200 ">Tours:</span>
                   <span class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-bold">
                     {{ getToursCount(destination.id) }}
                   </span>

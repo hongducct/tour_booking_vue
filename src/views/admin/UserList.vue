@@ -7,7 +7,7 @@
   
         <CardBox>
           <div class="mb-4 flex justify-between items-center">
-            <select v-model="statusFilter" @change="fetchUsers" class="border p-2 rounded">
+            <select v-model="statusFilter" @change="fetchUsers" class="border p-2 rounded bg-white dark:bg-gray-800 dark:text-gray-200">
               <option value="">Tất cả</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -18,7 +18,7 @@
   
           <table class="w-full table-auto mb-4 border-collapse">
             <thead>
-              <tr>
+              <tr class="dark:text-gray-600">
                 <th class="p-2 border border-gray-300 bg-gray-100">ID</th>
                 <th class="p-2 border border-gray-300 bg-gray-100">Avatar</th>
                 <th class="p-2 border border-gray-300 bg-gray-100">Username</th>

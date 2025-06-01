@@ -62,9 +62,4 @@ export default [
     icon: mdiCog,
     label: 'Cài đặt',
   },
-  {
-    to: '/admin/test',
-    icon: mdiCog,
-    label: 'Test',
-  },
 ]

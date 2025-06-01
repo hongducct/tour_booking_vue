@@ -37,8 +37,6 @@ const menuClick = (event, item) => {
     darkModeStore.set(false)
     mainStore.clearAdmin()
     localStorage.removeItem('adminToken')
-    // localStorage.removeItem('token')
-    // localStorage.removeItem('user')
     router.push('/admin/login')
   }
 }
@@ -52,7 +50,7 @@ const menuClick = (event, item) => {
   >
     <div
       :class="[layoutAsidePadding, { 'ml-60 lg:ml-0': isAsideMobileExpanded }]"
-      class="pt-14 min-h-screen w-screen transition-position lg:w-auto bg-gray-50 dark:bg-slate-800 dark:text-slate-100"
+      class="pt-16 min-h-screen w-screen transition-all duration-300 lg:w-auto bg-slate-50 dark:bg-slate-900 dark:text-slate-100"
     >
       <NavBar
         :menu="menuNavBar"
@@ -81,9 +79,12 @@ const menuClick = (event, item) => {
       />
       <slot />
       <FooterBar>
-        Get more with
-        <a href="https://github.com/hongducct/travelbook-app" target="_blank" class="text-blue-600"
-          >hongducct (github)</a
+        Built with ❤️ by
+        <a
+          href="https://github.com/hongducct/travelbook-app"
+          target="_blank"
+          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium"
+          >hongducct</a
         >
       </FooterBar>
     </div>

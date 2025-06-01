@@ -27,20 +27,20 @@ defineProps({
   <CardBox class="mb-6">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Tìm kiếm mã</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Tìm kiếm mã</label>
         <input
           v-model="filters.search"
           type="text"
           placeholder="Nhập mã voucher..."
-          class="w-full border border-gray-300 rounded px-3 py-2"
+          class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-300"
           @input="debounceSearch"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Trạng thái</label>
         <select
           v-model="filters.status"
-          class="w-full border border-gray-300 rounded px-3 py-2"
+          class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-300"
           @change="fetchVouchers"
         >
           <option value="">Tất cả</option>
@@ -50,10 +50,10 @@ defineProps({
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Số lượng/trang</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Số lượng/trang</label>
         <select
           v-model="filters.perPage"
-          class="w-full border border-gray-300 rounded px-3 py-2"
+          class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-300"
           @change="fetchVouchers"
         >
           <option value="10">10</option>

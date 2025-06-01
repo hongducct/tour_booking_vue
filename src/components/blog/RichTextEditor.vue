@@ -1,34 +1,34 @@
 <template>
   <div>
-    <div class="mb-3 flex gap-2 flex-wrap">
+    <div class="mb-3 flex gap-2 flex-wrap dark:bg-gray-800 bg-white p-2 rounded-lg border border-gray-300">
       <BaseButton label="Chèn ảnh" color="info" @click="showImageModal = true" />
 
       <!-- Text Alignment Buttons -->
       <div class="flex gap-1 border-l pl-2 ml-2">
         <button
           @click="setTextAlign('left')"
-          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border dark:text-gray-800 "
           title="Căn trái"
         >
           ↤
         </button>
         <button
           @click="setTextAlign('center')"
-          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border dark:text-gray-800"
           title="Căn giữa"
         >
           ↕
         </button>
         <button
           @click="setTextAlign('right')"
-          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border dark:text-gray-800"
           title="Căn phải"
         >
           ↦
         </button>
         <button
           @click="setTextAlign('')"
-          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+          class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded border dark:text-gray-800"
           title="Bỏ căn"
         >
           ↔
@@ -40,7 +40,7 @@
       v-model:content="content"
       contentType="html"
       ref="quillEditor"
-      class="bg-white border border-gray-300 rounded-lg"
+      class="bg-white border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600"
       :options="quillOptions"
       @update:content="handleContentUpdate"
     />

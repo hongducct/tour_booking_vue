@@ -9,6 +9,9 @@ import PackageSection from '@/components/PackageSection.vue'
 import BestGallerySection from '@/components/BestGallerySection.vue'
 import BlogSection from '@/components/BlogSection.vue'
 import ContactSection from '@/components/ContactSection.vue'
+
+import ChatBot from '@/components/ChatBot.vue'
+
 </script>
 
 <template>
@@ -32,6 +35,7 @@ import ContactSection from '@/components/ContactSection.vue'
       <PackageSection />
       <BestGallerySection />
       <BlogSection />
+      <ChatBot />
     </div>
     <ContactSection />
     <TheFooter />

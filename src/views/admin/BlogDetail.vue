@@ -38,7 +38,7 @@
       <div v-else-if="post.id" class="space-y-6">
         <!-- Post Header Card -->
         <CardBox class="overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-8">
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-8 rounded-xl shadow-xl/30 dark:bg-gray-800 dark:from-gray-700 dark:to-gray-800 dark:text-gray-300">
             <div class="max-w-4xl mx-auto">
               <!-- Post Title -->
               <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">
@@ -48,24 +48,24 @@
               <!-- Post Meta Info -->
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <!-- Author Info -->
-                <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800 dark:text-gray-300">
                   <div class="flex items-center">
                     <UserIcon class="w-5 h-5 text-gray-400 mr-2" />
                     <div>
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Tác giả</p>
-                      <p class="font-semibold text-gray-800 truncate">{{ getAuthorName() }}</p>
+                      <p class="text-xs text-gray-500 uppercase tracking-wide dark:text-gray-200">Tác giả</p>
+                      <p class="font-semibold text-gray-800 truncate dark:text-gray-100">{{ getAuthorName() }}</p>
                     </div>
                   </div>
                 </div>
 
                 <!-- Author Type -->
-                <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800 dark:text-gray-300">
                   <div class="flex items-center">
                     <ShieldCheckIcon class="w-5 h-5 text-gray-400 mr-2" />
                     <div>
                       <p class="text-xs text-gray-500 uppercase tracking-wide">Loại tài khoản</p>
                       <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium dark:text-gray-800"
                         :class="
                           post.author_type === 'admin'
                             ? 'bg-purple-100 text-purple-800'
@@ -79,13 +79,13 @@
                 </div>
 
                 <!-- Status -->
-                <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800 dark:text-gray-300">
                   <div class="flex items-center">
                     <CheckCircleIcon class="w-5 h-5 text-gray-400 mr-2" />
                     <div>
                       <p class="text-xs text-gray-500 uppercase tracking-wide">Trạng thái</p>
                       <span
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold dark:text-gray-200"
                         :class="statusStyles[post.blog_status]"
                       >
                         <span
@@ -99,12 +99,12 @@
                 </div>
 
                 <!-- Published Date -->
-                <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800 dark:text-gray-300">
                   <div class="flex items-center">
                     <CalendarDaysIcon class="w-5 h-5 text-gray-400 mr-2" />
                     <div>
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Xuất bản</p>
-                      <p class="font-semibold text-gray-800 text-sm">
+                      <p class="text-xs text-gray-500 uppercase tracking-wide dark:text-gray-300">Xuất bản</p>
+                      <p class="font-semibold text-gray-800 text-sm truncate dark:text-gray-100">
                         {{ formatDate(post.published_at) }}
                       </p>
                     </div>
@@ -114,12 +114,12 @@
 
               <!-- Timestamps -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center text-sm text-gray-600 bg-white rounded-lg px-4 py-2">
+                <div class="flex items-center text-sm text-gray-600 bg-white rounded-lg px-4 py-2 dark:bg-gray-800 dark:text-gray-300">
                   <PlusCircleIcon class="w-4 h-4 mr-2" />
                   <span class="font-medium mr-2">Tạo:</span>
                   {{ formatDateTime(post.created_at) }}
                 </div>
-                <div class="flex items-center text-sm text-gray-600 bg-white rounded-lg px-4 py-2">
+                <div class="flex items-center text-sm text-gray-600 bg-white rounded-lg px-4 py-2 dark:bg-gray-800 dark:text-gray-300">
                   <PencilSquareIcon class="w-4 h-4 mr-2" />
                   <span class="font-medium mr-2">Cập nhật:</span>
                   {{ formatDateTime(post.updated_at) }}
@@ -176,17 +176,17 @@
         <!-- Content Card -->
         <CardBox>
           <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-gray-300">
               <DocumentTextIcon class="w-5 h-5 mr-2" />
               Nội dung bài viết
             </h3>
 
             <div
               v-if="post.content"
-              class="prose prose-lg max-w-none"
+              class="prose prose-lg max-w-none dark:text-gray-200"
               v-html="sanitizedContent"
             ></div>
-            <div v-else class="text-center py-12 text-gray-500">
+            <div v-else class="text-center py-12 text-gray-500 dark:text-gray-200">
               <DocumentTextIcon class="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <p class="text-lg italic">Bài viết không có nội dung.</p>
             </div>
@@ -315,11 +315,11 @@ const showImageModal = ref(false)
 
 // Status badge styles
 const statusStyles = {
-  draft: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
-  pending: 'bg-orange-50 text-orange-700 border border-orange-200',
-  rejected: 'bg-red-50 text-red-700 border border-red-200',
-  published: 'bg-green-50 text-green-700 border border-green-200',
-  archived: 'bg-gray-50 text-gray-700 border border-gray-200',
+  draft: 'bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-800 dark:text-yellow-200',
+  pending: 'bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-800 dark:text-orange-200',
+  rejected: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-800 dark:text-red-200',
+  published: 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-800 dark:text-green-200',
+  archived: 'bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-200',
 }
 
 const statusDotStyles = {
