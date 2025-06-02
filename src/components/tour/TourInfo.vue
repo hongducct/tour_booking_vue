@@ -236,6 +236,27 @@ const setActiveTab = (tab) => {
   --teal-500: #2dd4bf;
 }
 
+.prose {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.prose p {
+  margin: 0.5rem 0;
+}
+.prose ol,
+.prose :deep(ul) {
+  margin: 0.5rem 0;
+  list-style: disc;
+  list-style-position: inside;
+}
+.prose strong {
+  font-weight: 600;
+}
+.prose em {
+  font-style: italic;
+}
+
 .prose :deep(p) {
   margin-bottom: 1.5rem;
   line-height: 1.8;

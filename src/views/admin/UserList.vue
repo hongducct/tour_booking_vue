@@ -1,7 +1,7 @@
 <template>
     <LayoutAuthenticated>
       <SectionMain>
-        <SectionTitleLineWithButton title="Quản lý Người dùng" icon="mdiAccountMultiple" main>
+        <SectionTitleLineWithButton title="Quản lý Người dùng" :icon="mdiAccountMultiple" main>
           <BaseButton label="Thêm người dùng" color="info" @click="addUser" />
         </SectionTitleLineWithButton>
   
@@ -80,6 +80,7 @@ import SectionMain from '@/components/admin/SectionMain.vue'
 import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithButton.vue'
 import CardBox from '@/components/admin/CardBox.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
+import { mdiAccountMultiple } from '@mdi/js'
 
 const users = ref([])
 const pagination = ref({

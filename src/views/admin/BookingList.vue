@@ -33,6 +33,9 @@
         </div>
       </div>
 
+      <!-- Loading Skeleton -->
+      <BookingLoadingSkeleton v-if="isLoading" :count="perPage" />
+
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div
@@ -236,7 +239,9 @@
       <!-- Empty State -->
       <div v-if="bookings.length === 0" class="text-center py-12">
         <ClipboardIcon class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">Chưa có đặt chỗ nào</h3>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+          Chưa có đặt chỗ nào
+        </h3>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Các đặt chỗ sẽ hiển thị ở đây khi có.
         </p>
@@ -497,6 +502,7 @@ import axios from 'axios'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionMain from '@/components/admin/SectionMain.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
+import BookingLoadingSkeleton from '@/components/admin/booking/BookingLoadingSkeleton.vue'
 
 import {
   EyeIcon,
@@ -518,6 +524,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL
 const adminToken = localStorage.getItem('adminToken')
 const bookings = ref([])
 const selectedBooking = ref(null)
+const isLoading = ref(false)
 
 // Computed properties for statistics
 const confirmedCount = computed(() => bookings.value.filter((b) => b.status === 'confirmed').length)
@@ -525,6 +532,7 @@ const pendingCount = computed(() => bookings.value.filter((b) => b.status === 'p
 const cancelledCount = computed(() => bookings.value.filter((b) => b.status === 'cancelled').length)
 
 const fetchBookings = async () => {
+  isLoading.value = true
   try {
     const response = await axios.get(`${baseUrl}/bookings`, {
       headers: {
@@ -532,7 +540,7 @@ const fetchBookings = async () => {
       },
     })
     bookings.value = response.data
-    console.log('bookings: ', bookings.value)
+    isLoading.value = false
   } catch (error) {
     console.error('Lỗi khi tải danh sách đặt chỗ:', error)
   }

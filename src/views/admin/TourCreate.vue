@@ -213,6 +213,7 @@
             </div>
             <div class="mb-6">
               <label
+                v-if="!isUploadingImages"
                 class="flex items-center justify-center w-full h-32 border-2 border-dashed border-teal-300 rounded-lg cursor-pointer bg-teal-50 hover:bg-teal-100 transition-colors duration-200"
               >
                 <div class="flex flex-col items-center">
@@ -228,6 +229,18 @@
                   class="hidden"
                 />
               </label>
+              <!-- Loading State for Image Upload -->
+              <div
+                v-else
+                class="flex items-center justify-center w-full h-32 border-2 border-dashed border-teal-300 rounded-lg bg-teal-50"
+              >
+                <div class="text-center">
+                  <div class="inline-flex items-center justify-center mb-2">
+                    <ArrowPathIcon class="w-6 h-6 text-teal-500 animate-spin" />
+                  </div>
+                  <span class="text-sm font-medium text-teal-600">Đang tải ảnh lên...</span>
+                </div>
+              </div>
             </div>
             <div
               v-if="form.images.length"
@@ -576,11 +589,10 @@ const form = ref({
   itineraries: [], // Added itineraries array
 })
 
-
 // Price formatting states
 const formattedPrice = ref('')
 const isEditingPrice = ref(false)
-
+const isUploadingImages = ref(false)
 const availableFeatures = ref([])
 const locations = ref([])
 const vendors = ref([])
@@ -597,42 +609,33 @@ const errors = ref(null)
 // Vietnamese currency formatting function
 const formatVNDCurrency = (amount) => {
   if (!amount && amount !== 0) return ''
-  
   // Convert to number if it's a string
   const num = typeof amount === 'string' ? parseFloat(amount.replace(/[^\d]/g, '')) : amount
-  
   if (isNaN(num)) return ''
-  
   return new Intl.NumberFormat('vi-VN').format(num) + ' ₫'
-}
-
-// Remove formatting to get raw number
-const parseVNDCurrency = (formattedString) => {
-  if (!formattedString) return 0
-  return parseFloat(formattedString.replace(/[^\d]/g, '')) || 0
 }
 
 // Handle price input with real-time formatting
 const handlePriceInput = (event) => {
   const input = event.target
   const cursorPosition = input.selectionStart
-  
+
   // Get raw number value
   const rawValue = input.value.replace(/[^\d]/g, '')
-  
+
   if (rawValue === '') {
     formattedPrice.value = ''
     form.value.price = 0
     return
   }
-  
+
   // Update the actual price value
   form.value.price = parseInt(rawValue)
-  
+
   // Format for display
   const formatted = formatVNDCurrency(form.value.price)
   formattedPrice.value = formatted
-  
+
   // Maintain cursor position (approximate)
   setTimeout(() => {
     const newCursorPos = Math.min(cursorPosition, formatted.length)
@@ -649,15 +652,6 @@ const handlePriceBlur = () => {
   // Ensure the formatted value is properly set
   if (form.value.price > 0) {
     formattedPrice.value = formatVNDCurrency(form.value.price)
-  }
-}
-
-// Initialize formatted price when form.price changes
-const initializeFormattedPrice = () => {
-  if (form.value.price > 0) {
-    formattedPrice.value = formatVNDCurrency(form.value.price)
-  } else {
-    formattedPrice.value = ''
   }
 }
 
@@ -685,6 +679,7 @@ const handleImageUpload = async (e) => {
   const files = Array.from(e.target.files)
   if (!files.length) return
 
+  isUploadingImages.value = true // Set loading state to true
   try {
     const uploadPromises = files.map(async (file) => {
       const formData = new FormData()
@@ -713,6 +708,8 @@ const handleImageUpload = async (e) => {
   } catch (err) {
     console.error('Lỗi upload ảnh:', err)
     alert('Không thể tải ảnh lên.')
+  } finally {
+    isUploadingImages.value = false // Reset loading state
   }
 }
 

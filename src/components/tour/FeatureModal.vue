@@ -13,7 +13,7 @@
       @click.self="closeModal"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all duration-300"
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-full overflow-hidden transform transition-all duration-300"
       >
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-orange-50 to-red-50 border-b border-orange-100 px-8 py-6">
@@ -37,7 +37,7 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="px-8 py-6 max-h-[calc(90vh-140px)] overflow-y-auto">
+        <div class="px-8 py-6 max-h-[calc(90vh-150px)] overflow-y-auto">
           <form @submit.prevent="submitFeature" class="space-y-6">
             <!-- Feature Name -->
             <div class="space-y-2">

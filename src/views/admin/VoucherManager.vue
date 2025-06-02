@@ -12,6 +12,7 @@ import VoucherFilters from '@/components/admin/voucher/VoucherFilters.vue'
 import VoucherTable from '@/components/admin/voucher/VoucherTable.vue'
 import VoucherFormModal from '@/components/admin/voucher/VoucherFormModal.vue'
 import VoucherDetailsModal from '@/components/admin/voucher/VoucherDetailsModal.vue'
+import VoucherLoadingSkeleton from '@/components/admin/voucher/VoucherLoadingSkeleton.vue'
 
 // Khởi tạo store
 const tourStore = useTourStore()
@@ -31,6 +32,8 @@ const editingVoucher = ref(null)
 const viewingVoucher = ref(null)
 const loading = ref(false)
 const saving = ref(false)
+const initialLoading = ref(true) // Loading lần đầu
+const statisticsLoading = ref(true) // Loading thống kê
 
 const filters = ref({
   search: '',
@@ -97,6 +100,7 @@ const getApiHeaders = () => {
 
 const fetchStatistics = async () => {
   try {
+    statisticsLoading.value = true
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
     const response = await axios.get(`${apiBaseUrl}/vouchers/statistics`, {
       headers: getApiHeaders(),
@@ -104,6 +108,8 @@ const fetchStatistics = async () => {
     statistics.value = response.data.data
   } catch (err) {
     console.error('Lỗi khi lấy thống kê:', err)
+  } finally {
+    statisticsLoading.value = false
   }
 }
 
@@ -280,8 +286,10 @@ const refreshData = async () => {
 }
 
 // Mount
-onMounted(() => {
-  refreshData()
+onMounted(async () => {
+  initialLoading.value = true
+  await refreshData()
+  initialLoading.value = false
 })
 
 // Khôi phục scroll khi component bị hủy
@@ -297,8 +305,11 @@ onUnmounted(() => {
         <BaseButton label="Tạo Voucher" color="success" @click="openCreateForm" />
       </SectionTitleLineWithButton>
 
-      <VoucherStatistics :statistics="statistics" :format-currency="formatCurrency" />
+      <!-- Statistics với Voucher Loading Skeleton -->
+      <VoucherLoadingSkeleton v-if="statisticsLoading && initialLoading" type="stats" />
+      <VoucherStatistics v-else :statistics="statistics" :format-currency="formatCurrency" />
 
+      <!-- Filters - Không cần loading vì load nhanh -->
       <VoucherFilters
         :filters="filters"
         :debounce-search="debounceSearch"
@@ -306,7 +317,10 @@ onUnmounted(() => {
         :refresh-data="refreshData"
       />
 
+      <!-- Table với Voucher Loading Skeleton -->
+      <VoucherLoadingSkeleton v-if="loading && initialLoading" type="table" :rows="5" :columns="7" />
       <VoucherTable
+        v-else
         :vouchers="vouchers"
         :pagination="pagination"
         :loading="loading"
@@ -319,6 +333,7 @@ onUnmounted(() => {
         :change-page="changePage"
       />
 
+      <!-- Form Modal với Loading Overlay -->
       <VoucherFormModal
         :show-create-form="showCreateForm"
         :editing-voucher="editingVoucher"
@@ -330,6 +345,7 @@ onUnmounted(() => {
         :cancel-form="cancelForm"
       />
 
+      <!-- Details Modal -->
       <VoucherDetailsModal
         :viewing-voucher="viewingVoucher"
         :format-currency="formatCurrency"
@@ -337,6 +353,9 @@ onUnmounted(() => {
         :format-date-time="formatDateTime"
         @close="viewingVoucher = null"
       />
+
+      <!-- Loading Overlay khi đang save -->
+      <VoucherLoadingSkeleton v-if="saving" overlay loading-text="Đang lưu voucher..." />
     </SectionMain>
   </LayoutAuthenticated>
 </template>

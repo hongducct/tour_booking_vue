@@ -70,14 +70,19 @@
 
     <!-- Go to page input - ẩn trên mobile -->
     <div class="hidden sm:flex items-center gap-2">
-      <span>Go to page:</span>
+      <span class="dark:text-gray-400">Go to page:</span>
       <input
         type="text"
-        class="border rounded px-2 py-1 w-16 text-center"
+        class="border rounded px-2 py-1 w-16 text-center dark:bg-gray-800 dark:text-gray-300"
         v-model="goToPage"
         placeholder="#"
       />
-      <button class="px-3 py-1 rounded border bg-gray-100" @click="handleGoToPage">Go</button>
+      <button
+        class="px-3 py-1 rounded border bg-gray-100 dark:bg-gray-800 dark:text-gray-300"
+        @click="handleGoToPage"
+      >
+        Go
+      </button>
     </div>
   </div>
 </template>

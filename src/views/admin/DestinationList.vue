@@ -88,7 +88,10 @@
         </div>
 
         <!-- Map View Toggle -->
-        <div v-if="showMapView" class="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+        <div
+          v-if="showMapView"
+          class="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100"
+        >
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
               <div class="p-2 bg-blue-100 rounded-lg">
@@ -105,7 +108,9 @@
               @click="toggleMapView"
             />
           </div>
-          <div class="bg-white rounded-xl h-80 flex items-center justify-center border-2 border-dashed border-blue-200 shadow-inner">
+          <div
+            class="bg-white rounded-xl h-80 flex items-center justify-center border-2 border-dashed border-blue-200 shadow-inner"
+          >
             <div class="text-center text-gray-500">
               <GlobeAltIcon class="w-16 h-16 mx-auto mb-3 text-blue-300" />
               <p class="text-lg font-medium mb-1">Bản đồ sẽ được tích hợp ở đây</p>
@@ -116,7 +121,9 @@
 
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-16">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4"
+          >
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
           <p class="text-gray-600 text-lg">Đang tải địa điểm...</p>
@@ -149,15 +156,21 @@
               </div>
 
               <!-- Overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              ></div>
 
               <!-- Badges -->
               <div class="absolute top-3 left-3 right-3 flex justify-between">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm">
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm"
+                >
                   <GlobeAltIcon class="w-3 h-3 mr-1" />
                   {{ destination.country }}
                 </span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100/90 backdrop-blur-sm text-green-800 shadow-sm">
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100/90 backdrop-blur-sm text-green-800 shadow-sm"
+                >
                   <MapPinIcon class="w-3 h-3 mr-1" />
                   GPS
                 </span>
@@ -174,13 +187,13 @@
                   {{ destination.name }}
                 </h3>
 
-                <div class="flex items-center gap-2 text-sm text-gray-600 mb-3 dark:text-gray-200 ">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-3 dark:text-gray-200">
                   <BuildingOfficeIcon class="w-4 h-4 text-gray-400" />
                   <span>{{ destination.city }}</span>
                 </div>
               </div>
 
-              <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed dark:text-gray-200 ">
+              <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed dark:text-gray-200">
                 {{ destination.description || 'Chưa có mô tả cho địa điểm này.' }}
               </p>
 
@@ -196,8 +209,10 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <BuildingStorefrontIcon class="w-5 h-5 text-indigo-500" />
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-200 ">Tours:</span>
-                  <span class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-bold">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Tours:</span>
+                  <span
+                    class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-bold"
+                  >
                     {{ getToursCount(destination.id) }}
                   </span>
                 </div>
@@ -229,12 +244,15 @@
 
         <!-- Empty State -->
         <div v-else class="text-center py-20">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
+          <div
+            class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6"
+          >
             <MapPinIcon class="w-10 h-10 text-gray-400" />
           </div>
           <h3 class="text-xl font-semibold text-gray-900 mb-3">Không có địa điểm nào</h3>
           <p class="text-gray-500 mb-8 max-w-sm mx-auto">
-            Không tìm thấy địa điểm nào phù hợp với bộ lọc của bạn. Hãy thử điều chỉnh bộ lọc hoặc thêm địa điểm mới.
+            Không tìm thấy địa điểm nào phù hợp với bộ lọc của bạn. Hãy thử điều chỉnh bộ lọc hoặc
+            thêm địa điểm mới.
           </p>
           <BaseButton
             label="Thêm địa điểm đầu tiên"
@@ -247,10 +265,7 @@
 
         <!-- Pagination -->
         <div v-if="destinations.length > 0" class="mt-8">
-          <Pagination
-            :pagination="pagination"
-            @change-page="goToPage"
-          />
+          <Pagination :pagination="pagination" @change-page="goToPage" />
         </div>
       </CardBox>
 
@@ -293,7 +308,9 @@
           <div class="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
             <!-- Loading State -->
             <div v-if="isLoadingTours" class="text-center py-12">
-              <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4"
+              >
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
               <p class="text-gray-600 text-lg">Đang tải tours...</p>
@@ -329,14 +346,20 @@
                   <!-- Tour Info -->
                   <div class="flex-1 space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <h3 class="text-xl font-bold text-gray-800 hover:text-blue-600 cursor-pointer transition-colors duration-200">
+                      <h3
+                        class="text-xl font-bold text-gray-800 hover:text-blue-600 cursor-pointer transition-colors duration-200"
+                      >
                         {{ tour.name }}
                       </h3>
                       <div class="flex flex-wrap gap-2">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                        <span
+                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800"
+                        >
                           {{ tour.category }}
                         </span>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                        <span
+                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800"
+                        >
                           {{ tour.days }}D{{ tour.nights }}N
                         </span>
                       </div>
@@ -365,7 +388,9 @@
 
             <!-- Empty Tours State -->
             <div v-else class="text-center py-12">
-              <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-6">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-6"
+              >
                 <BuildingStorefrontIcon class="w-8 h-8 text-gray-400" />
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-3">Chưa có tour nào</h3>
@@ -396,8 +421,6 @@ import CardBox from '@/components/admin/CardBox.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
 import Pagination from '@/components/Pagination.vue'
 import LocationModal from '@/components/tour/LocationModal.vue'
-
-// Import Heroicons
 import {
   MapPinIcon,
   MagnifyingGlassIcon,
@@ -409,17 +432,7 @@ import {
   CurrencyDollarIcon,
   ChevronDownIcon,
 } from '@heroicons/vue/24/outline'
-
-import {
-  mdiMapMarker,
-  mdiPlus,
-  mdiRefresh,
-  mdiEye,
-  mdiPencil,
-  mdiEarth,
-} from '@mdi/js'
-
-
+import { mdiMapMarker, mdiPlus, mdiRefresh, mdiEye, mdiPencil, mdiEarth } from '@mdi/js'
 
 const router = useRouter()
 
@@ -463,13 +476,12 @@ const uniqueCities = computed(() => {
 
 // Helper functions
 function getImageUrl(imageName) {
-  // Assuming images are served from a base URL
   const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
   return imageName.startsWith('http') ? imageName : `${baseUrl}/images/${imageName}`
 }
 
 function handleImageError(event) {
-  event.target.src = '/images/placeholder.png' // Fallback image
+  event.target.src = '/images/placeholder.png'
 }
 
 function formatPrice(price) {
@@ -483,28 +495,26 @@ function getToursCount(destinationId) {
   return toursCount.value[destinationId] || 0
 }
 
+const adminToken = localStorage.getItem('adminToken')
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+
 // API functions
 async function fetchDestinations(page = 1) {
   isLoading.value = true
   try {
-    const adminToken = localStorage.getItem('adminToken')
     if (!adminToken) {
       alert('Bạn cần đăng nhập để truy cập trang này.')
       router.push('/admin/login')
       return
     }
-
-    const baseUrl = import.meta.env.VITE_API_BASE_URL
-    let url = `${baseUrl}/locations`
-
-    // Add filters
+    let url = `${baseUrl}/locations?page=${page}`
     const params = new URLSearchParams()
     if (countryFilter.value) params.append('country', countryFilter.value)
     if (cityFilter.value) params.append('city', cityFilter.value)
     if (search.value) params.append('search', search.value)
 
     if (params.toString()) {
-      url += `?${params.toString()}`
+      url += `&${params.toString()}`
     }
 
     const config = {
@@ -512,32 +522,14 @@ async function fetchDestinations(page = 1) {
     }
 
     const response = await axios.get(url, config)
-
-    // Handle both paginated and non-paginated responses
-    if (response.data.data && Array.isArray(response.data.data)) {
-      destinations.value = response.data.data
-      if (response.data.meta) {
-        pagination.value = {
-          current_page: response.data.meta.current_page,
-          last_page: response.data.meta.last_page,
-          next_page_url: response.data.links.next,
-          prev_page_url: response.data.links.prev,
-          links: response.data.meta.links,
-        }
-      }
-    } else if (Array.isArray(response.data.data)) {
-      destinations.value = response.data.data
-      // Reset pagination for non-paginated response
-      pagination.value = {
-        current_page: 1,
-        last_page: 1,
-        next_page_url: null,
-        prev_page_url: null,
-        links: [],
-      }
+    destinations.value = response.data.data
+    pagination.value = {
+      current_page: response.data.meta.current_page,
+      last_page: response.data.meta.last_page,
+      next_page_url: response.data.links.next,
+      prev_page_url: response.data.links.prev,
+      links: response.data.meta.links || [],
     }
-
-    // Fetch tours count for each destination
     await fetchToursCount()
   } catch (error) {
     console.error('Lỗi khi lấy danh sách địa điểm:', error)
@@ -549,44 +541,38 @@ async function fetchDestinations(page = 1) {
 
 async function fetchToursCount() {
   try {
-    const adminToken = localStorage.getItem('adminToken')
-    const baseUrl = import.meta.env.VITE_API_BASE_URL
+    const locationIds = destinations.value.map((dest) => dest.id)
+    if (!locationIds.length) {
+      toursCount.value = {}
+      return
+    }
     const config = {
       headers: { Authorization: `Bearer ${adminToken}` },
     }
-
-    const counts = {}
-
-    // Fetch tours count for each destination
-    const promises = destinations.value.map(async (destination) => {
-      try {
-        const response = await axios.get(`${baseUrl}/locations/${destination.id}/tours`, config)
-        counts[destination.id] =
-          response.data.tours?.total || response.data.tours?.data?.length || 0
-      } catch (error) {
-        console.error(`Error fetching tours for destination ${destination.id}:`, error)
-        counts[destination.id] = 0
-      }
-    })
-
-    await Promise.all(promises)
-    toursCount.value = counts
+    const response = await axios.post(
+      `${baseUrl}/locations/tour-counts`,
+      { location_ids: locationIds },
+      config,
+    )
+    toursCount.value = response.data.counts
   } catch (error) {
     console.error('Lỗi khi lấy số lượng tours:', error)
+    toursCount.value = destinations.value.reduce((acc, dest) => {
+      acc[dest.id] = 0
+      return acc
+    }, {})
   }
 }
 
 async function fetchTours(destinationId) {
   isLoadingTours.value = true
   try {
-    const adminToken = localStorage.getItem('adminToken')
-    const baseUrl = import.meta.env.VITE_API_BASE_URL
     const config = {
       headers: { Authorization: `Bearer ${adminToken}` },
     }
-
     const response = await axios.get(`${baseUrl}/locations/${destinationId}/tours`, config)
-    tours.value = response.data.tours?.data || []
+    tours.value = response.data.tours.data
+    selectedDestination.value = response.data.location
   } catch (error) {
     console.error('Lỗi khi lấy danh sách tours:', error)
     alert('Lỗi khi tải danh sách tours. Vui lòng thử lại.')
@@ -598,8 +584,6 @@ async function fetchTours(destinationId) {
 
 // Navigation functions
 async function viewTours(destinationId) {
-  const destination = destinations.value.find((d) => d.id === destinationId)
-  selectedDestination.value = destination
   showToursModal.value = true
   await fetchTours(destinationId)
 }
@@ -634,7 +618,7 @@ function toggleMapView() {
 
 function handleLocationCreated(newLocation) {
   showCreateModal.value = false
-  fetchDestinations(1) // Refresh the list
+  fetchDestinations(1)
 }
 
 // Initial fetch
@@ -755,7 +739,8 @@ select {
 }
 
 /* Focus styles */
-input:focus, select:focus {
+input:focus,
+select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -766,10 +751,14 @@ input:focus, select:focus {
 
 .group:hover {
   transform: translateY(-0.25rem);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08);
 }
 .group:hover .group-hover\:shadow-xl {
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 10px 15px rgba(0, 0, 0, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.08);
 }
 .group:hover .group-hover\:border-blue-200 {
   border-color: #bfdbfe; /* Tailwind's blue-200 */
