@@ -30,9 +30,8 @@
           'text-xl leading-tight': layout === 'vertical',
           'text-lg': layout === 'horizontal',
         }"
-      >
-        {{ destination.title || `Tour Du Lịch ${destination.name}` }}
-      </h3>
+        v-html="destination.title"
+      ></h3>
 
       <!-- Rating -->
       <div class="flex items-center">

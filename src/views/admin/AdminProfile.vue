@@ -14,6 +14,8 @@ import {
   CheckCircleIcon,
   ExclamationCircleIcon,
   ArrowPathIcon,
+  ShieldCheckIcon,
+  CameraIcon,
 } from '@heroicons/vue/24/outline'
 import SectionMain from '@/components/admin/SectionMain.vue'
 import CardBox from '@/components/admin/CardBox.vue'
@@ -26,9 +28,28 @@ import BaseButtons from '@/components/admin/BaseButtons.vue'
 import UserCard from '@/components/admin/UserCard.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithButton.vue'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 const mainStore = useMainStore()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
+
+const notifySuccess = (message) => {
+  toast(message, {
+    theme: 'auto',
+    type: 'success',
+    position: 'top-center',
+    dangerouslyHTMLString: true,
+  })
+}
+const notifyError = (message) => {
+  toast(message, {
+    theme: 'auto',
+    type: 'error',
+    position: 'top-center',
+    dangerouslyHTMLString: true,
+  })
+}
 
 const profileForm = reactive({
   username: mainStore.admin.username,
@@ -52,8 +73,6 @@ const emailForm = reactive({
   otp: '',
 })
 
-const error = ref('')
-const success = ref('')
 const loading = ref(false)
 const otpSent = ref(false)
 const emailOtpSent = ref(false)
@@ -61,11 +80,9 @@ const isLoadingProfile = ref(true)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
 
-
 // Avatar upload states
 const avatarPreview = ref(profileForm.avatar || '')
 const isUploadingImage = ref(false)
-const avatarErrors = ref({})
 
 onMounted(async () => {
   if (mainStore.isAdminAuthenticated && !mainStore.admin.id) {
@@ -93,26 +110,22 @@ const handleImageUpload = async (e) => {
 
   // Validate file size (5MB limit)
   if (file.size > 5 * 1024 * 1024) {
-    avatarErrors.value.avatar = 'Image size must be less than 5MB.'
-    error.value = 'Image size must be less than 5MB.'
+    notifyError('Kích thước hình ảnh phải nhỏ hơn 5MB.')
     return
   }
 
   // Validate file type
   if (!file.type.startsWith('image/')) {
-    avatarErrors.value.avatar = 'Please select a valid image file.'
-    error.value = 'Please select a valid image file.'
+    notifyError('Vui lòng chọn một tệp hình ảnh hợp lệ.')
     return
   }
 
   isUploadingImage.value = true
-  avatarErrors.value.avatar = null
-  error.value = ''
 
   try {
     const formData = new FormData()
     formData.append('file', file)
-    
+
     const uploadRes = await axios.post(
       `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
       formData,
@@ -130,14 +143,10 @@ const handleImageUpload = async (e) => {
 
     avatarPreview.value = uploadRes.data.secure_url
     profileForm.avatar = uploadRes.data.secure_url
-    success.value = 'Avatar uploaded successfully!'
-    
-    // Clear any previous errors
-    avatarErrors.value = {}
+    notifySuccess('Tải lên ảnh đại diện thành công!')
   } catch (err) {
     console.error('Image upload error:', err)
-    avatarErrors.value.avatar = 'Failed to upload image. Please try again.'
-    error.value = 'Failed to upload image. Please try again.'
+    notifyError('Không thể tải lên hình ảnh. Vui lòng thử lại.')
   } finally {
     isUploadingImage.value = false
   }
@@ -145,8 +154,6 @@ const handleImageUpload = async (e) => {
 
 const submitProfile = async () => {
   loading.value = true
-  error.value = ''
-  success.value = ''
   try {
     const res = await axios.put(`${baseUrl}/admin/profile`, profileForm, {
       headers: {
@@ -155,9 +162,9 @@ const submitProfile = async () => {
     })
     console.log('Profile update response:', res.data)
     mainStore.setAdmin(res.data.admin)
-    success.value = 'Profile updated successfully'
+    notifySuccess('Cập nhật hồ sơ thành công!')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Failed to update profile'
+    notifyError(err.response?.data?.message || 'Không thể cập nhật hồ sơ')
   } finally {
     loading.value = false
   }
@@ -165,14 +172,12 @@ const submitProfile = async () => {
 
 const requestPasswordOtp = async () => {
   loading.value = true
-  error.value = ''
-  success.value = ''
   try {
     await axios.post(`${baseUrl}/admin/forgot-password`, { email: passwordForm.email })
     otpSent.value = true
-    success.value = 'OTP sent to your email'
+    notifySuccess('Mã OTP đã được gửi đến email của bạn')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Failed to send OTP'
+    notifyError(err.response?.data?.message || 'Không thể gửi mã OTP')
   } finally {
     loading.value = false
   }
@@ -180,17 +185,15 @@ const requestPasswordOtp = async () => {
 
 const submitPasswordReset = async () => {
   loading.value = true
-  error.value = ''
-  success.value = ''
   try {
     await axios.post(`${baseUrl}/admin/reset-password`, passwordForm)
-    success.value = 'Password reset successfully'
+    notifySuccess('Đặt lại mật khẩu thành công!')
     otpSent.value = false
     passwordForm.otp = ''
     passwordForm.password = ''
     passwordForm.password_confirmation = ''
   } catch (err) {
-    error.value = err.response?.data?.message || 'Failed to reset password'
+    notifyError(err.response?.data?.message || 'Không thể đặt lại mật khẩu')
   } finally {
     loading.value = false
   }
@@ -198,12 +201,14 @@ const submitPasswordReset = async () => {
 
 const requestEmailOtp = async () => {
   loading.value = true
-  error.value = ''
-  success.value = ''
   try {
+    // Send OTP to current email instead of new email
     await axios.post(
       `${baseUrl}/admin/request-email-change-otp`,
-      { new_email: emailForm.new_email },
+      {
+        current_email: profileForm.email, // Send to current email
+        new_email: emailForm.new_email,
+      },
       {
         headers: {
           Authorization: `Bearer ${mainStore.adminToken}`,
@@ -211,12 +216,13 @@ const requestEmailOtp = async () => {
       },
     )
     emailOtpSent.value = true
-    success.value = 'OTP sent to your new email address'
+    notifySuccess(`Mã OTP đã được gửi đến email hiện tại của bạn: ${profileForm.email}`)
   } catch (err) {
-    error.value =
+    notifyError(
       err.response?.data?.message ||
-      err.response?.data?.errors?.new_email?.[0] ||
-      'Failed to send OTP'
+        err.response?.data?.errors?.new_email?.[0] ||
+        'Không thể gửi mã OTP',
+    )
   } finally {
     loading.value = false
   }
@@ -224,15 +230,13 @@ const requestEmailOtp = async () => {
 
 const submitEmailChange = async () => {
   loading.value = true
-  error.value = ''
-  success.value = ''
   try {
     const res = await axios.post(`${baseUrl}/admin/change-email`, emailForm, {
       headers: {
         Authorization: `Bearer ${mainStore.adminToken}`,
       },
     })
-    success.value = 'Email changed successfully'
+    notifySuccess('Thay đổi email thành công!')
     mainStore.setAdmin(res.data.admin)
     profileForm.email = res.data.admin.email
     passwordForm.email = res.data.admin.email
@@ -240,10 +244,11 @@ const submitEmailChange = async () => {
     emailForm.new_email = ''
     emailForm.otp = ''
   } catch (err) {
-    error.value =
+    notifyError(
       err.response?.data?.message ||
-      err.response?.data?.errors?.otp?.[0] ||
-      'Failed to change email'
+        err.response?.data?.errors?.otp?.[0] ||
+        'Không thể thay đổi email',
+    )
   } finally {
     loading.value = false
   }
@@ -253,51 +258,38 @@ const submitEmailChange = async () => {
 <template>
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton :icon="UserIcon" title="Admin Profile" main>
+      <SectionTitleLineWithButton :icon="UserIcon" title="Hồ Sơ Quản Trị" main>
         <BaseButton
           href="https://github.com/justboil/admin-one-vue-tailwind"
           target="_blank"
           :icon="mdiGithub"
-          label="Star on GitHub"
+          label="Star trên GitHub"
           color="contrast"
           rounded-full
           small
         />
       </SectionTitleLineWithButton>
 
-      <div v-if="isLoadingProfile" class="flex items-center justify-center py-12">
-        <div class="flex items-center space-x-3 text-gray-500">
-          <ArrowPathIcon class="h-5 w-5 animate-spin" />
-          <span class="text-sm font-medium">Loading profile...</span>
+      <div v-if="isLoadingProfile" class="flex items-center justify-center py-16">
+        <div class="flex flex-col items-center space-y-4 text-gray-500">
+          <div class="relative">
+            <div
+              class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"
+            ></div>
+          </div>
+          <span class="text-sm font-medium animate-pulse">Đang tải hồ sơ...</span>
         </div>
       </div>
 
       <template v-else>
         <!-- User Card với hiệu ứng gradient hiện đại -->
         <div
-          class="mb-8 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          class="mb-8 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-sm"
         >
-          <UserCard :user="mainStore.admin" />
-        </div>
-
-        <!-- Alert Messages -->
-        <div
-          v-if="error"
-          class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4"
-        >
-          <div class="flex items-center">
-            <ExclamationCircleIcon class="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-            <p class="text-red-700 dark:text-red-300 text-sm font-medium">{{ error }}</p>
-          </div>
-        </div>
-
-        <div
-          v-if="success"
-          class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4"
-        >
-          <div class="flex items-center">
-            <CheckCircleIcon class="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-            <p class="text-green-700 dark:text-green-300 text-sm font-medium">{{ success }}</p>
+          <div class="p-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl">
+              <UserCard :user="mainStore.admin" />
+            </div>
           </div>
         </div>
 
@@ -305,45 +297,66 @@ const submitEmailChange = async () => {
           <!-- Profile Form -->
           <div class="xl:col-span-2">
             <div
-              class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+              class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
             >
-              <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                <h3 class="text-lg font-semibold text-white flex items-center">
-                  <UserIcon class="h-5 w-5 mr-2" />
-                  Profile Information
+              <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-6">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                  <div
+                    class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-3"
+                  >
+                    <UserIcon class="h-6 w-6 text-white" />
+                  </div>
+                  Thông Tin Hồ Sơ
                 </h3>
+                <p class="text-blue-100 text-sm mt-1">Cập nhật thông tin cá nhân của bạn</p>
               </div>
 
-              <form @submit.prevent="submitProfile" class="p-6 space-y-6">
-                <!-- Avatar Upload Section -->
-                <div class="space-y-4">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >Profile Picture</label
-                  >
-                  <div class="flex flex-col sm:flex-row items-center gap-6">
-                    <div class="relative">
+              <form @submit.prevent="submitProfile" class="p-8 space-y-8">
+                <!-- Avatar Upload Section với thiết kế đẹp hơn -->
+                <div class="space-y-6">
+                  <div class="text-center">
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                      Ảnh Đại Diện
+                    </h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      Cập nhật ảnh hồ sơ của bạn
+                    </p>
+                  </div>
+
+                  <div class="flex flex-col items-center gap-6">
+                    <div class="relative group">
                       <div
-                        class="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 border-4 border-white shadow-lg"
+                        class="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 border-4 border-white shadow-2xl relative"
                       >
                         <img
                           v-if="avatarPreview"
                           :src="avatarPreview"
-                          alt="Profile Picture"
-                          class="w-full h-full object-cover"
+                          alt="Ảnh Đại Diện"
+                          class="w-full h-full object-cover transition-transform group-hover:scale-110"
                         />
                         <div v-else class="w-full h-full flex items-center justify-center">
-                          <PhotoIcon class="h-10 w-10 text-gray-500 dark:text-gray-400" />
+                          <PhotoIcon class="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                        </div>
+
+                        <!-- Upload overlay -->
+                        <div
+                          class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        >
+                          <CameraIcon class="h-8 w-8 text-white" />
                         </div>
                       </div>
+
                       <div
                         v-if="isUploadingImage"
                         class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center"
                       >
-                        <ArrowPathIcon class="h-6 w-6 text-white animate-spin" />
+                        <div
+                          class="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"
+                        ></div>
                       </div>
                     </div>
 
-                    <div class="flex-1">
+                    <div class="text-center space-y-3">
                       <input
                         type="file"
                         accept="image/*"
@@ -354,112 +367,105 @@ const submitEmailChange = async () => {
                       />
                       <label
                         for="avatar-upload"
-                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg cursor-pointer transition-all transform hover:scale-105"
+                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-2xl cursor-pointer transition-all transform hover:scale-105 hover:shadow-xl"
                         :class="{ 'opacity-50 cursor-not-allowed': isUploadingImage }"
                       >
-                        <PhotoIcon class="w-4 h-4 mr-2" />
-                        {{ isUploadingImage ? 'Uploading...' : 'Change Picture' }}
+                        <PhotoIcon class="w-5 h-5 mr-2" />
+                        {{ isUploadingImage ? 'Đang tải lên...' : 'Thay Đổi Ảnh' }}
                       </label>
-                      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        JPG, PNG up to 5MB
-                      </p>
-                      <p class="text-xs text-gray-400 dark:text-gray-500">
-                        Recommended: 400x400px square image
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Avatar Error Message -->
-                  <div
-                    v-if="avatarErrors.avatar"
-                    class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800"
-                  >
-                    <div class="flex items-center gap-2 text-red-600 dark:text-red-400">
-                      <ExclamationCircleIcon class="w-4 h-4" />
-                      <span class="text-sm">{{ avatarErrors.avatar }}</span>
+                      <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                        <p>JPG, PNG tối đa 5MB</p>
+                        <p>Khuyến nghị: 400x400px</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <BaseDivider />
-                <!-- Form Fields -->
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Username</label
-                    >
-                    <div class="relative">
-                      <UserIcon
-                        class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-                      />
-                      <input
-                        v-model="profileForm.username"
-                        type="text"
-                        required
-                        class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Enter username"
-                      />
+
+                <div
+                  class="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"
+                ></div>
+
+                <!-- Form Fields với thiết kế cải tiến -->
+                <div class="space-y-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Tên Đăng Nhập
+                      </label>
+                      <div class="relative group">
+                        <UserIcon
+                          class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+                        />
+                        <input
+                          v-model="profileForm.username"
+                          type="text"
+                          required
+                          class="pl-12 w-full rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-4 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 placeholder-gray-400"
+                          placeholder="Nhập tên đăng nhập"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Email
+                      </label>
+                      <div class="relative group">
+                        <EnvelopeIcon
+                          class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                        />
+                        <input
+                          v-model="profileForm.email"
+                          type="email"
+                          disabled
+                          required
+                          class="pl-12 w-full rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-4 py-4 text-gray-400 dark:text-gray-400 cursor-not-allowed"
+                          placeholder="Nhập email"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Email</label
-                    >
-                    <div class="relative">
-                      <EnvelopeIcon
-                        class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-                      />
-                      <input
-                        v-model="profileForm.email"
-                        type="email"
-                        disabled
-                        required
-                        class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Enter email"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >First Name</label
-                      >
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Họ
+                      </label>
                       <input
                         v-model="profileForm.first_name"
                         type="text"
                         required
-                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="First name"
+                        class="w-full rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-4 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 placeholder-gray-400"
+                        placeholder="Nhập họ"
                       />
                     </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >Last Name</label
-                      >
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Tên
+                      </label>
                       <input
                         v-model="profileForm.last_name"
                         type="text"
                         required
-                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Last name"
+                        class="w-full rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-4 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 placeholder-gray-400"
+                        placeholder="Nhập tên"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Phone Number</label
-                    >
-                    <div class="relative">
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Số Điện Thoại
+                    </label>
+                    <div class="relative group">
                       <PhoneIcon
-                        class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors"
                       />
                       <input
                         v-model="profileForm.phone_number"
                         type="tel"
-                        class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Enter phone number"
+                        class="pl-12 w-full rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-4 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 placeholder-gray-400"
+                        placeholder="Nhập số điện thoại"
                       />
                     </div>
                   </div>
@@ -468,13 +474,23 @@ const submitEmailChange = async () => {
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 shadow-lg"
+                  class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:scale-100 shadow-xl relative overflow-hidden"
                 >
                   <span v-if="loading" class="flex items-center justify-center">
-                    <ArrowPathIcon class="h-4 w-4 animate-spin mr-2" />
-                    Updating...
+                    <div
+                      class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"
+                    ></div>
+                    Đang cập nhật...
                   </span>
-                  <span v-else>Update Profile</span>
+                  <span v-else class="flex items-center justify-center">
+                    <CheckCircleIcon class="w-5 h-5 mr-2" />
+                    Cập Nhật Hồ Sơ
+                  </span>
+
+                  <!-- Shimmer effect -->
+                  <div
+                    class="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 animate-shimmer"
+                  ></div>
                 </button>
               </form>
             </div>
@@ -484,20 +500,45 @@ const submitEmailChange = async () => {
           <div class="xl:col-span-1 space-y-8">
             <!-- Change Email -->
             <div
-              class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+              class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
             >
-              <div class="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
-                <h3 class="text-lg font-semibold text-white flex items-center">
-                  <EnvelopeIcon class="h-5 w-5 mr-2" />
-                  Change Email Address
+              <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-6">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                  <div
+                    class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-3"
+                  >
+                    <EnvelopeIcon class="h-5 w-5 text-white" />
+                  </div>
+                  Thay Đổi Email
                 </h3>
+                <p class="text-emerald-100 text-sm mt-1">Cập nhật địa chỉ email</p>
               </div>
 
               <form @submit.prevent="submitEmailChange" class="p-6 space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >New Email</label
-                  >
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Email Hiện Tại
+                  </label>
+                  <div class="relative">
+                    <EnvelopeIcon
+                      class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                    />
+                    <input
+                      :value="profileForm.email"
+                      type="email"
+                      disabled
+                      class="pl-10 w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-4 py-3 text-gray-400 dark:text-gray-400 cursor-not-allowed"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Mã OTP sẽ được gửi đến email này
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Email Mới
+                  </label>
                   <div class="relative">
                     <EnvelopeIcon
                       class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
@@ -507,48 +548,48 @@ const submitEmailChange = async () => {
                       type="email"
                       required
                       :disabled="emailOtpSent"
-                      :placeholder="profileForm.email"
-                      class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-700"
+                      placeholder="Nhập email mới"
+                      class="pl-10 w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-700 placeholder-gray-400"
                     />
                   </div>
                 </div>
 
                 <div v-if="emailOtpSent" class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Verification Code</label
-                    >
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Mã Xác Thực
+                    </label>
                     <input
                       v-model="emailForm.otp"
                       type="text"
                       required
                       maxlength="6"
-                      class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-center text-2xl font-mono tracking-widest"
+                      class="w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-center text-2xl font-mono tracking-widest"
                       placeholder="000000"
                     />
-                    <p class="text-xs text-gray-500 mt-1">
-                      Enter the 6-digit code sent to your new email
+                    <p class="text-xs text-gray-500 text-center">
+                      Nhập mã 6 chữ số được gửi đến email hiện tại: {{ profileForm.email }}
                     </p>
                   </div>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="pt-2">
                   <button
                     v-if="!emailOtpSent"
                     type="button"
                     @click="requestEmailOtp"
                     :disabled="loading || !emailForm.new_email"
-                    class="flex-1 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100"
+                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 shadow-lg"
                   >
-                    Request OTP
+                    Gửi Mã OTP
                   </button>
                   <button
                     v-if="emailOtpSent"
                     type="submit"
                     :disabled="loading || !emailForm.otp || emailForm.otp.length !== 6"
-                    class="flex-1 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100"
+                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 shadow-lg"
                   >
-                    Change Email
+                    Xác Nhận Thay Đổi
                   </button>
                 </div>
               </form>
@@ -561,14 +602,14 @@ const submitEmailChange = async () => {
               <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
                 <h3 class="text-lg font-semibold text-white flex items-center">
                   <KeyIcon class="h-5 w-5 mr-2" />
-                  Change Password
+                  Thay Đổi Mật Khẩu
                 </h3>
               </div>
 
               <form @submit.prevent="submitPasswordReset" class="p-6 space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >Email for OTP</label
+                    >Email nhận OTP</label
                   >
                   <div class="relative">
                     <EnvelopeIcon
@@ -578,9 +619,9 @@ const submitEmailChange = async () => {
                       v-model="passwordForm.email"
                       type="email"
                       required
+                      disabled
                       :disabled="otpSent"
-                      class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-700"
-                      placeholder="Enter email for OTP"
+                      class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-400 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 dark:disabled:bg-gray-700 cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -588,7 +629,7 @@ const submitEmailChange = async () => {
                 <div v-if="otpSent" class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Verification Code</label
+                      >Mã xác thực</label
                     >
                     <input
                       v-model="passwordForm.otp"
@@ -602,7 +643,7 @@ const submitEmailChange = async () => {
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >New Password</label
+                      >Mật Khẩu Mới</label
                     >
                     <div class="relative">
                       <KeyIcon
@@ -613,7 +654,7 @@ const submitEmailChange = async () => {
                         :type="showPassword ? 'text' : 'password'"
                         required
                         class="pl-10 pr-12 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Enter new password"
+                        placeholder="Nhập mật khẩu mới"
                       />
                       <button
                         type="button"
@@ -628,7 +669,7 @@ const submitEmailChange = async () => {
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                      >Confirm Password</label
+                      >Xác nhận mật khẩu mới</label
                     >
                     <div class="relative">
                       <KeyIcon
@@ -639,7 +680,7 @@ const submitEmailChange = async () => {
                         :type="showPasswordConfirm ? 'text' : 'password'"
                         required
                         class="pl-10 pr-12 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Confirm new password"
+                        placeholder="Xác nhận mật khẩu mới"
                       />
                       <button
                         type="button"
@@ -661,7 +702,7 @@ const submitEmailChange = async () => {
                     :disabled="loading || !passwordForm.email"
                     class="flex-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100"
                   >
-                    Request OTP
+                    Yêu cầu OTP
                   </button>
                   <button
                     v-if="otpSent"
@@ -674,7 +715,7 @@ const submitEmailChange = async () => {
                     "
                     class="flex-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100"
                   >
-                    Reset Password
+                    Đổi Mật Khẩu
                   </button>
                 </div>
               </form>

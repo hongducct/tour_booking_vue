@@ -65,6 +65,7 @@ const handleClickOutside = (event) => {
 }
 
 onMounted(() => {
+  authStore.checkAuth()
   window.addEventListener('scroll', handleScroll)
   document.addEventListener('click', handleClickOutside)
 })
@@ -280,7 +281,7 @@ onUnmounted(() => {
               class="hidden lg:flex items-center gap-2 bg-gradient-to-r from-rose-400 to-pink-500 hover:from-rose-500 hover:to-pink-600 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
               <HeartIcon class="w-4 h-4" />
-              WISH LIST
+              Tour yêu thích
             </router-link>
 
             <div class="relative menu-container">
@@ -292,7 +293,7 @@ onUnmounted(() => {
                 <div class="relative">
                   <img
                     v-if="authStore.isLoggedIn"
-                    :src="authStore.user.avatar"
+                    :src="authStore.user.avatar || authStore.user.data?.avatar"
                     alt="Avatar"
                     class="w-9 h-9 rounded-full object-cover ring-2 ring-white/20 group-hover:ring-teal-400 transition-all duration-300"
                   />
@@ -359,6 +360,7 @@ onUnmounted(() => {
                       <router-link
                         to="/login"
                         class="flex items-center px-6 py-3 hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 hover:text-teal-700 transition-all duration-200"
+                        @click="localStorage.setItem('redirectAfterLogin', router.currentRoute.value.fullPath)"
                       >
                         <svg
                           class="w-5 h-5 mr-3"
@@ -377,6 +379,7 @@ onUnmounted(() => {
                       </router-link>
                       <router-link
                         to="/register"
+                        @click="localStorage.setItem('redirectAfterLogin', router.currentRoute.value.fullPath)"
                         class="flex items-center px-6 py-3 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-600 transition-all duration-200"
                       >
                         <svg

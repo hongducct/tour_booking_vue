@@ -6,7 +6,7 @@
         <div class="lg:w-7/12">
           <h5 class="text-blue-600 font-semibold text-sm mb-2 flex items-center">
             <span class="inline-block w-8 h-0.5 bg-blue-600 mr-3"></span>
-            POPULAR DESTINATION
+            ĐIỂM ĐẾN PHỔ BIẾN
           </h5>
           <h2 class="text-3xl md:text-4xl font-bold text-gray-800">ĐIỂM ĐẾN HÀNG ĐẦU</h2>
         </div>

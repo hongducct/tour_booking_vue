@@ -6,12 +6,13 @@
         <div class="w-full lg:w-5/12">
           <div class="section-heading mb-8">
             <h5
-              class="text-yellow-500 font-medium text-sm mb-2 uppercase tracking-wider relative inline-block before:absolute before:w-8 before:h-0.5 before:bg-yellow-500 before:left-0 before:top-1/2 before:-translate-x-full before:-ml-3"
+              class="text-yellow-500 font-medium text-sm mb-2 flex items-center"
             >
+              <span class="inline-block w-8 h-0.5 bg-yellow-500 mr-3"></span>
               OUR TOUR GALLERY
             </h5>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              BEST TRAVELER'S SHARED PHOTOS
+              NHỮNG BỨC ẢNH ĐẸP NHẤT ĐƯỢC DU KHÁCH CHIA SẺ
             </h2>
             <p class="text-gray-600">
               Những bức ảnh đẹp trên hành trình TOUR được khách hàng chia sẻ.
@@ -409,6 +410,4 @@ onUnmounted(() => {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-
 </style>

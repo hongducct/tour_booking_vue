@@ -2,22 +2,28 @@
   <LayoutAuthenticated>
     <SectionMain>
       <!-- Header Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 dark:bg-gray-800 dark:border-gray-700">
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 dark:bg-gray-800 dark:border-gray-700"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg ">
+            <div class="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
               <StarIcon class="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-200">Quản lý Đánh giá</h1>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Quản lý và kiểm duyệt đánh giá từ khách hàng</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Quản lý và kiểm duyệt đánh giá từ khách hàng
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Tabs Navigation -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 dark:bg-gray-800 dark:border-gray-700">
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 dark:bg-gray-800 dark:border-gray-700"
+      >
         <div class="border-b border-gray-200">
           <nav class="flex space-x-8 px-6">
             <button
@@ -29,7 +35,7 @@
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
               ]"
             >
-              <div class="flex items-center gap-2 dark:text-gray-200 ">
+              <div class="flex items-center gap-2 dark:text-gray-200">
                 <MapIcon class="w-5 h-5" />
                 Đánh giá Tour
                 <span
@@ -84,7 +90,9 @@
 
               <div class="flex items-center gap-3">
                 <FunnelIcon class="w-5 h-5 text-gray-500" />
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Trạng thái:</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Trạng thái:</span
+                >
                 <select
                   v-model="statusFilter"
                   @change="fetchReviews"
@@ -110,7 +118,7 @@
       </div>
 
       <!-- Reviews Content -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Desktop Table View -->
         <div class="hidden lg:block overflow-x-auto">
           <table class="w-full">
@@ -162,7 +170,8 @@
               <tr
                 v-for="review in currentReviews"
                 :key="review.id"
-                class="hover:bg-gray-50 transition-colors"
+                @click="openReviewModal(review)"
+                class="hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ review.id }}</td>
                 <td class="px-6 py-4">
@@ -206,7 +215,7 @@
                     <p class="line-clamp-2">{{ review.comment || 'Không có nội dung' }}</p>
                   </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4" @click.stop>
                   <div class="relative">
                     <button
                       :class="getStatusClass(review.status)"
@@ -244,15 +253,8 @@
                 <td class="px-6 py-4 text-sm text-gray-600">
                   {{ formatDate(review.created_at) }}
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4" @click.stop>
                   <div class="flex items-center gap-2">
-                    <!-- <button
-                      @click="editReview(review.id)"
-                      class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Sửa"
-                    >
-                      <PencilIcon class="w-4 h-4" />
-                    </button> -->
                     <button
                       @click="deleteReview(review.id)"
                       class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
@@ -272,7 +274,8 @@
           <div
             v-for="review in currentReviews"
             :key="review.id"
-            class="bg-gray-50 rounded-lg p-4 space-y-3"
+            @click="openReviewModal(review)"
+            class="bg-gray-50 rounded-lg p-4 space-y-3 cursor-pointer hover:bg-gray-100 transition-colors"
           >
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold text-gray-600">#{{ review.id }}</span>
@@ -310,7 +313,7 @@
                 <span class="ml-1 text-sm text-gray-600">({{ review.rating }})</span>
               </div>
 
-              <div class="relative">
+              <div class="relative" @click.stop>
                 <button
                   :class="getStatusClass(review.status)"
                   @click="toggleDropdown(review.id)"
@@ -349,14 +352,10 @@
               {{ review.comment }}
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
-              <button
-                @click="editReview(review.id)"
-                class="inline-flex items-center gap-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
-              >
-                <PencilIcon class="w-4 h-4" />
-                Sửa
-              </button>
+            <div
+              class="flex items-center justify-end gap-2 pt-2 border-t border-gray-200"
+              @click.stop
+            >
               <button
                 @click="deleteReview(review.id)"
                 class="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-sm"
@@ -458,6 +457,293 @@
           </div>
         </div>
       </div>
+
+      <!-- Review Detail Modal -->
+      <div
+        v-if="showModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        @click="closeModal"
+      >
+        <div
+          class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-blue-100 rounded-lg">
+                <StarIcon class="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900">
+                  Chi tiết đánh giá #{{ selectedReview?.id }}
+                </h2>
+                <p class="text-sm text-gray-500">{{ formatDate(selectedReview?.created_at) }}</p>
+              </div>
+            </div>
+            <button @click="closeModal" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <XMarkIcon class="w-6 h-6 text-gray-400" />
+            </button>
+          </div>
+
+          <!-- Modal Content -->
+          <div class="p-6 space-y-6">
+            <!-- Review Content -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <StarIcon class="w-5 h-5 text-yellow-500" />
+                Nội dung đánh giá
+              </h3>
+
+              <div class="space-y-4">
+                <!-- Rating -->
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center gap-1">
+                    <StarIcon
+                      v-for="n in 5"
+                      :key="n"
+                      :class="[
+                        'w-6 h-6',
+                        n <= selectedReview?.rating ? 'text-yellow-400' : 'text-gray-300',
+                      ]"
+                      fill="currentColor"
+                    />
+                  </div>
+                  <span class="text-2xl font-bold text-gray-900"
+                    >{{ selectedReview?.rating }}/5</span
+                  >
+                </div>
+
+                <!-- Title -->
+                <div v-if="selectedReview?.title">
+                  <span class="text-gray-500 text-sm">Tiêu đề:</span>
+                  <div class="font-semibold text-lg text-gray-900">{{ selectedReview?.title }}</div>
+                </div>
+
+                <!-- Comment -->
+                <div v-if="selectedReview?.comment">
+                  <span class="text-gray-500 text-sm">Bình luận:</span>
+                  <div class="mt-2 p-4 bg-white rounded-lg border text-gray-900 leading-relaxed">
+                    {{ selectedReview?.comment }}
+                  </div>
+                </div>
+
+                <!-- Status and Actions -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div class="flex items-center gap-3">
+                    <span class="text-gray-500 text-sm">Trạng thái:</span>
+                    <div class="relative">
+                      <button
+                        :class="getStatusClass(selectedReview?.status)"
+                        @click="toggleModalDropdown"
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:shadow-md"
+                      >
+                        {{ getStatusText(selectedReview?.status) }}
+                        <ChevronDownIcon class="w-4 h-4" />
+                      </button>
+                      <div
+                        v-if="showModalDropdown"
+                        class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[140px]"
+                      >
+                        <button
+                          @click="changeModalReviewStatus('approved')"
+                          class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 first:rounded-t-lg transition-colors"
+                          :class="{
+                            'bg-green-50 text-green-700': selectedReview?.status === 'approved',
+                          }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            Approved
+                          </div>
+                        </button>
+                        <button
+                          @click="changeModalReviewStatus('pending')"
+                          class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                          :class="{
+                            'bg-yellow-50 text-yellow-700': selectedReview?.status === 'pending',
+                          }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            Pending
+                          </div>
+                        </button>
+                        <button
+                          @click="changeModalReviewStatus('rejected')"
+                          class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 last:rounded-b-lg transition-colors"
+                          :class="{
+                            'bg-red-50 text-red-700': selectedReview?.status === 'rejected',
+                          }"
+                        >
+                          <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            Rejected
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-if="selectedReview?.replied_at" class="text-sm text-gray-500">
+                    Đã phản hồi: {{ formatDate(selectedReview?.replied_at) }}
+                  </div>
+                </div>
+
+                <!-- Booking Info -->
+                <div v-if="selectedReview?.booking_id" class="bg-blue-50 p-3 rounded-lg">
+                  <span class="text-blue-700 text-sm font-medium">
+                    Đánh giá từ booking #{{ selectedReview?.booking_id }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Review Info -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- User Information -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <UserIcon class="w-5 h-5 text-blue-600" />
+                  Thông tin người đánh giá
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <img
+                      :src="selectedReview?.user?.avatar || '/default-avatar.png'"
+                      :alt="selectedReview?.user?.username"
+                      class="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <div class="font-medium text-gray-900">
+                        {{ selectedReview?.user?.username || 'N/A' }}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        {{ selectedReview?.user?.email || 'N/A' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-500">Họ tên:</span>
+                      <div class="font-medium">
+                        {{ selectedReview?.user?.first_name }} {{ selectedReview?.user?.last_name }}
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Số điện thoại:</span>
+                      <div class="font-medium">
+                        {{ selectedReview?.user?.phone_number || 'N/A' }}
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Giới tính:</span>
+                      <div class="font-medium">{{ selectedReview?.user?.gender || 'N/A' }}</div>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Trạng thái:</span>
+                      <span
+                        :class="getUserStatusClass(selectedReview?.user?.user_status)"
+                        class="inline-flex px-2 py-1 rounded-full text-xs font-medium"
+                      >
+                        {{ selectedReview?.user?.user_status || 'N/A' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div v-if="selectedReview?.user?.address">
+                    <span class="text-gray-500 text-sm">Địa chỉ:</span>
+                    <div class="font-medium text-sm">{{ selectedReview?.user?.address }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tour/Blog Information -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <MapIcon v-if="activeTab === 'tour'" class="w-5 h-5 text-green-600" />
+                  <DocumentTextIcon v-else class="w-5 h-5 text-purple-600" />
+                  Thông tin {{ activeTab === 'tour' ? 'Tour' : 'Blog' }}
+                </h3>
+                <div class="space-y-3">
+                  <div>
+                    <span class="text-gray-500 text-sm"
+                      >Tên {{ activeTab === 'tour' ? 'tour' : 'blog' }}:</span
+                    >
+                    <div class="font-medium">{{ getReviewableName(selectedReview) }}</div>
+                  </div>
+                  <div v-if="activeTab === 'tour'">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-500">Thể loại:</span>
+                        <div class="font-medium">
+                          {{ selectedReview?.reviewable?.category || 'N/A' }}
+                        </div>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Số ngày:</span>
+                        <div class="font-medium">
+                          {{ selectedReview?.reviewable?.days || 'N/A' }} ngày
+                        </div>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Số đêm:</span>
+                        <div class="font-medium">
+                          {{ selectedReview?.reviewable?.nights || 'N/A' }} đêm
+                        </div>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Loại:</span>
+                        <div class="font-medium">
+                          {{ selectedReview?.reviewable?.type || 'N/A' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="selectedReview?.reviewable?.description">
+                    <span class="text-gray-500 text-sm">Mô tả:</span>
+                    <div
+                      class="text-sm mt-1 p-3 bg-white rounded border max-h-32 overflow-y-auto"
+                      v-html="selectedReview?.reviewable?.description"
+                    ></div>
+                  </div>
+                  <div
+                    v-if="
+                      selectedReview?.reviewable?.features &&
+                      selectedReview?.reviewable?.features.length > 0
+                    "
+                  >
+                    <span class="text-gray-500 text-sm">Tính năng:</span>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                      <span
+                        v-for="feature in selectedReview?.reviewable?.features"
+                        :key="feature.id"
+                        class="inline-flex px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                      >
+                        {{ feature.name }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+            <button
+              @click="closeModal"
+              class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Đóng
+            </button>
+            <button
+              @click="(deleteReview(selectedReview?.id), closeModal())"
+              class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Xóa đánh giá
+            </button>
+          </div>
+        </div>
+      </div>
     </SectionMain>
   </LayoutAuthenticated>
 </template>
@@ -467,6 +753,8 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import axios from 'axios'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionMain from '@/components/admin/SectionMain.vue'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 import {
   StarIcon,
   AdjustmentsHorizontalIcon,
@@ -479,10 +767,34 @@ import {
   ChevronRightIcon,
   MapIcon,
   DocumentTextIcon,
+  XMarkIcon,
+  UserIcon,
 } from '@heroicons/vue/24/outline'
+
+const notifySuccess = (message) => {
+  toast(message, {
+    theme: 'auto',
+    type: 'success',
+    position: 'top-center',
+    dangerouslyHTMLString: true,
+  })
+}
+const notifyError = (message) => {
+  toast(message, {
+    theme: 'auto',
+    type: 'error',
+    position: 'top-center',
+    dangerouslyHTMLString: true,
+  })
+}
 
 // Tab management
 const activeTab = ref('tour')
+
+// Modal management
+const showModal = ref(false)
+const selectedReview = ref(null)
+const showModalDropdown = ref(false)
 
 // Data storage
 const tourReviews = ref([])
@@ -534,6 +846,60 @@ watch(activeTab, () => {
   pageInputValue.value = '' // Reset page input when switching tabs
 })
 
+// Modal functions
+function openReviewModal(review) {
+  selectedReview.value = review
+  showModal.value = true
+  showModalDropdown.value = false
+  document.body.style.overflow = 'hidden' // Prevent background scrolling
+}
+
+function closeModal() {
+  showModal.value = false
+  selectedReview.value = null
+  showModalDropdown.value = false
+  document.body.style.overflow = 'auto' // Restore scrolling
+}
+
+function toggleModalDropdown() {
+  showModalDropdown.value = !showModalDropdown.value
+}
+
+async function changeModalReviewStatus(newStatus) {
+  if (!selectedReview.value) return
+
+  try {
+    const oldStatus = selectedReview.value.status
+    selectedReview.value.status = newStatus
+    showModalDropdown.value = false
+
+    await axios.put(
+      `${baseUrl}/reviews/${selectedReview.value.id}`,
+      { status: newStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+        },
+      },
+    )
+    
+        // Show success message
+        const statusText = getStatusText(newStatus)
+        notifySuccess(`Cập nhật trạng thái thành "${statusText}" thành công.`)
+
+    // Update the review in the main list as well
+    const reviewIndex = currentReviews.value.findIndex((r) => r.id === selectedReview.value.id)
+    if (reviewIndex !== -1) {
+      currentReviews.value[reviewIndex].status = newStatus
+    }
+  } catch (error) {
+    console.error('Lỗi khi cập nhật trạng thái:', error)
+    // Revert the status change
+    fetchReviews(currentPagination.value.current_page)
+    notifyError('Cập nhật trạng thái thất bại.')
+  }
+}
+
 async function fetchReviews(page = 1) {
   try {
     const type = activeTab.value
@@ -569,7 +935,7 @@ async function fetchReviews(page = 1) {
     pageInputValue.value = ''
   } catch (error) {
     console.error('Lỗi khi lấy danh sách đánh giá:', error)
-    alert('Lỗi khi tải danh sách đánh giá.')
+    notifyError('Lỗi khi tải danh sách đánh giá.')
   }
 }
 
@@ -622,6 +988,15 @@ function getStatusClass(status) {
   return classes[status] || 'bg-gray-100 text-gray-800 border-gray-200'
 }
 
+function getUserStatusClass(status) {
+  const classes = {
+    active: 'bg-green-100 text-green-800',
+    inactive: 'bg-gray-100 text-gray-800',
+    banned: 'bg-red-100 text-red-800',
+  }
+  return classes[status] || 'bg-gray-100 text-gray-800'
+}
+
 function getStatusText(status) {
   const texts = {
     approved: 'Đã duyệt',
@@ -649,12 +1024,12 @@ async function changeReviewStatus(review, newStatus) {
 
     // Show success message
     const statusText = getStatusText(newStatus)
-    alert(`Cập nhật trạng thái thành "${statusText}" thành công.`)
+    notifySuccess(`Cập nhật trạng thái thành "${statusText}" thành công.`)
   } catch (error) {
     console.error('Lỗi khi cập nhật trạng thái:', error)
     // Revert the status change
     fetchReviews(currentPagination.value.current_page)
-    alert('Cập nhật trạng thái thất bại.')
+    notifyError('Cập nhật trạng thái thất bại.')
   }
 }
 
@@ -672,7 +1047,7 @@ async function deleteReview(reviewId) {
       blogReviews.value = blogReviews.value.filter((review) => review.id !== reviewId)
     }
 
-    alert('Xóa đánh giá thành công.')
+    notifySuccess('Xóa đánh giá thành công.')
 
     // If current page is empty and not the first page, go to previous page
     if (currentReviews.value.length === 0 && currentPagination.value.current_page > 1) {
@@ -683,7 +1058,7 @@ async function deleteReview(reviewId) {
     fetchStats()
   } catch (error) {
     console.error('Lỗi khi xóa đánh giá:', error)
-    alert('Xóa đánh giá thất bại.')
+    notifyError('Xóa đánh giá thất bại.')
   }
 }
 
@@ -696,20 +1071,24 @@ function goToPage(page) {
 function goToInputPage() {
   const page = parseInt(pageInputValue.value, 10)
   if (isNaN(page) || page < 1 || page > currentPagination.value.last_page) {
-    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${currentPagination.value.last_page}.`)
+    notifyError(`Vui lòng nhập số trang hợp lệ từ 1 đến ${currentPagination.value.last_page}.`)
     return
   }
   fetchReviews(page)
-}
-
-function editReview(reviewId) {
-  alert(`Chức năng sửa đánh giá với ID: ${reviewId} sẽ được triển khai.`)
 }
 
 // Close dropdown when clicking outside
 function handleClickOutside(event) {
   if (!event.target.closest('.relative')) {
     activeDropdown.value = null
+    showModalDropdown.value = false
+  }
+}
+
+// Close modal on Escape key
+function handleKeyDown(event) {
+  if (event.key === 'Escape' && showModal.value) {
+    closeModal()
   }
 }
 
@@ -717,11 +1096,14 @@ onMounted(() => {
   fetchStats()
   fetchReviews()
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeyDown)
 })
 
-// Cleanup event listener
+// Cleanup event listeners
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeyDown)
+  document.body.style.overflow = 'auto' // Ensure scrolling is restored
 })
 </script>
 
@@ -731,5 +1113,9 @@ onUnmounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.fixed.inset-0.bg-black.bg-opacity-50.z-50 {
+  backdrop-filter: blur(7px);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

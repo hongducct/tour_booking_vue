@@ -52,6 +52,34 @@ export const useTourStore = defineStore('tour', {
         this.loading = false
       }
     },
+
+    // Thêm tour mới vào store
+    addTour(tour) {
+      // Thêm tour mới vào đầu mảng
+      this.tours.unshift(tour)
+      // Cập nhật thời gian lấy dữ liệu
+      this.lastFetched = Date.now()
+    },
+
+    // Xóa tour khỏi store
+    removeTour(tourId) {
+      const index = this.tours.findIndex((tour) => tour.id === tourId)
+      if (index !== -1) {
+        this.tours.splice(index, 1)
+        // Cập nhật thời gian lấy dữ liệu
+        this.lastFetched = Date.now()
+      }
+    },
+
+    // Cập nhật tour trong store
+    updateTour(updatedTour) {
+      const index = this.tours.findIndex((tour) => tour.id === updatedTour.id)
+      if (index !== -1) {
+        this.tours[index] = { ...this.tours[index], ...updatedTour }
+        // Cập nhật thời gian lấy dữ liệu
+        this.lastFetched = Date.now()
+      }
+    },
   },
 
   persist: {

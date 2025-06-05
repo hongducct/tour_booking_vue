@@ -7,54 +7,88 @@
       </SectionTitleLineWithButton>
 
       <CardBox>
-        <!-- Filters and Actions -->
-        <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-2">
-            <!-- Status Filter -->
+        <!-- Enhanced Filters and Actions -->
+        <div class="mb-6 space-y-4">
+          <!-- First Row: Category and Status Filters -->
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-2">
+              <!-- Category Filter -->
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >Danh mục:</label
+                >
+                <select
+                  v-model="categoryFilter"
+                  @change="fetchPosts(1)"
+                  class="border border-gray-300 rounded-md p-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                >
+                  <option value="">Tất cả danh mục</option>
+                  <option v-for="category in categories" :key="category.id" :value="category.id">
+                    {{ category.name }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Status Filter -->
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >Trạng thái:</label
+                >
+                <select
+                  v-model="statusFilter"
+                  @change="fetchPosts(1)"
+                  class="border border-gray-300 rounded-md p-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                >
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="draft">Nháp</option>
+                  <option value="pending">Đang chờ</option>
+                  <option value="rejected">Bị từ chối</option>
+                  <option value="published">Đã xuất bản</option>
+                  <option value="archived">Đã lưu trữ</option>
+                </select>
+              </div>
+
+              <!-- Author Type Filter -->
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Tác giả:</label>
+                <select
+                  v-model="authorTypeFilter"
+                  @change="fetchPosts(1)"
+                  class="border border-gray-300 rounded-md p-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                >
+                  <option value="">Tất cả tác giả</option>
+                  <option value="admin">Admin</option>
+                  <option value="vendor">Vendor</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Sort Options -->
             <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Trạng thái:</label>
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Sắp xếp:</label>
               <select
-                v-model="statusFilter"
+                v-model="sortBy"
                 @change="fetchPosts(1)"
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-                :class="{
-                  'dark:focus:ring-blue-500 dark:focus:border-blue-500': statusFilter !== '',
-                  'dark:focus:ring-gray-500 dark:focus:border-gray-500': statusFilter === '',
-                }"
+                class="border border-gray-300 rounded-md p-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               >
-                <option value="">Tất cả trạng thái</option>
-                <option value="draft">Nháp</option>
-                <option value="pending">Đang chờ</option>
-                <option value="rejected">Bị từ chối</option>
-                <option value="published">Đã xuất bản</option>
-                <option value="archived">Đã lưu trữ</option>
+                <option value="latest">Mới nhất</option>
+                <option value="oldest">Cũ nhất</option>
+                <option value="featured">Nổi bật</option>
+                <option value="popular">Phổ biến</option>
+                <option value="trending">Xu hướng</option>
               </select>
             </div>
-            <!-- Author Type Filter -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Tác giả:</label>
-              <select
-                v-model="authorTypeFilter"
-                @change="fetchPosts(1)"
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              >
-                <option value="">Tất cả tác giả</option>
-                <option value="admin">Admin</option>
-                <option value="vendor">Vendor</option>
-              </select>
-            </div>
-            <!-- Search Input -->
-            <div class="flex items-center gap-2">
+          </div>
+
+          <!-- Second Row: Search and Actions -->
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-2 flex-1">
               <input
                 v-model="search"
                 @keyup.enter="fetchPosts(1)"
                 type="text"
-                placeholder="Tìm kiếm tiêu đề..."
-                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 w-full sm:w-64"
-                :class="{
-                  'dark:focus:ring-blue-500 dark:focus:border-blue-500': search !== '',
-                  'dark:focus:ring-gray-500 dark:focus:border-gray-500': search === '',
-                }"
+                placeholder="Tìm kiếm tiêu đề, nội dung, điểm đến..."
+                class="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 flex-1"
               />
               <BaseButton
                 label="Tìm"
@@ -64,14 +98,83 @@
                 @click="fetchPosts(1)"
               />
             </div>
+            <BaseButton
+              label="Làm mới"
+              color="light"
+              :icon="mdiRefresh"
+              rounded
+              @click="resetFilters"
+            />
           </div>
-          <BaseButton
-            label="Làm mới"
-            color="light"
-            :icon="mdiRefresh"
-            rounded
-            @click="resetFilters"
-          />
+
+          <!-- Active Filters Display -->
+          <div
+            v-if="hasActiveFilters"
+            class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200"
+          >
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+              >Bộ lọc đang áp dụng:</span
+            >
+
+            <span
+              v-if="search"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            >
+              "{{ search }}"
+              <button
+                @click="((search = ''), fetchPosts(1))"
+                class="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+              >
+                ×
+              </button>
+            </span>
+
+            <span
+              v-if="categoryFilter"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+            >
+              {{ getCategoryName(categoryFilter) }}
+              <button
+                @click="((categoryFilter = ''), fetchPosts(1))"
+                class="ml-1 hover:bg-green-200 rounded-full p-0.5"
+              >
+                ×
+              </button>
+            </span>
+
+            <span
+              v-if="statusFilter"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+            >
+              {{ getStatusText(statusFilter) }}
+              <button
+                @click="((statusFilter = ''), fetchPosts(1))"
+                class="ml-1 hover:bg-purple-200 rounded-full p-0.5"
+              >
+                ×
+              </button>
+            </span>
+
+            <span
+              v-if="authorTypeFilter"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
+            >
+              {{ authorTypeFilter === 'admin' ? 'Admin' : 'Vendor' }}
+              <button
+                @click="((authorTypeFilter = ''), fetchPosts(1))"
+                class="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+              >
+                ×
+              </button>
+            </span>
+
+            <button
+              @click="resetFilters"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm hover:bg-red-200 transition-colors"
+            >
+              Xóa tất cả
+            </button>
+          </div>
         </div>
 
         <!-- Loading State -->
@@ -105,45 +208,94 @@
               >
                 <i class="mdi mdi-image-off"></i>
               </div>
+
+              <!-- Status Badge -->
               <span
-                class="absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-semibold capitalize"
+                class="absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-semibold"
                 :class="statusStyles[post.blog_status]"
               >
-                {{
-                  post.blog_status === 'draft'
-                    ? 'Draft'
-                    : post.blog_status === 'pending'
-                      ? 'Pending'
-                      : post.blog_status === 'rejected'
-                        ? 'Rejected'
-                        : post.blog_status === 'published'
-                          ? 'Published'
-                          : 'Archived'
-                }}
+                {{ getStatusText(post.blog_status) }}
+              </span>
+
+              <!-- Featured Badge -->
+              <span
+                v-if="post.is_featured"
+                class="absolute top-3 right-3 px-2 py-1 bg-yellow-500 text-white rounded-md text-xs font-semibold"
+              >
+                Nổi bật
               </span>
             </div>
+
             <!-- Post Content -->
             <div class="flex-1 p-4 flex flex-col">
+              <!-- Category -->
+              <div v-if="post.category" class="mb-2">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  :style="{
+                    backgroundColor: post.category.color + '20',
+                    color: post.category.color,
+                  }"
+                >
+                  {{ post.category.name }}
+                </span>
+              </div>
+
+              <!-- Title -->
               <h3
-                class="text-lg font-semibold text-gray-700 mb-2 cursor-pointer hover:text-blue-400 dark:text-gray-300 dark:hover:text-blue-300"
+                class="text-lg font-semibold text-gray-700 mb-2 cursor-pointer hover:text-blue-400 dark:text-gray-300 dark:hover:text-blue-300 line-clamp-2"
                 @click="goToDetail(post.id)"
               >
                 {{ post.title }}
               </h3>
+
+              <!-- Author and Date -->
               <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
                 <i class="mdi mdi-account"></i>
-                <span>{{
-                  post.author_type === 'admin' ? post.admin_name : post.vendor_name || 'Không rõ'
-                }}</span>
+                <span>{{ getAuthorName(post) }}</span>
               </div>
+
               <div class="flex items-center gap-2 text-sm text-gray-600 mb-3">
                 <i class="mdi mdi-calendar"></i>
-                <span>{{
-                  post.published_at ? formatDate(post.published_at) : 'Chưa xuất bản'
-                }}</span>
+                <span>{{ formatDate(post.published_at || post.created_at) }}</span>
               </div>
+
+              <!-- Travel Info -->
+              <div v-if="post.destination || post.estimated_budget" class="mb-3 space-y-1">
+                <div v-if="post.destination" class="flex items-center gap-2 text-sm text-gray-600">
+                  <i class="mdi mdi-map-marker"></i>
+                  <span>{{ post.destination }}</span>
+                </div>
+                <div
+                  v-if="post.estimated_budget"
+                  class="flex items-center gap-2 text-sm text-gray-600"
+                >
+                  <i class="mdi mdi-currency-usd"></i>
+                  <span>{{ formatBudget(post.estimated_budget) }}</span>
+                </div>
+              </div>
+
+              <!-- Excerpt -->
               <div class="text-gray-600 text-sm mb-4 line-clamp-3">
-                {{ truncateContent(post.content, 100) || 'Không có mô tả.' }}
+                <span v-if="post.excerpt">{{ post.excerpt }}</span>
+                <span v-else-if="post.content" v-html="truncateContent(post.content, 100)"></span>
+                <span v-else>Không có mô tả</span>
+              </div>
+
+              <!-- Stats -->
+              <div class="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                <span class="flex items-center gap-1">
+                  <EyeIcon class="h-4 w-4" />
+                  {{ post.view_count || 0 }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <ChatBubbleLeftIcon class="h-4 w-4" />
+                  {{ post.review_count || 0 }}
+                </span>
+                <span v-if="post.reading_time" class="flex items-center gap-1">
+                  <ClockIcon class="h-4 w-4" />
+                  {{ post.reading_time }} phút
+                </span>
               </div>
               <!-- Actions -->
               <div class="flex gap-2 mt-auto">
@@ -183,11 +335,7 @@
         </div>
 
         <!-- Pagination -->
-        <Pagination
-          v-if="posts.length > 0"
-          :pagination="pagination"
-          @change-page="goToPage"
-        />
+        <Pagination v-if="posts.length > 0" :pagination="pagination" @change-page="goToPage" />
       </CardBox>
     </SectionMain>
   </LayoutAuthenticated>
@@ -203,10 +351,21 @@ import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithB
 import CardBox from '@/components/admin/CardBox.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
 import Pagination from '@/components/Pagination.vue'
-import { mdiPlus, mdiRefresh, mdiMagnify, mdiPencil, mdiDelete, mdiEye, mdiNewspaper, mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import {
+  mdiPlus,
+  mdiRefresh,
+  mdiMagnify,
+  mdiPencil,
+  mdiDelete,
+  mdiEye,
+  mdiNewspaper,
+} from '@mdi/js'
+
+import { EyeIcon, ChatBubbleLeftIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const posts = ref([])
+const categories = ref([])
 const pagination = ref({
   current_page: 1,
   last_page: 1,
@@ -214,9 +373,13 @@ const pagination = ref({
   prev_page_url: null,
   links: [],
 })
+
+// Filters
+const categoryFilter = ref('')
 const statusFilter = ref('')
 const authorTypeFilter = ref('')
 const search = ref('')
+const sortBy = ref('latest')
 const isLoading = ref(false)
 
 // Status badge styles
@@ -228,12 +391,32 @@ const statusStyles = {
   archived: 'bg-gray-200 text-gray-700',
 }
 
-// Computed property for pagination links
-const paginationLinks = computed(() => {
-  return pagination.value.links.filter(link => link.label !== '« Previous' && link.label !== 'Next »')
+// Computed
+const hasActiveFilters = computed(() => {
+  return search.value || categoryFilter.value || statusFilter.value || authorTypeFilter.value
 })
 
-// Format date to Vietnamese locale
+// Helper functions
+function getAuthorName(post) {
+  return post.author_type === 'admin' ? post.admin_name || 'Admin' : post.vendor_name || 'Vendor'
+}
+
+function getCategoryName(categoryId) {
+  const category = categories.value.find((c) => c.id == categoryId)
+  return category ? category.name : 'Danh mục'
+}
+
+function getStatusText(status) {
+  const statusMap = {
+    draft: 'Nháp',
+    pending: 'Đang chờ',
+    rejected: 'Bị từ chối',
+    published: 'Đã xuất bản',
+    archived: 'Đã lưu trữ',
+  }
+  return statusMap[status] || status
+}
+
 function formatDate(dateString) {
   if (!dateString) return 'Chưa xuất bản'
   const date = new Date(dateString)
@@ -246,25 +429,40 @@ function formatDate(dateString) {
   })
 }
 
-// Truncate content for preview
+function formatBudget(budget) {
+  if (!budget) return ''
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(budget)
+}
+
 function truncateContent(content, maxLength) {
   if (!content) return ''
-  return content.length > maxLength ? content.substring(0, maxLength) + '...' : content
+  const plainText = content.replace(/<[^>]*>/g, '')
+  return plainText.length > maxLength ? plainText.substring(0, maxLength) + '...' : plainText
 }
 
-// Handle image loading error
 function handleImageError(event) {
-  event.target.src = '/images/placeholder.png' // Fallback image
+  event.target.src = '/images/placeholder.png'
 }
 
-// Parse page number from pagination label
-function parsePageNumber(label) {
-  if (label === '« Previous') return pagination.value.current_page - 1
-  if (label === 'Next »') return pagination.value.current_page + 1
-  return parseInt(label)
+// Fetch functions
+async function fetchCategories() {
+  try {
+    const adminToken = localStorage.getItem('adminToken')
+    const baseUrl = import.meta.env.VITE_API_BASE_URL
+    const response = await axios.get(`${baseUrl}/news-categories`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    })
+    categories.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+  }
 }
 
-// Fetch posts from API
 async function fetchPosts(page = 1) {
   isLoading.value = true
   try {
@@ -276,16 +474,21 @@ async function fetchPosts(page = 1) {
     }
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
-    let url = `${baseUrl}/news?page=${page}`
-    if (statusFilter.value) url += `&status=${statusFilter.value}`
-    if (authorTypeFilter.value) url += `&author_type=${authorTypeFilter.value}`
-    if (search.value) url += `&search=${encodeURIComponent(search.value)}`
+    const params = new URLSearchParams({
+      page: page.toString(),
+      sort: sortBy.value,
+    })
 
-    const config = {
+    if (categoryFilter.value) params.append('category_id', categoryFilter.value)
+    if (statusFilter.value) params.append('status', statusFilter.value)
+    if (authorTypeFilter.value) params.append('author_type', authorTypeFilter.value)
+    if (search.value) params.append('search', search.value)
+
+    console.log('params:', params)
+    const response = await axios.get(`${baseUrl}/news?${params}`, {
       headers: { Authorization: `Bearer ${adminToken}` },
-    }
+    })
 
-    const response = await axios.get(url, config)
     posts.value = response.data.data
     pagination.value = {
       current_page: response.data.meta.current_page,
@@ -319,7 +522,7 @@ async function confirmDelete(postId) {
     await axios.delete(`${baseUrl}/news/${postId}`, {
       headers: { Authorization: `Bearer ${adminToken}` },
     })
-    posts.value = posts.value.filter(post => post.id !== postId)
+    posts.value = posts.value.filter((post) => post.id !== postId)
     alert('Xóa bài viết thành công.')
   } catch (error) {
     console.error('Lỗi khi xóa bài viết:', error)
@@ -338,20 +541,29 @@ function addPost() {
 }
 
 function resetFilters() {
+  categoryFilter.value = ''
   statusFilter.value = ''
   authorTypeFilter.value = ''
   search.value = ''
+  sortBy.value = 'latest'
   fetchPosts(1)
 }
 
-// Initial fetch
+// Initialize
 onMounted(() => {
+  fetchCategories()
   fetchPosts()
 })
 </script>
 
 <style scoped>
-/* Tailwind handles most styling, but custom styles for specific cases */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -359,12 +571,10 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* Smooth transitions for buttons */
 button {
   transition: all 0.2s ease-in-out;
 }
 
-/* Hover effects for cards */
 .card:hover {
   transform: translateY(-2px);
 }

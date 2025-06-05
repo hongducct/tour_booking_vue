@@ -12,7 +12,7 @@
           <div class="inline-flex items-center justify-center mb-4">
             <ArrowPathIcon class="w-8 h-8 text-blue-500 animate-spin" />
           </div>
-          <p class="text-gray-600 text-lg dark:text-gray-200 ">Đang tải dữ liệu bài viết...</p>
+          <p class="text-gray-600 text-lg dark:text-gray-200">Đang tải dữ liệu bài viết...</p>
         </div>
       </div>
 
@@ -21,7 +21,9 @@
         <div class="text-center max-w-md">
           <div class="bg-red-50 border border-red-200 rounded-2xl p-8">
             <ExclamationTriangleIcon class="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 class="text-xl font-semibold text-gray-900 mb-2 dark:text-gray-200 ">Có lỗi xảy ra</h3>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2 dark:text-gray-200">
+              Có lỗi xảy ra
+            </h3>
             <p class="text-gray-600 mb-6 dark:text-gray-200">{{ error }}</p>
             <BaseButton
               label="Thử lại"
@@ -35,40 +37,140 @@
       </div>
 
       <!-- Edit Form -->
-      <CardBox v-else-if="form.title" class="max-w-4xl mx-auto">
-        <form @submit.prevent="updatePost" class="space-y-6 p-6">
-          <!-- Title Input -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
-              <DocumentTextIcon class="w-4 h-4 mr-2" />
-              Tiêu đề bài viết *
-            </label>
-            <input
-              v-model="form.title"
-              type="text"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              :class="{'border-red-500': updateError}"
-              placeholder="Nhập tiêu đề bài viết..."
-              required
-              @input="markAsChanged"
+      <CardBox v-else-if="form.title" class="max-w-6xl mx-auto">
+        <form @submit.prevent="updatePost" class="space-y-8 p-6">
+          <!-- Basic Information Section -->
+          <div class="bg-gray-50 rounded-xl p-6 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
+              Thông tin cơ bản
+            </h3>
+
+            <div class="space-y-4">
+              <!-- Title -->
+              <div>
+                <label
+                  class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200"
+                >
+                  <DocumentTextIcon class="w-4 h-4 mr-2" />
+                  Tiêu đề bài viết *
+                </label>
+                <input
+                  v-model="form.title"
+                  type="text"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                  placeholder="Nhập tiêu đề bài viết..."
+                  required
+                  @input="markAsChanged"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Category Selection -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                    Danh mục
+                  </label>
+                  <select
+                    v-model="form.category_id"
+                    @change="markAsChanged"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  >
+                    <option value="">Chọn danh mục</option>
+                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                      {{ category.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Featured Toggle -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                    Bài viết nổi bật
+                  </label>
+                  <div class="flex items-center">
+                    <input
+                      v-model="form.is_featured"
+                      @change="markAsChanged"
+                      type="checkbox"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label class="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                      Đánh dấu là bài viết nổi bật
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Excerpt -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Tóm tắt ngắn
+                </label>
+                <textarea
+                  v-model="form.excerpt"
+                  @input="markAsChanged"
+                  rows="3"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Nhập tóm tắt ngắn cho bài viết..."
+                  maxlength="500"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">{{ form.excerpt?.length || 0 }}/500 ký tự</p>
+              </div>
+
+              <!-- Tags -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Thẻ tag
+                </label>
+                <div class="flex flex-wrap gap-2 mb-2">
+                  <span
+                    v-for="(tag, index) in form.tags"
+                    :key="index"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {{ tag }}
+                    <button
+                      @click="removeTag(index)"
+                      type="button"
+                      class="ml-2 text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    v-model="newTag"
+                    @keyup.enter="addTag"
+                    type="text"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    placeholder="Nhập tag và nhấn Enter"
+                  />
+                  <BaseButton label="Thêm" color="info" small @click="addTag" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Featured Image Section -->
+          <div class="bg-gray-50 rounded-xl p-6 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
+              Hình ảnh đại diện
+            </h3>
+            <BlogImageUpload
+              :value="form.image"
+              @update:value="updateFeaturedImage"
+              @error="imageError = $event"
+              @loading="imageLoading = $event"
+              @insert-image="insertImageToContent"
             />
           </div>
 
-          <!-- Featured Image Section - Using BlogImageUpload Component -->
-          <BlogImageUpload
-            :value="form.image"
-            @update:value="updateFeaturedImage"
-            @error="imageError = $event"
-            @loading="imageLoading = $event"
-            @insert-image="insertImageToContent"
-          />
-
           <!-- Rich Text Editor -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
-              <PencilSquareIcon class="w-4 h-4 mr-2" />
-              Nội dung bài viết *
-            </label>
+          <div class="bg-gray-50 rounded-xl p-6 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
+              Nội dung bài viết
+            </h3>
             <RichTextEditor
               ref="richTextEditor"
               :value="form.content"
@@ -76,22 +178,188 @@
               @update:active-formats="activeFormats = $event"
               @open-image-modal="openImageInsertModal"
             />
-            <p class="text-sm text-gray-500 mt-2">
-              Sử dụng editor để định dạng văn bản, chèn hình ảnh và tạo nội dung đa phương tiện.
-            </p>
+          </div>
+
+          <!-- Travel Information Section -->
+          <div class="bg-gray-50 rounded-xl p-6 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
+              Thông tin du lịch
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- Destination -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Điểm đến
+                </label>
+                <input
+                  v-model="form.destination"
+                  @input="markAsChanged"
+                  type="text"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Ví dụ: Hà Nội, Đà Nẵng..."
+                />
+              </div>
+
+              <!-- Travel Season -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Mùa du lịch
+                </label>
+                <select
+                  v-model="form.travel_season"
+                  @change="markAsChanged"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                >
+                  <option value="">Chọn mùa</option>
+                  <option value="spring">Mùa xuân</option>
+                  <option value="summer">Mùa hè</option>
+                  <option value="autumn">Mùa thu</option>
+                  <option value="winter">Mùa đông</option>
+                  <option value="all_year">Quanh năm</option>
+                </select>
+              </div>
+
+              <!-- Duration -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Số ngày (tùy chọn)
+                </label>
+                <input
+                  v-model.number="form.duration_days"
+                  @input="markAsChanged"
+                  type="number"
+                  min="1"
+                  max="365"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Số ngày du lịch"
+                />
+              </div>
+
+              <!-- Budget -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Ngân sách ước tính (VND)
+                </label>
+                <input
+                  v-model.number="form.estimated_budget"
+                  @input="markAsChanged"
+                  type="number"
+                  min="0"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Ví dụ: 5000000"
+                />
+              </div>
+
+              <!-- Coordinates -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Vĩ độ
+                </label>
+                <input
+                  v-model.number="form.latitude"
+                  @input="markAsChanged"
+                  type="number"
+                  step="any"
+                  min="-90"
+                  max="90"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Ví dụ: 21.0285"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Kinh độ
+                </label>
+                <input
+                  v-model.number="form.longitude"
+                  @input="markAsChanged"
+                  type="number"
+                  step="any"
+                  min="-180"
+                  max="180"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Ví dụ: 105.8542"
+                />
+              </div>
+            </div>
+
+            <!-- Travel Tips -->
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                Mẹo du lịch
+              </label>
+              <div class="space-y-2">
+                <div v-for="(tip, index) in form.travel_tips" :key="index" class="flex gap-2">
+                  <input
+                    v-model="form.travel_tips[index]"
+                    @input="markAsChanged"
+                    type="text"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    placeholder="Nhập mẹo du lịch..."
+                  />
+                  <BaseButton color="danger" small @click="removeTravelTip(index)">
+                    Xóa
+                  </BaseButton>
+                </div>
+                <BaseButton label="Thêm mẹo" color="info" small @click="addTravelTip" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SEO Section -->
+          <div class="bg-gray-50 rounded-xl p-6 dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">SEO & Meta</h3>
+
+            <div class="space-y-4">
+              <!-- Meta Description -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Meta Description
+                </label>
+                <textarea
+                  v-model="form.meta_description"
+                  @input="markAsChanged"
+                  rows="3"
+                  maxlength="160"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="Mô tả ngắn gọn cho SEO (tối đa 160 ký tự)"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ form.meta_description?.length || 0 }}/160 ký tự
+                </p>
+              </div>
+
+              <!-- Meta Keywords -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
+                  Meta Keywords
+                </label>
+                <input
+                  v-model="form.meta_keywords"
+                  @input="markAsChanged"
+                  type="text"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  placeholder="từ khóa 1, từ khóa 2, từ khóa 3..."
+                />
+              </div>
+            </div>
           </div>
 
           <!-- Meta Information -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Status -->
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200"
+              >
                 <CheckCircleIcon class="w-4 h-4 mr-2" />
                 Trạng thái
               </label>
               <select
                 v-model="form.blog_status"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 @change="markAsChanged"
               >
                 <option value="draft">Bản nháp</option>
@@ -103,7 +371,9 @@
 
             <!-- Author Info (Read-only) -->
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200"
+              >
                 <UserIcon class="w-4 h-4 mr-2" />
                 Tác giả
               </label>
@@ -111,7 +381,6 @@
                 :value="getAuthorName()"
                 type="text"
                 class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                :class="{'border-red-500': updateError}"
                 readonly
               />
             </div>
@@ -120,7 +389,9 @@
           <!-- Timestamps (Read-only) -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200"
+              >
                 <CalendarDaysIcon class="w-4 h-4 mr-2" />
                 Ngày xuất bản
               </label>
@@ -132,7 +403,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200 ">
+              <label
+                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center dark:text-gray-200"
+              >
                 <PlusCircleIcon class="w-4 h-4 mr-2" />
                 Ngày tạo
               </label>
@@ -260,8 +533,21 @@ const adminToken = localStorage.getItem('adminToken')
 const form = ref({
   title: '',
   content: '',
+  excerpt: '',
   blog_status: 'draft',
   image: '',
+  category_id: '',
+  tags: [],
+  is_featured: false,
+  meta_description: '',
+  meta_keywords: '',
+  destination: '',
+  latitude: null,
+  longitude: null,
+  travel_season: '',
+  travel_tips: [],
+  estimated_budget: null,
+  duration_days: null,
   author_type: '',
   admin_name: '',
   vendor_name: '',
@@ -269,6 +555,9 @@ const form = ref({
   created_at: '',
   updated_at: '',
 })
+
+const categories = ref([])
+const newTag = ref('')
 
 // State management
 const isLoading = ref(false)
@@ -293,6 +582,44 @@ const richTextEditor = ref(null)
 if (!adminToken) {
   alert('Bạn cần đăng nhập để truy cập trang này.')
   router.push('/admin/login')
+}
+
+// Fetch categories
+async function fetchCategories() {
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL
+    const response = await axios.get(`${baseUrl}/news-categories?active=true`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    })
+    categories.value = response.data.data || []
+  } catch (err) {
+    console.error('Error fetching categories:', err)
+  }
+}
+
+// Tag management
+function addTag() {
+  if (newTag.value.trim() && !form.value.tags.includes(newTag.value.trim())) {
+    form.value.tags.push(newTag.value.trim())
+    newTag.value = ''
+    markAsChanged()
+  }
+}
+
+function removeTag(index) {
+  form.value.tags.splice(index, 1)
+  markAsChanged()
+}
+
+// Travel tips management
+function addTravelTip() {
+  form.value.travel_tips.push('')
+  markAsChanged()
+}
+
+function removeTravelTip(index) {
+  form.value.travel_tips.splice(index, 1)
+  markAsChanged()
 }
 
 // Get author name based on author_type
@@ -329,26 +656,21 @@ function markAsChanged() {
 
 // Handle content updates from RichTextEditor
 function updateContent(newContent) {
-  console.log('Content updated from RichTextEditor:', newContent.length, 'characters')
   form.value.content = newContent
   markAsChanged()
 }
 
 // Handle featured image updates from BlogImageUpload
 function updateFeaturedImage(newImageUrl) {
-  console.log('Featured image updated:', newImageUrl)
   form.value.image = newImageUrl
   markAsChanged()
 }
 
 // Handle image insertion from BlogImageUpload component
 function insertImageToContent(url, size) {
-  console.log('Inserting image to content:', url, size)
   if (richTextEditor.value && richTextEditor.value.insertImage) {
     richTextEditor.value.insertImage(url, size)
     markAsChanged()
-  } else {
-    console.warn('RichTextEditor reference not available or insertImage method not found')
   }
 }
 
@@ -393,8 +715,21 @@ async function fetchPost() {
       form.value = {
         title: post.title || '',
         content: post.content || '',
+        excerpt: post.excerpt || '',
         blog_status: post.blog_status || 'draft',
-        image_url: post.image_url || '',
+        image: post.image || '',
+        category_id: post.category_id || '',
+        tags: post.tags || [],
+        is_featured: post.is_featured || false,
+        meta_description: post.meta_description || '',
+        meta_keywords: post.meta_keywords || '',
+        destination: post.destination || '',
+        latitude: post.latitude || null,
+        longitude: post.longitude || null,
+        travel_season: post.travel_season || '',
+        travel_tips: post.travel_tips || [],
+        estimated_budget: post.estimated_budget || null,
+        duration_days: post.duration_days || null,
         author_type: post.author_type || '',
         admin_name: post.admin_name || '',
         vendor_name: post.vendor_name || '',
@@ -453,16 +788,26 @@ async function updatePost() {
     const updateData = {
       title: form.value.title.trim(),
       content: form.value.content.trim(),
+      excerpt: form.value.excerpt,
       blog_status: form.value.blog_status,
+      category_id: form.value.category_id || null,
+      tags: form.value.tags,
+      is_featured: form.value.is_featured,
+      meta_description: form.value.meta_description,
+      meta_keywords: form.value.meta_keywords,
+      destination: form.value.destination,
+      latitude: form.value.latitude,
+      longitude: form.value.longitude,
+      travel_season: form.value.travel_season,
+      travel_tips: form.value.travel_tips.filter((tip) => tip.trim()),
+      estimated_budget: form.value.estimated_budget,
+      duration_days: form.value.duration_days,
     }
 
-    // Add image_url if it exists
+    // Add image if it exists
     if (form.value.image && form.value.image.trim()) {
       updateData.image = form.value.image.trim()
     }
-
-    // console.log ra kiểm tra image_url có được cập nhật không
-    console.log('Updating post with data:', updateData)
 
     await axios.put(`${baseUrl}/news/${route.params.id}`, updateData, {
       headers: {
@@ -531,6 +876,7 @@ function handleBeforeUnload(e) {
 
 onMounted(() => {
   fetchPost()
+  fetchCategories()
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
@@ -540,12 +886,14 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Form styling */
-.space-y-6 > * + * {
-  margin-top: 1.5rem;
+.space-y-8 > * + * {
+  margin-top: 2rem;
 }
 
-/* Loading animations */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -561,9 +909,8 @@ onBeforeUnmount(() => {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .max-w-4xl {
+  .max-w-6xl {
     max-width: 100%;
     margin-left: 1rem;
     margin-right: 1rem;
@@ -573,7 +920,7 @@ onBeforeUnmount(() => {
     padding: 1rem;
   }
 
-  .space-y-6 > * + * {
+  .space-y-8 > * + * {
     margin-top: 1rem;
   }
 
@@ -582,12 +929,10 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Smooth transitions */
 .transition-all {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Focus styles */
 input:focus,
 textarea:focus,
 select:focus {
@@ -595,7 +940,6 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Button hover effects */
 button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -605,25 +949,7 @@ button:active {
   transform: translateY(0);
 }
 
-/* RichTextEditor styles */
 :deep(.ql-editor) {
   min-height: 200px;
-}
-
-/* Visual indicator for unsaved changes */
-.unsaved-changes {
-  position: relative;
-}
-
-.unsaved-changes::after {
-  content: '•';
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  background-color: orange;
-  color: white;
-  border-radius: 50%;
-  padding: 0.25rem;
-  font-size: 0.75rem;
 }
 </style>

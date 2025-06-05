@@ -1,20 +1,26 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+// --- Dữ liệu liên hệ ---
 const emailAddress = ref('travelbooking@hongducct.id.vn')
 const phoneNumber = ref('0799076901')
-const address = ref('Thang Long University, Hanoi, Vietnam')
+const address = ref('Đại học Thăng Long, Hà Nội, Việt Nam')
 const imgUrl = ref('https://cdn.bookingtour.vn/upload/timetotravel.png?v')
 
-const email = ref('')
-const message = ref('')
-const messageType = ref('')
-const isLoading = ref(false)
+// --- Trạng thái form đăng ký ---
+const email = ref('') // Giữ nguyên cho v-model
+const message = ref('') // Thông báo cho người dùng
+const messageType = ref('') // Loại thông báo (success/error)
+const isLoading = ref(false) // Trạng thái đang tải
+
+// --- Hàm đăng ký nhận tin ---
 const subscribe = async () => {
   if (isLoading.value) return
   isLoading.value = true
+
+  // Kiểm tra email hợp lệ
   if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    message.value = 'Please enter a valid email address.'
+    message.value = 'Vui lòng nhập địa chỉ email hợp lệ.'
     messageType.value = 'error'
     isLoading.value = false
     return
@@ -33,19 +39,19 @@ const subscribe = async () => {
 
     const data = await response.json()
     if (response.ok) {
-      message.value = 'Thanks for subscribing! Check your email for travel deals.'
+      message.value = 'Cảm ơn bạn đã đăng ký! Hãy kiểm tra email để nhận những ưu đãi du lịch hấp dẫn nhé.'
       messageType.value = 'success'
-      email.value = ''
+      email.value = '' // Xóa email sau khi thành công
     } else {
-      message.value = data.message || 'Subscription failed. Please try again.'
+      message.value = data.message || 'Đăng ký không thành công. Vui lòng thử lại.'
       messageType.value = 'error'
     }
   } catch (error) {
-    message.value = 'An error occurred. Please try again later.'
+    message.value = 'Đã có lỗi xảy ra. Vui lòng thử lại sau.'
     messageType.value = 'error'
   }
 
-  // Clear message after 5 seconds
+  // Xóa thông báo sau 5 giây
   setTimeout(() => {
     message.value = ''
     messageType.value = ''
@@ -53,7 +59,7 @@ const subscribe = async () => {
   isLoading.value = false
 }
 
-// Animation on scroll effect
+// --- Hiệu ứng animation khi cuộn ---
 onMounted(() => {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -76,23 +82,23 @@ onMounted(() => {
   <section class="contact-section py-16 bg-gray-50">
     <div class="container mx-auto px-4">
       <div class="flex flex-col lg:flex-row gap-8 items-center">
-        <!-- Left side image -->
+        <!-- Hình ảnh bên trái -->
         <div class="w-full lg:w-1/3 animate-on-scroll">
           <div
             class="contact-img rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
           >
-            <img :src="imgUrl" alt="Contact Us" class="w-full h-80 object-cover" />
+            <img :src="imgUrl" alt="Liên hệ chúng tôi" class="w-full h-80 object-cover" />
           </div>
         </div>
 
-        <!-- Right side content -->
+        <!-- Nội dung bên phải -->
         <div class="w-full lg:w-2/3">
           <div
             class="contact-details-wrap bg-white rounded-xl shadow-lg p-6 mb-8 animate-on-scroll"
           >
-            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Contact Information</h2>
+            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Thông Tin Liên Hệ</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- Email contact -->
+              <!-- Liên hệ Email -->
               <div
                 class="contact-details text-center bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               >
@@ -114,11 +120,11 @@ onMounted(() => {
                     />
                   </svg>
                 </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-700">Email</h3>
+                <h3 class="font-semibold text-lg mb-2 text-gray-700">Hòm thư</h3>
                 <ul>
                   <li>
                     <a
-                      href="mailto:lienhe@bookingtour.vn"
+                      :href="'mailto:' + emailAddress"
                       class="text-blue-600 hover:text-blue-800 transition-colors"
                       >{{ emailAddress }}</a
                     >
@@ -126,7 +132,7 @@ onMounted(() => {
                 </ul>
               </div>
 
-              <!-- Phone contact -->
+              <!-- Liên hệ Điện thoại -->
               <div
                 class="contact-details text-center bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               >
@@ -148,11 +154,11 @@ onMounted(() => {
                     />
                   </svg>
                 </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-700">Hotline</h3>
+                <h3 class="font-semibold text-lg mb-2 text-gray-700">Đường dây nóng</h3>
                 <ul>
                   <li>
                     <a
-                      href="tel:08888822368"
+                      :href="'tel:' + phoneNumber"
                       class="text-green-600 hover:text-green-800 transition-colors"
                       >{{ phoneNumber }}</a
                     >
@@ -160,7 +166,7 @@ onMounted(() => {
                 </ul>
               </div>
 
-              <!-- Address contact -->
+              <!-- Liên hệ Địa chỉ -->
               <div
                 class="contact-details text-center bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               >
@@ -188,7 +194,7 @@ onMounted(() => {
                     />
                   </svg>
                 </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-700">Address</h3>
+                <h3 class="font-semibold text-lg mb-2 text-gray-700">Địa chỉ</h3>
                 <ul>
                   <li class="text-gray-700">{{ address }}</li>
                 </ul>
@@ -196,19 +202,19 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Call to action -->
+          <!-- Kêu gọi hành động -->
           <div
             class="contact-btn-wrap bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-lg p-8 text-center text-white animate-on-scroll"
           >
-            <h3 class="text-2xl font-bold mb-4">LET'S JOIN US FOR MORE UPDATE!</h3>
+            <h3 class="text-2xl font-bold mb-4">ĐỪNG BỎ LỠ ƯU ĐÃI - CẬP NHẬT NGAY!</h3>
             <p class="mb-6 text-blue-100">
-              Subscribe to our newsletter to receive updates about latest offers and travel tips.
+              Đăng ký nhận bản tin để không bỏ lỡ những ưu đãi mới nhất và mẹo du lịch hữu ích từ chúng tôi.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <input
                 type="email"
                 v-model="email"
-                placeholder="Your email address"
+                placeholder="Nhập địa chỉ email của bạn"
                 class="px-6 py-3 rounded-full w-full sm:w-auto text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -220,13 +226,13 @@ onMounted(() => {
                   'bg-gray-400': isLoading,
                 }"
               >
-                {{ isLoading ? 'Subscribing...' : 'SUBSCRIBE NOW' }}
+                {{ isLoading ? 'Đang xử lý...' : 'ĐĂNG KÝ NGAY' }}
               </button>
             </div>
             <p
               v-if="message"
               class="mt-2 text-sm"
-              :class="messageType === 'success' ? 'text-green-400' : 'text-red-400'"
+              :class="messageType === 'success' ? 'text-green-300' : 'text-red-300'"
             >
               {{ message }}
             </p>

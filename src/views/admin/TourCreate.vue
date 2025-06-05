@@ -475,6 +475,7 @@
               size="lg"
               :icon="mdiCheck"
               class="px-8 py-3 text-lg font-semibold"
+              :disabled="isCreating"
             />
           </div>
         </form>
@@ -511,6 +512,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useTourStore } from '@/stores/tourStore'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionMain from '@/components/admin/SectionMain.vue'
 import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithButton.vue'
@@ -546,6 +548,7 @@ import {
   TicketIcon,
   CheckIcon,
   ClipboardDocumentListIcon,
+  ArrowPathIcon,
 } from '@heroicons/vue/24/outline'
 
 import {
@@ -573,6 +576,7 @@ import {
 } from '@mdi/js'
 
 const router = useRouter()
+const tourStore = useTourStore()
 
 const form = ref({
   name: '',
@@ -593,6 +597,7 @@ const form = ref({
 const formattedPrice = ref('')
 const isEditingPrice = ref(false)
 const isUploadingImages = ref(false)
+const isCreating = ref(false)
 const availableFeatures = ref([])
 const locations = ref([])
 const vendors = ref([])
@@ -806,7 +811,11 @@ const handleFeatureCreated = (feature) => {
 }
 
 const createTour = async () => {
+  if (isCreating.value) return
+
   try {
+    isCreating.value = true
+
     if (form.value.days && form.value.nights) {
       const diff = Math.abs(form.value.days - form.value.nights)
       if (diff > 1) {
@@ -862,7 +871,17 @@ const createTour = async () => {
       })),
     }
 
-    await axios.post(`${apiBaseUrl}/tours`, payload)
+    const response = await axios.post(`${apiBaseUrl}/tours`, payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    // Thêm tour mới vào store
+    if (response.data) {
+      tourStore.addTour(response.data)
+    }
+
     alert('Tạo tour thành công!')
     router.push('/admin/tours')
   } catch (err) {
@@ -873,10 +892,14 @@ const createTour = async () => {
       errors.value = { general: 'Không thể tạo tour. Vui lòng thử lại sau.' }
     }
     alert('Không thể tạo tour: ' + (err.response?.data?.message || 'Lỗi không xác định'))
+  } finally {
+    isCreating.value = false
   }
 }
 
-onMounted(fetchData)
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <style scoped>

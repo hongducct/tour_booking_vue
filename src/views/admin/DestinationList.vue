@@ -8,7 +8,7 @@
           color="info"
           :icon="mdiPlus"
           rounded
-          @click="showCreateModal = true"
+          @click="openCreateModal"
         />
       </SectionTitleLineWithButton>
 
@@ -193,9 +193,15 @@
                 </div>
               </div>
 
-              <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed dark:text-gray-200">
-                {{ destination.description || 'Chưa có mô tả cho địa điểm này.' }}
-              </p>
+              <span
+                class="text-gray-600 text-sm line-clamp-3 leading-relaxed dark:text-gray-200 prose"
+                v-html="
+                  destination.description && destination.description.trim()
+                    ? destination.description
+                    : 'Chưa có mô tả cho địa điểm này'
+                "
+              >
+              </span>
 
               <!-- Coordinates Info -->
               <div class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-500">
@@ -259,7 +265,7 @@
             color="primary"
             :icon="mdiPlus"
             rounded
-            @click="showCreateModal = true"
+            @click="openCreateModal"
           />
         </div>
 
@@ -400,11 +406,13 @@
         </div>
       </div>
 
-      <!-- Location Modal -->
-      <LocationModal
-        :show="showCreateModal"
-        @close="showCreateModal = false"
-        @created="handleLocationCreated"
+      <!-- Create/Edit Destination Modal -->
+      <DestinationEdit
+        :show="showDestinationModal"
+        :destination-id="editingDestinationId"
+        @close="closeDestinationModal"
+        @created="handleDestinationCreated"
+        @updated="handleDestinationUpdated"
       />
     </SectionMain>
   </LayoutAuthenticated>
@@ -420,7 +428,7 @@ import SectionTitleLineWithButton from '@/components/admin/SectionTitleLineWithB
 import CardBox from '@/components/admin/CardBox.vue'
 import BaseButton from '@/components/admin/BaseButton.vue'
 import Pagination from '@/components/Pagination.vue'
-import LocationModal from '@/components/tour/LocationModal.vue'
+import DestinationEdit from '@/components/admin/destination/DestinationEdit.vue'
 import {
   MapPinIcon,
   MagnifyingGlassIcon,
@@ -461,7 +469,8 @@ const isLoadingTours = ref(false)
 // Modal states
 const showToursModal = ref(false)
 const showMapView = ref(false)
-const showCreateModal = ref(false)
+const showDestinationModal = ref(false)
+const editingDestinationId = ref(null)
 
 // Computed properties
 const uniqueCountries = computed(() => {
@@ -582,6 +591,34 @@ async function fetchTours(destinationId) {
   }
 }
 
+// Modal functions
+function openCreateModal() {
+  editingDestinationId.value = null
+  showDestinationModal.value = true
+}
+
+function editDestination(destinationId) {
+  editingDestinationId.value = destinationId
+  showDestinationModal.value = true
+}
+
+function closeDestinationModal() {
+  showDestinationModal.value = false
+  editingDestinationId.value = null
+}
+
+function handleDestinationCreated(newDestination) {
+  showDestinationModal.value = false
+  editingDestinationId.value = null
+  fetchDestinations(1) // Refresh to first page to see new destination
+}
+
+function handleDestinationUpdated(updatedDestination) {
+  showDestinationModal.value = false
+  editingDestinationId.value = null
+  fetchDestinations(pagination.value.current_page) // Refresh current page
+}
+
 // Navigation functions
 async function viewTours(destinationId) {
   showToursModal.value = true
@@ -592,10 +629,6 @@ function closeToursModal() {
   showToursModal.value = false
   selectedDestination.value = null
   tours.value = []
-}
-
-function editDestination(destinationId) {
-  router.push(`/admin/destinations/edit/${destinationId}`)
 }
 
 function goToPage(page) {
@@ -614,11 +647,6 @@ function resetFilters() {
 
 function toggleMapView() {
   showMapView.value = !showMapView.value
-}
-
-function handleLocationCreated(newLocation) {
-  showCreateModal.value = false
-  fetchDestinations(1)
 }
 
 // Initial fetch
@@ -786,19 +814,96 @@ select:focus {
   max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
+
 .prose {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 1rem;
+  color: #374151;
+  line-height: 1.75;
 }
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: #111827;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+}
+.prose h2 {
+  font-size: 1.875rem;
+}
+.prose h3 {
+  font-size: 1.5rem;
+}
+.prose h4 {
+  font-size: 1.25rem;
+}
+
 .prose p {
-  margin: 0.5rem 0;
+  margin-bottom: 1.5rem;
 }
+
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #1d4ed8;
+}
+
+.prose img {
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  max-width: 100%;
+  height: auto;
+}
+
+.prose blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #6b7280;
+  margin: 2rem 0;
+}
+
 .prose ul,
 .prose ol {
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  padding-left: 2rem;
 }
+
+.prose li {
+  margin: 0.5rem 0;
+}
+
+.prose code {
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.prose pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 2rem 0;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
 .prose strong {
   font-weight: 600;
 }

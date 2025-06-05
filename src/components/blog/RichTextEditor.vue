@@ -113,13 +113,6 @@ watch(
 
 // FIXED: Handle content updates - chỉ emit khi không phải là silent update hoặc đang chèn ảnh
 function handleContentUpdate(newContent) {
-  console.log(
-    'Content updated, isInsertingImage:',
-    isInsertingImage.value,
-    'isSilentUpdate:',
-    isSilentUpdate.value,
-  )
-
   content.value = newContent
 
   // FIXED: Chỉ emit khi:
@@ -127,10 +120,8 @@ function handleContentUpdate(newContent) {
   // 2. Không phải là silent update
   // 3. Content thực sự thay đổi do user nhập
   if (!isInsertingImage.value && !isSilentUpdate.value) {
-    console.log('Emitting update:value - user input detected')
     emits('update:value', newContent)
   } else {
-    console.log('Skipping emit - image insertion or silent update')
   }
 }
 
@@ -152,8 +143,6 @@ function setTextAlign(align) {
 
 // FIXED: Insert image function - hoàn toàn không emit update
 function insertImage(imgWrapper) {
-  console.log('Starting image insertion process...')
-
   // FIXED: Set flag để block tất cả emit events
   isInsertingImage.value = true
   isSilentUpdate.value = true
@@ -171,8 +160,6 @@ function insertImage(imgWrapper) {
       const updatedContent = quill.root.innerHTML
       content.value = updatedContent
 
-      console.log('Image inserted successfully - content updated locally only')
-
       // Reset flags - sẵn sàng cho user input tiếp theo
       isInsertingImage.value = false
       isSilentUpdate.value = false
@@ -182,7 +169,6 @@ function insertImage(imgWrapper) {
     content.value += imgWrapper
 
     setTimeout(() => {
-      console.log('Image inserted via fallback - content updated locally only')
       isInsertingImage.value = false
       isSilentUpdate.value = false
     }, 150)
@@ -214,7 +200,6 @@ function insertImageFromParent(url, size = 'medium') {
 
 // FIXED: Method để update content mà không trigger emit
 function updateContentSilently(newContent) {
-  console.log('Updating content silently')
   isSilentUpdate.value = true
   content.value = newContent
 
@@ -230,7 +215,6 @@ function updateContentSilently(newContent) {
 
 // FIXED: Thêm method để force emit content (khi user muốn save manually)
 function forceEmitContent() {
-  console.log('Force emitting current content')
   emits('update:value', content.value)
 }
 

@@ -26,9 +26,13 @@ import ChatBot from '@/components/ChatBot.vue'
     <TheHeader />
     <HomeSlider class="mt-27" />
     <div class="bg-gray-100 rounded-lg shadow-xl/80 my-20 mx-auto container px-2 max-w-7xl ">
-      <div class="py-4">
-        <h1 class="text-3xl font-bold text-center">Welcome to Tour Booking</h1>
-        <p class="text-center text-gray-600">Your adventure starts here!</p>
+      <div class="py-8 text-center">
+        <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 tracking-tight mb-2">
+          Chào mừng bạn ghé thăm <span class="text-blue-600 tracking-wide">Travel Booking</span>
+        </h1>
+        <p class="text-base sm:text-lg text-gray-700 font-medium">
+          Phiêu lưu thôi, chờ chi!
+        </p>
       </div>
       <FormSearch />
       <DestinationSection />

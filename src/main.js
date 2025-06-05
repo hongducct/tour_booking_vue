@@ -32,4 +32,4 @@ router.afterEach((to) => {
     ? `${to.meta.title} — ${defaultDocumentTitle}`
     : defaultDocumentTitle
 })
-const defaultDocumentTitle = 'Tour Booking'
+const defaultDocumentTitle = 'Travel Booking'

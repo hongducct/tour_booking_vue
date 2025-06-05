@@ -355,7 +355,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title
   } else {
-    document.title = 'Tour Booking'
+    document.title = 'Travel Booking'
   }
 
   // Cho phép chuyển route

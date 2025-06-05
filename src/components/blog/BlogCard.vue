@@ -22,7 +22,7 @@
       </RouterLink>
 
       <!-- Featured Badge -->
-      <div v-if="featured" class="absolute top-3 right-3 z-10">
+      <div v-if="post.is_featured || featured" class="absolute top-3 right-3 z-10">
         <div
           class="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center shadow-lg backdrop-blur-sm"
         >
@@ -36,7 +36,17 @@
         <div
           class="bg-emerald-500/90 text-white px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm"
         >
-          {{ post.blog_status === 'published' ? 'Đã xuất bản' : 'Bản nháp' }}
+          {{ getStatusText(post.blog_status) }}
+        </div>
+      </div>
+
+      <!-- Travel Info Badge (if destination exists) -->
+      <div v-if="post.destination" class="absolute bottom-3 left-3 z-10">
+        <div
+          class="bg-blue-600/90 text-white px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm flex items-center"
+        >
+          <MapPinIcon class="w-3 h-3 mr-1" />
+          {{ post.destination }}
         </div>
       </div>
     </div>
@@ -54,7 +64,7 @@
               <UserIcon class="w-4 h-4 text-white" />
             </div>
             <div>
-              <p class="font-semibold text-gray-700">{{ post.vendor_name }}</p>
+              <p class="font-semibold text-gray-700">{{ getAuthorName(post) }}</p>
               <div class="flex items-center text-xs">
                 <CalendarIcon class="w-3 h-3 mr-1" />
                 <time :datetime="post.published_at || post.created_at">
@@ -67,7 +77,7 @@
           <!-- Reading Time Estimate -->
           <div class="flex items-center text-xs text-gray-400">
             <ClockIcon class="w-3 h-3 mr-1" />
-            {{ getReadingTime(post.content) }} phút đọc
+            {{ post.reading_time || getReadingTime(post.content) }} phút đọc
           </div>
         </div>
 
@@ -83,17 +93,40 @@
 
         <!-- Content Preview -->
         <div class="min-h-[4rem] mb-4">
-          <p :class="excerptClasses" v-if="getExcerpt(post.content)">
-            {{ getExcerpt(post.content) }}
+          <p :class="excerptClasses" v-if="getExcerpt(post)">
+            {{ getExcerpt(post) }}
           </p>
           <p v-else class="text-gray-400 text-sm italic">Không có nội dung xem trước</p>
+        </div>
+
+        <!-- Travel Info (if available) -->
+        <div
+          v-if="post.estimated_budget || post.duration_days || post.travel_season"
+          class="mb-4 p-3 bg-gray-50 rounded-lg"
+        >
+          <div class="flex flex-wrap gap-3 text-xs text-gray-600">
+            <div v-if="post.estimated_budget" class="flex items-center">
+              <CurrencyDollarIcon class="w-3 h-3 mr-1" />
+              {{ formatBudget(post.estimated_budget) }}
+            </div>
+            <div v-if="post.duration_days" class="flex items-center">
+              <CalendarDaysIcon class="w-3 h-3 mr-1" />
+              {{ post.duration_days }} ngày
+            </div>
+            <div v-if="post.travel_season" class="flex items-center">
+              <SunIcon class="w-3 h-3 mr-1" />
+              {{ getTravelSeasonText(post.travel_season) }}
+            </div>
+          </div>
         </div>
 
         <!-- Engagement Stats -->
         <div class="flex items-center gap-4 mb-4 text-sm text-gray-500">
           <div class="flex items-center">
             <EyeIcon class="w-4 h-4 mr-1" />
-            <span>{{ formatNumber(Math.floor(Math.random() * 1000) + 100) }}</span>
+            <span>{{
+              formatNumber(post.view_count || Math.floor(Math.random() * 1000) + 100)
+            }}</span>
           </div>
           <div class="flex items-center">
             <ChatBubbleLeftIcon class="w-4 h-4 mr-1" />
@@ -181,6 +214,10 @@ import {
   ChatBubbleLeftIcon,
   ClockIcon,
   TagIcon,
+  MapPinIcon,
+  CurrencyDollarIcon,
+  CalendarDaysIcon,
+  SunIcon,
 } from '@heroicons/vue/24/outline'
 
 import { toast } from 'vue3-toastify'
@@ -272,6 +309,21 @@ const createSlug = (id, title) => {
     .trim('-')}`
 }
 
+const getAuthorName = (post) => {
+  return post.vendor_name || post.admin_name || post.author_name || 'Unknown Author'
+}
+
+const getStatusText = (status) => {
+  const statusMap = {
+    draft: 'Bản nháp',
+    pending: 'Đang chờ',
+    rejected: 'Bị từ chối',
+    published: 'Đã xuất bản',
+    archived: 'Đã lưu trữ',
+  }
+  return statusMap[status] || 'Không rõ'
+}
+
 const formatDate = (dateString) => {
   if (!dateString) return 'Chưa cập nhật'
   const date = new Date(dateString)
@@ -289,9 +341,11 @@ const formatDate = (dateString) => {
   })
 }
 
-const getExcerpt = (content) => {
-  if (!content) return ''
-  const plainText = content
+const getExcerpt = (post) => {
+  if (post.excerpt) return post.excerpt
+
+  if (!post.content) return ''
+  const plainText = post.content
     .replace(/<[^>]*>/g, '')
     .replace(/\n/g, ' ')
     .replace(/\s+/g, ' ')
@@ -310,6 +364,27 @@ const formatNumber = (num) => {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
   return num.toString()
+}
+
+const formatBudget = (budget) => {
+  if (!budget) return ''
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(budget)
+}
+
+const getTravelSeasonText = (season) => {
+  const seasons = {
+    spring: 'Mùa xuân',
+    summer: 'Mùa hè',
+    autumn: 'Mùa thu',
+    winter: 'Mùa đông',
+    all_year: 'Quanh năm',
+  }
+  return seasons[season] || season
 }
 
 const handleImageError = (event) => {
@@ -387,7 +462,7 @@ const sharePost = async () => {
     try {
       await navigator.share({
         title: props.post.title,
-        text: getExcerpt(props.post.content),
+        text: getExcerpt(props.post),
         url: url,
       })
     } catch (err) {

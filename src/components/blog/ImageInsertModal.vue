@@ -278,4 +278,8 @@ function closeModal() {
 .fade-leave-to {
   opacity: 0;
 }
+.fixed.inset-0.bg-black.bg-opacity-50.z-40 {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.1);
+}
 </style>
