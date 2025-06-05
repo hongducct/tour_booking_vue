@@ -74,6 +74,7 @@ export const useTourStore = defineStore('tour', {
     // Cập nhật tour trong store
     updateTour(updatedTour) {
       const index = this.tours.findIndex((tour) => tour.id === updatedTour.id)
+      console.log(index)
       if (index !== -1) {
         this.tours[index] = { ...this.tours[index], ...updatedTour }
         // Cập nhật thời gian lấy dữ liệu

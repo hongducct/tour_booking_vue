@@ -605,6 +605,7 @@ import LocationModal from '@/components/tour/LocationModal.vue'
 import TravelTypeModal from '@/components/tour/TravelTypeModal.vue'
 import FeatureModal from '@/components/tour/FeatureModal.vue'
 import ItineraryModal from '@/components/tour/ItineraryModal.vue'
+import { useTourStore } from '@/stores/tourStore'
 
 import {
   ArrowPathIcon,
@@ -647,6 +648,7 @@ const route = useRoute()
 const router = useRouter()
 const tourId = route.params.id
 const adminToken = localStorage.getItem('adminToken')
+const tourStore = useTourStore()
 
 // Form data
 const form = ref({
@@ -1144,10 +1146,10 @@ const updateTour = async () => {
       })),
     }
 
-    await axios.put(`${apiBaseUrl}/tours/${tourId}`, payload, {
+    const response = await axios.put(`${apiBaseUrl}/tours/${tourId}`, payload, {
       headers: { Authorization: `Bearer ${adminToken}` },
     })
-
+    tourStore.updateTour(response.data)
     success.value = true
     hasUnsavedChanges.value = false
     setTimeout(() => router.push('/admin/tours'), 1500)

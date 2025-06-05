@@ -368,14 +368,14 @@ const formatLastFetched = computed(() => {
 
 const getPrimaryImage = (images) => {
   if (!images || !Array.isArray(images) || images.length === 0) {
-    return 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747423349/pitink1lttzlhp6o2qy0.jpg'
+    return 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'
   }
 
   const primary = images.find((img) => img.is_primary)
   return (
     primary?.image_url ||
     images[0]?.image_url ||
-    'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747423349/pitink1lttzlhp6o2qy0.jpg'
+    'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'
   )
 }
 

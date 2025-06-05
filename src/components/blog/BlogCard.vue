@@ -389,7 +389,7 @@ const getTravelSeasonText = (season) => {
 
 const handleImageError = (event) => {
   event.target.src =
-    'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747734951/o3jn0zgirfrmxttw5wkd.jpg'
+    'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'
 }
 
 // API Functions

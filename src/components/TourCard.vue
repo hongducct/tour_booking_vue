@@ -2,7 +2,7 @@
   <div class="package-wrap border rounded-lg shadow-xl/30 overflow-hidden bg-white">
     <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`">
       <img
-        :src="tour.images?.[0]?.image_url || '/images/default-tour.jpg'"
+        :src="tour.images?.[0]?.image_url || 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'"
         :alt="tour.name"
         class="w-full h-64 object-cover"
       />
@@ -65,7 +65,7 @@
           "
         >
           <HeartIcon class="w-4 h-4" />
-          {{ isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+          {{ isInWishlist ? 'Bỏ yêu thích' : 'Yêu thích' }}
         </button>
       </div>
     </div>
@@ -159,7 +159,7 @@ const checkWishlistStatus = async () => {
     })
     isInWishlist.value = res.data.isInWishlist
   } catch (err) {
-    console.error('Kiểm tra wishlist thất bại:', err)
+    console.error('Kiểm tra danh sách yêu thích thất bại:', err)
   }
 }
 

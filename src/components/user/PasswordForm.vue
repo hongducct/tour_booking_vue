@@ -59,7 +59,7 @@ const fetchUserProfile = async () => {
     })
     hasPassword.value = response.data.has_password
   } catch (err) {
-    console.error('Failed to fetch user profile:', err)
+    console.error('Không thể tải thông tin người dùng:', err)
   }
 }
 fetchUserProfile()
@@ -79,10 +79,10 @@ const passwordStrength = computed(() => {
 
   score = Object.values(checks).filter(Boolean).length
 
-  if (score < 2) return { level: 1, text: 'Weak', color: 'bg-red-500', checks }
-  if (score < 4) return { level: 2, text: 'Medium', color: 'bg-yellow-500', checks }
-  if (score < 5) return { level: 3, text: 'Strong', color: 'bg-blue-500', checks }
-  return { level: 4, text: 'Very Strong', color: 'bg-green-500', checks }
+  if (score < 2) return { level: 1, text: 'Yếu', color: 'bg-red-500', checks }
+  if (score < 4) return { level: 2, text: 'Trung bình', color: 'bg-yellow-500', checks }
+  if (score < 5) return { level: 3, text: 'Mạnh', color: 'bg-blue-500', checks }
+  return { level: 4, text: 'Rất mạnh', color: 'bg-green-500', checks }
 })
 
 const passwordsMatch = computed(() => {
@@ -107,15 +107,15 @@ const sendOtp = async () => {
       },
     )
     otpSent.value = true
-    props.notifySuccess('OTP sent to your email!')
+    props.notifySuccess('Mã OTP đã được gửi đến email của bạn!')
   } catch (err) {
-    console.error('Failed to send OTP:', err)
+    console.error('Không thể gửi mã OTP:', err)
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors
-      props.notifyError('Failed to send OTP. Please check the errors.')
+      props.notifyError('Không thể gửi mã OTP. Vui lòng kiểm tra lỗi.')
     } else {
-      errors.value.general = 'Failed to send OTP. Please try again.'
-      props.notifyError('Failed to send OTP. Please try again.')
+      errors.value.general = 'Không thể gửi mã OTP. Vui lòng thử lại.'
+      props.notifyError('Không thể gửi mã OTP. Vui lòng thử lại.')
     }
   } finally {
     isSendingOtp.value = false
@@ -126,9 +126,9 @@ const submitPass = async () => {
   errors.value = {}
 
   if (passwordForm.password !== passwordForm.password_confirmation) {
-    errors.value.password_confirmation = ['New password and confirmation do not match.']
+    errors.value.password_confirmation = ['Mật khẩu mới và xác nhận mật khẩu không khớp.']
     if (typeof props.notifyError === 'function') {
-      props.notifyError('Password confirmation does not match.')
+      props.notifyError('Xác nhận mật khẩu không khớp.')
     }
     return
   }
@@ -145,12 +145,12 @@ const submitPass = async () => {
     } else {
       payload.current_password = passwordForm.current_password
     }
-    console.log('Submitting password change:', payload)
+    console.log('Đang gửi yêu cầu đổi mật khẩu:', payload)
     await axios.put(`${baseUrl}/user/profile`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    props.notifySuccess('Password changed successfully!')
+    props.notifySuccess('Đổi mật khẩu thành công!')
     passwordForm.current_password = ''
     passwordForm.password = ''
     passwordForm.password_confirmation = ''
@@ -158,16 +158,16 @@ const submitPass = async () => {
     otpSent.value = false
     hasPassword.value = true
   } catch (err) {
-    console.error('Password change failed:', err)
+    console.error('Đổi mật khẩu thất bại:', err)
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors
       if (typeof props.notifyError === 'function') {
-        props.notifyError('Failed to change password. Please check the errors.')
+        props.notifyError('Không thể đổi mật khẩu. Vui lòng kiểm tra lỗi.')
       }
     } else {
-      errors.value.general = 'Failed to change password. Please try again.'
+      errors.value.general = 'Không thể đổi mật khẩu. Vui lòng thử lại.'
       if (typeof props.notifyError === 'function') {
-        props.notifyError('Failed to update profile. Please try again.')
+        props.notifyError('Không thể cập nhật thông tin. Vui lòng thử lại.')
       }
     }
   } finally {
@@ -181,7 +181,7 @@ const submitPass = async () => {
     class="shadow-xl bg-gradient-to-br from-white to-slate-50 rounded-xl overflow-hidden border border-slate-200/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
   >
     <div class="p-8">
-      <!-- Header Section -->
+      <!-- Phần tiêu đề -->
       <div class="flex items-start gap-4 mb-8 pb-6 border-b-2 border-blue-100">
         <div
           class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30"
@@ -192,16 +192,16 @@ const submitPass = async () => {
           <h2
             class="text-2xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent"
           >
-            Change Password
+            Đổi Mật Khẩu
           </h2>
           <p class="text-gray-600 text-sm leading-relaxed">
-            Update your account password for better security
+            Cập nhật mật khẩu tài khoản để bảo mật tốt hơn
           </p>
         </div>
       </div>
 
       <form @submit.prevent="submitPass" class="space-y-8">
-        <!-- General Error Alert -->
+        <!-- Thông báo lỗi chung -->
         <div v-if="errors.general" class="p-4 rounded-xl bg-red-50 border border-red-200">
           <div class="flex items-center gap-3">
             <XCircleIcon class="w-5 h-5 text-red-500 flex-shrink-0" />
@@ -209,11 +209,11 @@ const submitPass = async () => {
           </div>
         </div>
 
-        <!-- Current Password Field (for users with password) -->
+        <!-- Trường mật khẩu hiện tại (cho người dùng đã có mật khẩu) -->
         <div v-if="hasPassword" class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <ShieldCheckIcon class="w-4 h-4 text-blue-500" />
-            Current Password
+            Mật khẩu hiện tại
             <span class="text-red-500">*</span>
           </label>
           <div class="relative">
@@ -226,7 +226,7 @@ const submitPass = async () => {
                 :type="showPasswords.current ? 'text' : 'password'"
                 class="w-full pl-12 pr-16 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.current_password }"
-                placeholder="Enter your current password"
+                placeholder="Nhập mật khẩu hiện tại"
                 required
                 autocomplete="current-password"
               />
@@ -234,7 +234,7 @@ const submitPass = async () => {
                 type="button"
                 @click="togglePasswordVisibility('current')"
                 class="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none"
-                :title="showPasswords.current ? 'Hide password' : 'Show password'"
+                :title="showPasswords.current ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
               >
                 <EyeSlashIcon v-if="showPasswords.current" class="w-5 h-5" />
                 <EyeIcon v-else class="w-5 h-5" />
@@ -250,7 +250,7 @@ const submitPass = async () => {
           </div>
         </div>
 
-        <!-- Send OTP Button and OTP Field (for users without password) -->
+        <!-- Nút gửi OTP và trường OTP (cho người dùng chưa có mật khẩu) -->
         <div v-else class="space-y-3">
           <button
             type="button"
@@ -261,15 +261,15 @@ const submitPass = async () => {
             <div class="flex items-center justify-center gap-3 relative z-10">
               <ArrowPathIcon v-if="isSendingOtp" class="w-5 h-5 animate-spin" />
               <ShieldCheckIcon v-else class="w-5 h-5" />
-              <span>{{ isSendingOtp ? 'Sending OTP...' : 'Send OTP' }}</span>
+              <span>{{ isSendingOtp ? 'Đang gửi OTP...' : 'Gửi mã OTP' }}</span>
             </div>
           </button>
 
-          <!-- OTP Input Field (shown after OTP is sent) -->
+          <!-- Trường nhập OTP (hiện sau khi OTP được gửi) -->
           <div v-if="otpSent" class="space-y-3 mt-4">
             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <ShieldCheckIcon class="w-4 h-4 text-blue-500" />
-              OTP
+              Mã OTP
               <span class="text-red-500">*</span>
             </label>
             <div class="relative">
@@ -278,7 +278,7 @@ const submitPass = async () => {
                 type="text"
                 class="w-full pl-12 pr-16 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.otp }"
-                placeholder="Enter OTP sent to your email"
+                placeholder="Nhập mã OTP đã gửi về email"
                 required
                 autocomplete="one-time-code"
               />
@@ -292,11 +292,11 @@ const submitPass = async () => {
 
         <BaseDivider />
 
-        <!-- New Password Field -->
+        <!-- Trường mật khẩu mới -->
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <KeyIcon class="w-4 h-4 text-blue-500" />
-            New Password
+            Mật khẩu mới
             <span class="text-red-500">*</span>
           </label>
           <div class="relative">
@@ -309,7 +309,7 @@ const submitPass = async () => {
                 :type="showPasswords.new ? 'text' : 'password'"
                 class="w-full pl-12 pr-16 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.password }"
-                placeholder="Enter new password (min 8 characters)"
+                placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)"
                 required
                 autocomplete="new-password"
               />
@@ -317,14 +317,14 @@ const submitPass = async () => {
                 type="button"
                 @click="togglePasswordVisibility('new')"
                 class="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none"
-                :title="showPasswords.new ? 'Hide password' : 'Show password'"
+                :title="showPasswords.new ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
               >
                 <EyeSlashIcon v-if="showPasswords.new" class="w-5 h-5" />
                 <EyeIcon v-else class="w-5 h-5" />
               </button>
             </div>
           </div>
-          <!-- Password Strength Indicator -->
+          <!-- Chỉ số độ mạnh mật khẩu -->
           <div v-if="passwordForm.password" class="mt-4 space-y-3">
             <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
@@ -345,7 +345,7 @@ const submitPass = async () => {
                 >
                   <CheckCircleIcon v-if="passwordStrength.checks?.length" class="w-3 h-3" />
                   <XCircleIcon v-else class="w-3 h-3" />
-                  <span>8+ chars</span>
+                  <span>8+ ký tự</span>
                 </div>
                 <div
                   class="flex items-center gap-1 transition-colors"
@@ -356,7 +356,7 @@ const submitPass = async () => {
                 >
                   <CheckCircleIcon v-if="passwordStrength.checks?.uppercase" class="w-3 h-3" />
                   <XCircleIcon v-else class="w-3 h-3" />
-                  <span>Uppercase</span>
+                  <span>Chữ hoa</span>
                 </div>
                 <div
                   class="flex items-center gap-1 transition-colors"
@@ -367,7 +367,7 @@ const submitPass = async () => {
                 >
                   <CheckCircleIcon v-if="passwordStrength.checks?.lowercase" class="w-3 h-3" />
                   <XCircleIcon v-else class="w-3 h-3" />
-                  <span>Lowercase</span>
+                  <span>Chữ thường</span>
                 </div>
                 <div
                   class="flex items-center gap-1 transition-colors"
@@ -378,7 +378,7 @@ const submitPass = async () => {
                 >
                   <CheckCircleIcon v-if="passwordStrength.checks?.numbers" class="w-3 h-3" />
                   <XCircleIcon v-else class="w-3 h-3" />
-                  <span>Number</span>
+                  <span>Số</span>
                 </div>
                 <div
                   class="flex items-center gap-1 transition-colors"
@@ -389,7 +389,7 @@ const submitPass = async () => {
                 >
                   <CheckCircleIcon v-if="passwordStrength.checks?.special" class="w-3 h-3" />
                   <XCircleIcon v-else class="w-3 h-3" />
-                  <span>Special</span>
+                  <span>Ký tự đặc biệt</span>
                 </div>
               </div>
             </div>
@@ -400,11 +400,11 @@ const submitPass = async () => {
           </div>
         </div>
 
-        <!-- Confirm Password Field -->
+        <!-- Trường xác nhận mật khẩu -->
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <ShieldCheckIcon class="w-4 h-4 text-blue-500" />
-            Confirm New Password
+            Xác nhận mật khẩu mới
             <span class="text-red-500">*</span>
           </label>
           <div class="relative">
@@ -421,7 +421,7 @@ const submitPass = async () => {
                   'border-green-300 bg-green-50/50': passwordsMatch === true,
                   'border-yellow-300 bg-yellow-50/50': passwordsMatch === false,
                 }"
-                placeholder="Confirm your new password"
+                placeholder="Xác nhận mật khẩu mới"
                 required
                 autocomplete="new-password"
               />
@@ -429,7 +429,7 @@ const submitPass = async () => {
                 type="button"
                 @click="togglePasswordVisibility('confirm')"
                 class="absolute right-12 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-600 focus:outline-none"
-                :title="showPasswords.confirm ? 'Hide password' : 'Show password'"
+                :title="showPasswords.confirm ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
               >
                 <EyeSlashIcon v-if="showPasswords.confirm" class="w-5 h-5" />
                 <EyeIcon v-else class="w-5 h-5" />
@@ -446,11 +446,11 @@ const submitPass = async () => {
           <div v-if="passwordsMatch !== null" class="mt-2">
             <div v-if="passwordsMatch" class="flex items-center gap-2 text-sm text-green-600">
               <CheckCircleIcon class="w-4 h-4" />
-              <span>Passwords match</span>
+              <span>Mật khẩu khớp</span>
             </div>
             <div v-else class="flex items-center gap-2 text-sm text-red-600">
               <XCircleIcon class="w-4 h-4" />
-              <span>Passwords do not match</span>
+              <span>Mật khẩu không khớp</span>
             </div>
           </div>
           <div
@@ -462,7 +462,7 @@ const submitPass = async () => {
           </div>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Nút gửi -->
         <div class="mt-8 pt-6 border-t border-gray-100">
           <button
             type="submit"
@@ -474,7 +474,7 @@ const submitPass = async () => {
             <div class="flex items-center justify-center gap-3 relative z-10">
               <ArrowPathIcon v-if="isSubmittingPassword" class="w-5 h-5 animate-spin" />
               <ShieldCheckIcon v-else class="w-5 h-5" />
-              <span>{{ isSubmittingPassword ? 'Changing Password...' : 'Change Password' }}</span>
+              <span>{{ isSubmittingPassword ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu' }}</span>
             </div>
             <div
               class="absolute inset-0 bg-white opacity-0 transition-opacity duration-300 rounded-xl group-active:opacity-20"
@@ -482,30 +482,30 @@ const submitPass = async () => {
           </button>
         </div>
 
-        <!-- Security Tips -->
+        <!-- Lời khuyên bảo mật -->
         <div
           class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
         >
           <h4 class="flex items-center gap-2 text-sm font-semibold text-blue-900 mb-3">
             <InformationCircleIcon class="w-4 h-4" />
-            Security Tips
+            Lời khuyên bảo mật
           </h4>
           <ul class="space-y-2 text-sm text-blue-800">
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Use a unique password that you don't use elsewhere</span>
+              <span>Sử dụng mật khẩu độc nhất, không dùng ở nơi khác</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Include a mix of letters, numbers, and special characters</span>
+              <span>Kết hợp chữ cái, số và ký tự đặc biệt</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Make it at least 8 characters long</span>
+              <span>Tối thiểu 8 ký tự</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Avoid using personal information like names or dates</span>
+              <span>Tránh sử dụng thông tin cá nhân như tên hoặc ngày sinh</span>
             </li>
           </ul>
         </div>

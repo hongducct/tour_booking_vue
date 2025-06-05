@@ -54,15 +54,15 @@ const errors = ref({})
 const isSubmittingProfile = ref(false)
 
 const genderOptions = [
-  { value: '', label: 'Select Gender' },
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
+  { value: '', label: 'Chọn giới tính' },
+  { value: 'male', label: 'Nam' },
+  { value: 'female', label: 'Nữ' },
+  { value: 'other', label: 'Khác' },
 ]
 
 const currentGenderLabel = computed(() => {
   const option = genderOptions.find((opt) => opt.value === profileForm.gender)
-  return option ? option.label : 'Select Gender'
+  return option ? option.label : 'Chọn giới tính'
 })
 
 const submitProfile = async () => {
@@ -82,7 +82,7 @@ const submitProfile = async () => {
     localStorage.setItem('userData', JSON.stringify(res.data))
     userData.value = res.data
     if (typeof props.notifySuccess === 'function') {
-      props.notifySuccess('Profile updated successfully!')
+      props.notifySuccess('Hồ sơ đã được cập nhật thành công!')
     } else {
       console.error('notifySuccess is not a function:', props.notifySuccess)
     }
@@ -91,14 +91,14 @@ const submitProfile = async () => {
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors
       if (typeof props.notifyError === 'function') {
-        props.notifyError('Failed to update profile. Please check the errors.')
+        props.notifyError('Cập nhật hồ sơ thất bại. Vui lòng kiểm tra lại thông tin.')
       } else {
         console.error('notifyError is not a function:', props.notifyError)
       }
     } else {
-      errors.value.general = 'Failed to update profile. Please try again.'
+      errors.value.general = 'Cập nhật hồ sơ thất bại. Vui lòng thử lại.'
       if (typeof props.notifyError === 'function') {
-        props.notifyError('Failed to update profile. Please try again.')
+        props.notifyError('Cập nhật hồ sơ thất bại. Vui lòng thử lại.')
       } else {
         console.error('notifyError is not a function:', props.notifyError)
       }
@@ -125,10 +125,10 @@ const submitProfile = async () => {
           <h2
             class="text-2xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent"
           >
-            Profile Information
+            Thông Tin Cá Nhân
           </h2>
           <p class="text-gray-600 text-sm leading-relaxed">
-            Update your personal information and profile details
+            Cập nhật thông tin cá nhân và chi tiết hồ sơ của bạn
           </p>
         </div>
       </div>
@@ -146,7 +146,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4">
             <UserCircleIcon class="w-4 h-4 text-blue-500" />
-            Profile Picture
+            Ảnh Đại Diện
           </label>
           <div class="flex justify-center">
             <AvatarUploader
@@ -163,7 +163,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <UserIcon class="w-4 h-4 text-blue-500" />
-            Username
+            Tên Đăng Nhập
             <span class="text-red-500">*</span>
           </label>
 
@@ -176,7 +176,7 @@ const submitProfile = async () => {
               type="text"
               class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
               :class="{ 'border-red-300 bg-red-50/50': errors.username }"
-              placeholder="Enter your username"
+              placeholder="Nhập tên đăng nhập của bạn"
               required
             />
           </div>
@@ -191,7 +191,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <EnvelopeIcon class="w-4 h-4 text-blue-500" />
-            Email Address
+            Địa Chỉ Email
             <span class="text-red-500">*</span>
           </label>
 
@@ -204,7 +204,7 @@ const submitProfile = async () => {
               type="email"
               class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-gray-100 transition-all duration-300"
               :class="{ 'border-red-300 bg-red-50/50': errors.email }"
-              placeholder="Your email address"
+              placeholder="Địa chỉ email của bạn"
               disabled
               required
             />
@@ -222,7 +222,7 @@ const submitProfile = async () => {
           <div class="space-y-3">
             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <UserIcon class="w-4 h-4 text-blue-500" />
-              First Name
+              Tên
               <span class="text-red-500">*</span>
             </label>
 
@@ -235,7 +235,7 @@ const submitProfile = async () => {
                 type="text"
                 class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.first_name }"
-                placeholder="Enter your first name"
+                placeholder="Nhập tên của bạn"
                 required
               />
             </div>
@@ -252,7 +252,7 @@ const submitProfile = async () => {
           <div class="space-y-3">
             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <UserIcon class="w-4 h-4 text-blue-500" />
-              Last Name
+              Họ và Tên Đệm
               <span class="text-red-500">*</span>
             </label>
 
@@ -265,7 +265,7 @@ const submitProfile = async () => {
                 type="text"
                 class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.last_name }"
-                placeholder="Enter your last name"
+                placeholder="Nhập họ và tên đệm của bạn"
                 required
               />
             </div>
@@ -285,7 +285,7 @@ const submitProfile = async () => {
           <div class="space-y-3">
             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <PhoneIcon class="w-4 h-4 text-blue-500" />
-              Phone Number
+              Số Điện Thoại
             </label>
 
             <div class="relative">
@@ -297,7 +297,7 @@ const submitProfile = async () => {
                 type="tel"
                 class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300"
                 :class="{ 'border-red-300 bg-red-50/50': errors.phone_number }"
-                placeholder="Enter your phone number"
+                placeholder="Nhập số điện thoại của bạn"
               />
             </div>
 
@@ -316,7 +316,7 @@ const submitProfile = async () => {
           <div class="space-y-3">
             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <CalendarDaysIcon class="w-4 h-4 text-blue-500" />
-              Date of Birth
+              Ngày Sinh
             </label>
 
             <div class="relative">
@@ -347,7 +347,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <UserIcon class="w-4 h-4 text-blue-500" />
-            Gender
+            Giới Tính
           </label>
 
           <div class="relative">
@@ -363,15 +363,6 @@ const submitProfile = async () => {
                 {{ option.label }}
               </option>
             </select>
-            <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
           </div>
 
           <div v-if="errors.gender" class="flex items-center gap-2 text-sm text-red-600 mt-2">
@@ -384,7 +375,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <InformationCircleIcon class="w-4 h-4 text-blue-500" />
-            Description
+            Giới Thiệu Bản Thân
           </label>
 
           <div class="relative">
@@ -396,7 +387,7 @@ const submitProfile = async () => {
               rows="4"
               class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300 resize-none"
               :class="{ 'border-red-300 bg-red-50/50': errors.description }"
-              placeholder="Tell us about yourself..."
+              placeholder="Hãy kể cho chúng tôi biết về bạn..."
             ></textarea>
           </div>
 
@@ -412,7 +403,7 @@ const submitProfile = async () => {
         <div class="space-y-3">
           <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
             <MapPinIcon class="w-4 h-4 text-blue-500" />
-            Address
+            Địa Chỉ
           </label>
 
           <div class="relative">
@@ -424,7 +415,7 @@ const submitProfile = async () => {
               rows="3"
               class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-gray-900 bg-white transition-all duration-300 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:border-gray-300 resize-none"
               :class="{ 'border-red-300 bg-red-50/50': errors.address }"
-              placeholder="Enter your current address..."
+              placeholder="Nhập địa chỉ hiện tại của bạn..."
             ></textarea>
           </div>
 
@@ -444,7 +435,7 @@ const submitProfile = async () => {
             <div class="flex items-center justify-center gap-3 relative z-10">
               <ArrowPathIcon v-if="isSubmittingProfile" class="w-5 h-5 animate-spin" />
               <CheckCircleIcon v-else class="w-5 h-5" />
-              <span>{{ isSubmittingProfile ? 'Updating Profile...' : 'Update Profile' }}</span>
+              <span>{{ isSubmittingProfile ? 'Đang cập nhật...' : 'Cập Nhật Hồ Sơ' }}</span>
             </div>
             <div
               class="absolute inset-0 bg-white opacity-0 transition-opacity duration-300 rounded-xl group-active:opacity-20"
@@ -458,24 +449,24 @@ const submitProfile = async () => {
         >
           <h4 class="flex items-center gap-2 text-sm font-semibold text-blue-900 mb-3">
             <InformationCircleIcon class="w-4 h-4" />
-            Profile Tips
+            Gợi Ý Hồ Sơ
           </h4>
           <ul class="space-y-2 text-sm text-blue-800">
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Keep your profile information up to date for better experience</span>
+              <span>Luôn cập nhật thông tin hồ sơ để có trải nghiệm tốt hơn</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Add a profile picture to make your account more personal</span>
+              <span>Thêm ảnh đại diện để tài khoản của bạn trông cá nhân hóa hơn</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Provide accurate contact information for account recovery</span>
+              <span>Cung cấp thông tin liên lạc chính xác để khôi phục tài khoản</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-blue-500 font-bold mt-1 flex-shrink-0">•</span>
-              <span>Your email address cannot be changed for security reasons</span>
+              <span>Địa chỉ email không thể thay đổi vì lý do bảo mật</span>
             </li>
           </ul>
         </div>

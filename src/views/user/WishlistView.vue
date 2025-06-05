@@ -100,7 +100,7 @@ onMounted(() => {
         <SectionTitleLineWithButton :icon="mdiHeart" title="Danh sách yêu thích" main />
 
         <CardBox>
-          <div v-if="wishlist.length">
+          <div v-if="wishlist">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div
                 v-for="tour in wishlist"
@@ -109,7 +109,7 @@ onMounted(() => {
               >
                 <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`">
                   <img
-                    :src="tour.images?.[0]?.image_url || '/images/default-tour.jpg'"
+                    :src="tour.images?.[0]?.image_url || 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117169/djj6cgxhbvzvpmwvuz6f.jpg'"
                     :alt="tour.name"
                     class="w-full h-64 object-cover"
                   />

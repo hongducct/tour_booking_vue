@@ -44,9 +44,9 @@ const notifyError = (message) => {
                 clip-rule="evenodd"
               />
             </svg>
-            Profile Settings
+            Cài Đặt Hồ Sơ
           </h1>
-          <p class="text-gray-600 mt-2">Manage your account settings and personal preferences</p>
+          <p class="text-gray-600 mt-2">Quản lý thông tin tài khoản và tùy chọn cá nhân của bạn</p>
         </div>
 
         <!-- Updated grid layout: 2/3 for ProfileForm, 1/3 for PasswordForm -->
