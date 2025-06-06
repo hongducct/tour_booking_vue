@@ -178,7 +178,7 @@ onUnmounted(() => {
                 ></div>
               </router-link>
             </li>
-            <li
+            <!-- <li
               class="relative menu-container"
               @mouseenter="openDropdown = true"
               @mouseleave="openDropdown = false"
@@ -238,7 +238,7 @@ onUnmounted(() => {
                   </li>
                 </ul>
               </transition>
-            </li>
+            </li> -->
             <li>
               <router-link
                 to="/destination"
@@ -440,7 +440,7 @@ onUnmounted(() => {
               TOUR
             </router-link>
 
-            <div class="border border-gray-200 rounded-lg">
+            <!-- <div class="border border-gray-200 rounded-lg">
               <button
                 @click="toggleDropdown"
                 class="flex items-center justify-between w-full py-3 px-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 transition-all duration-200 font-semibold rounded-lg"
@@ -479,7 +479,7 @@ onUnmounted(() => {
                   </router-link>
                 </div>
               </transition>
-            </div>
+            </div> -->
 
             <router-link
               to="/destination"
