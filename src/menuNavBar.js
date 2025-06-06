@@ -40,24 +40,24 @@ export default [
     menu: [
       {
         icon: mdiAccount,
-        label: 'My Profile',
+        label: 'Trang cá nhân',
         to: '/admin/profile',
       },
       {
         icon: mdiCogOutline,
-        label: 'Create Account Admin',
+        label: 'Tạo tài khoản Admin',
         to: '/admin/create-account',
       },
-      {
-        icon: mdiEmail,
-        label: 'Messages',
-      },
+      // {
+      //   icon: mdiEmail,
+      //   label: 'Messages',
+      // },
       {
         isDivider: true,
       },
       {
         icon: mdiLogout,
-        label: 'Log Out',
+        label: 'Đăng xuất',
         isLogout: true,
       },
     ],

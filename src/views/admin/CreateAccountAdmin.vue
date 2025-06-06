@@ -19,18 +19,18 @@ import {
 } from '@heroicons/vue/24/outline'
 
 import {
-    mdiAccount,
-    mdiEmailOutline,
-    mdiKey,
-    mdiPhone,
-    mdiImage,
-    mdiEye,
-    mdiEyeOff,
-    mdiCheckCircle,
-    mdiAlertCircle,
-    mdiReload,
-    mdiAccountPlus,
-    mdiShieldCheck,
+  mdiAccount,
+  mdiEmailOutline,
+  mdiKey,
+  mdiPhone,
+  mdiImage,
+  mdiEye,
+  mdiEyeOff,
+  mdiCheckCircle,
+  mdiAlertCircle,
+  mdiReload,
+  mdiAccountPlus,
+  mdiShieldCheck,
 } from '@mdi/js'
 
 import SectionMain from '@/components/admin/SectionMain.vue'
@@ -67,12 +67,12 @@ const loading = ref(false)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
 
-// Avatar upload states
+// Trạng thái tải ảnh đại diện
 const avatarPreview = ref('')
 const isUploadingImage = ref(false)
 const avatarUploadErrors = ref({})
 
-// Validation states
+// Xác thực biểu mẫu
 const formValidation = computed(() => {
   const validations = {
     username: adminForm.username.length >= 3,
@@ -91,22 +91,22 @@ const formValidation = computed(() => {
   }
 })
 
-// Avatar upload function
+// Hàm tải ảnh đại diện
 const handleImageUpload = async (e) => {
   const file = e.target.files[0]
   if (!file) return
 
-  // Validate file size (5MB limit)
+  // Kiểm tra kích thước tệp (giới hạn 5MB)
   if (file.size > 5 * 1024 * 1024) {
-    avatarUploadErrors.value.avatar = 'Image size must be less than 5MB.'
-    error.value = 'Image size must be less than 5MB.'
+    avatarUploadErrors.value.avatar = 'Kích thước ảnh phải nhỏ hơn 5MB.'
+    error.value = 'Kích thước ảnh phải nhỏ hơn 5MB.'
     return
   }
 
-  // Validate file type
+  // Kiểm tra định dạng tệp
   if (!file.type.startsWith('image/')) {
-    avatarUploadErrors.value.avatar = 'Please select a valid image file.'
-    error.value = 'Please select a valid image file.'
+    avatarUploadErrors.value.avatar = 'Vui lòng chọn tệp ảnh hợp lệ.'
+    error.value = 'Vui lòng chọn tệp ảnh hợp lệ.'
     return
   }
 
@@ -130,19 +130,19 @@ const handleImageUpload = async (e) => {
     )
 
     if (uploadRes.status !== 200) {
-      throw new Error('Upload failed')
+      throw new Error('Tải ảnh thất bại')
     }
 
     avatarPreview.value = uploadRes.data.secure_url
     adminForm.avatar = uploadRes.data.secure_url
-    success.value = 'Avatar uploaded successfully!'
+    success.value = 'Tải ảnh đại diện thành công!'
 
-    // Clear any previous errors
+    // Xóa thông báo lỗi trước đó
     avatarUploadErrors.value = {}
   } catch (err) {
-    console.error('Image upload error:', err)
-    avatarUploadErrors.value.avatar = 'Failed to upload image. Please try again.'
-    error.value = 'Failed to upload image. Please try again.'
+    console.error('Lỗi tải ảnh:', err)
+    avatarUploadErrors.value.avatar = 'Tải ảnh thất bại. Vui lòng thử lại.'
+    error.value = 'Tải ảnh thất bại. Vui lòng thử lại.'
   } finally {
     isUploadingImage.value = false
   }
@@ -168,7 +168,7 @@ const resetForm = () => {
 
 const submitForm = async () => {
   if (!formValidation.value.isValid) {
-    error.value = 'Please fill in all required fields correctly.'
+    error.value = 'Vui lòng điền đầy đủ và chính xác các trường bắt buộc.'
     return
   }
 
@@ -185,22 +185,22 @@ const submitForm = async () => {
       },
     })
 
-    console.log('Admin created successfully:', response.data)
-    success.value = 'Admin account created successfully!'
+    console.log('Tạo tài khoản quản trị thành công:', response.data)
+    success.value = 'Tài khoản quản trị đã được tạo thành công!'
 
-    // Reset form after successful creation
+    // Đặt lại biểu mẫu sau khi tạo thành công
     setTimeout(() => {
       resetForm()
     }, 2000)
   } catch (err) {
-    console.error('Error creating admin:', err)
+    console.error('Lỗi tạo tài khoản quản trị:', err)
 
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors
-      error.value = 'Please check the form for validation errors.'
+      error.value = 'Vui lòng kiểm tra biểu mẫu để sửa lỗi.'
     } else {
       error.value =
-        err.response?.data?.message || 'Failed to create admin account. Please try again.'
+        err.response?.data?.message || 'Tạo tài khoản quản trị thất bại. Vui lòng thử lại.'
     }
   } finally {
     loading.value = false
@@ -222,18 +222,18 @@ const getValidationClass = (fieldName) => {
 <template>
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton :icon="UserPlusIcon" title="Create New Admin Account" main>
+      <SectionTitleLineWithButton :icon="mdiAccountPlus" title="Tạo Tài Khoản Quản Trị Mới" main>
         <BaseButton
           @click="resetForm"
           :icon="mdiReload"
-          label="Reset Form"
+          label="Đặt Lại Biểu Mẫu"
           color="info"
           rounded-full
           small
         />
       </SectionTitleLineWithButton>
 
-      <!-- Alert Messages -->
+      <!-- Thông báo -->
       <div
         v-if="error"
         class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4"
@@ -261,19 +261,17 @@ const getValidationClass = (fieldName) => {
           <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-6 py-4">
             <h3 class="text-lg font-semibold text-white flex items-center">
               <ShieldCheckIcon class="h-5 w-5 mr-2" />
-              New Administrator Information
+              Thông Tin Quản Trị Viên Mới
             </h3>
-            <p class="text-blue-100 text-sm mt-1">
-              Fill in the details to create a new admin account
-            </p>
+            <p class="text-blue-100 text-sm mt-1">Điền thông tin để tạo tài khoản quản trị mới</p>
           </div>
 
           <form @submit.prevent="submitForm" class="p-6 space-y-6">
-            <!-- Avatar Upload Section -->
+            <!-- Phần tải ảnh đại diện -->
             <div class="space-y-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Profile Picture
-                <span class="text-gray-400 font-normal">(Optional)</span>
+                Ảnh Đại Diện
+                <span class="text-gray-400 font-normal">(Không bắt buộc)</span>
               </label>
               <div class="flex flex-col sm:flex-row items-center gap-6">
                 <div class="relative">
@@ -283,7 +281,7 @@ const getValidationClass = (fieldName) => {
                     <img
                       v-if="avatarPreview"
                       :src="avatarPreview"
-                      alt="Profile Picture Preview"
+                      alt="Xem trước ảnh đại diện"
                       class="w-full h-full object-cover"
                     />
                     <div v-else class="w-full h-full flex items-center justify-center">
@@ -313,16 +311,16 @@ const getValidationClass = (fieldName) => {
                     :class="{ 'opacity-50 cursor-not-allowed': isUploadingImage }"
                   >
                     <PhotoIcon class="w-4 h-4 mr-2" />
-                    {{ isUploadingImage ? 'Uploading...' : 'Upload Picture' }}
+                    {{ isUploadingImage ? 'Đang tải...' : 'Tải Ảnh Lên' }}
                   </label>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">JPG, PNG up to 5MB</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">JPG, PNG tối đa 5MB</p>
                   <p class="text-xs text-gray-400 dark:text-gray-500">
-                    Recommended: 400x400px square image
+                    Khuyến nghị: ảnh vuông 400x400px
                   </p>
                 </div>
               </div>
 
-              <!-- Avatar Error Message -->
+              <!-- Thông báo lỗi tải ảnh -->
               <div
                 v-if="avatarUploadErrors.avatar"
                 class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800"
@@ -336,12 +334,12 @@ const getValidationClass = (fieldName) => {
 
             <BaseDivider />
 
-            <!-- Basic Information -->
+            <!-- Thông tin cơ bản -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Username -->
+              <!-- Tên đăng nhập -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Username <span class="text-red-500">*</span>
+                  Tên Đăng Nhập <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <UserIcon
@@ -353,7 +351,7 @@ const getValidationClass = (fieldName) => {
                     required
                     class="pl-10 w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                     :class="getValidationClass('username')"
-                    placeholder="Enter username"
+                    placeholder="Nhập tên đăng nhập"
                   />
                   <div
                     v-if="adminForm.username && formValidation.username"
@@ -365,13 +363,13 @@ const getValidationClass = (fieldName) => {
                 <p v-if="getFieldError('username')" class="text-red-500 text-xs mt-1">
                   {{ getFieldError('username') }}
                 </p>
-                <p v-else class="text-gray-500 text-xs mt-1">At least 3 characters</p>
+                <p v-else class="text-gray-500 text-xs mt-1">Tối thiểu 3 ký tự</p>
               </div>
 
               <!-- Email -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address <span class="text-red-500">*</span>
+                  Địa Chỉ Email <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <EnvelopeIcon
@@ -383,7 +381,7 @@ const getValidationClass = (fieldName) => {
                     required
                     class="pl-10 w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                     :class="getValidationClass('email')"
-                    placeholder="Enter email address"
+                    placeholder="Nhập địa chỉ email"
                   />
                   <div
                     v-if="adminForm.email && formValidation.email"
@@ -395,16 +393,16 @@ const getValidationClass = (fieldName) => {
                 <p v-if="getFieldError('email')" class="text-red-500 text-xs mt-1">
                   {{ getFieldError('email') }}
                 </p>
-                <p v-else class="text-gray-500 text-xs mt-1">Valid email format required</p>
+                <p v-else class="text-gray-500 text-xs mt-1">Yêu cầu định dạng email hợp lệ</p>
               </div>
             </div>
 
-            <!-- Password Fields -->
+            <!-- Trường mật khẩu -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Password -->
+              <!-- Mật khẩu -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password <span class="text-red-500">*</span>
+                  Mật Khẩu <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <KeyIcon
@@ -416,7 +414,7 @@ const getValidationClass = (fieldName) => {
                     required
                     class="pl-10 pr-12 w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                     :class="getValidationClass('password')"
-                    placeholder="Enter password"
+                    placeholder="Nhập mật khẩu"
                   />
                   <button
                     type="button"
@@ -430,13 +428,13 @@ const getValidationClass = (fieldName) => {
                 <p v-if="getFieldError('password')" class="text-red-500 text-xs mt-1">
                   {{ getFieldError('password') }}
                 </p>
-                <p v-else class="text-gray-500 text-xs mt-1">Minimum 6 characters</p>
+                <p v-else class="text-gray-500 text-xs mt-1">Tối thiểu 6 ký tự</p>
               </div>
 
-              <!-- Confirm Password -->
+              <!-- Xác nhận mật khẩu -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password <span class="text-red-500">*</span>
+                  Xác Nhận Mật Khẩu <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <KeyIcon
@@ -448,7 +446,7 @@ const getValidationClass = (fieldName) => {
                     required
                     class="pl-10 pr-12 w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                     :class="getValidationClass('password_confirmation')"
-                    placeholder="Confirm password"
+                    placeholder="Xác nhận mật khẩu"
                   />
                   <button
                     type="button"
@@ -463,7 +461,7 @@ const getValidationClass = (fieldName) => {
                   v-if="adminForm.password_confirmation && !formValidation.password_confirmation"
                   class="text-red-500 text-xs mt-1"
                 >
-                  Passwords do not match
+                  Mật khẩu không khớp
                 </p>
                 <p
                   v-else-if="
@@ -471,18 +469,18 @@ const getValidationClass = (fieldName) => {
                   "
                   class="text-green-500 text-xs mt-1"
                 >
-                  Passwords match
+                  Mật khẩu khớp
                 </p>
-                <p v-else class="text-gray-500 text-xs mt-1">Must match password above</p>
+                <p v-else class="text-gray-500 text-xs mt-1">Phải khớp với mật khẩu trên</p>
               </div>
             </div>
 
-            <!-- Personal Information -->
+            <!-- Thông tin cá nhân -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- First Name -->
+              <!-- Tên -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  First Name <span class="text-red-500">*</span>
+                  Tên <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="adminForm.first_name"
@@ -490,17 +488,17 @@ const getValidationClass = (fieldName) => {
                   required
                   class="w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                   :class="getValidationClass('first_name')"
-                  placeholder="Enter first name"
+                  placeholder="Nhập tên"
                 />
                 <p v-if="getFieldError('first_name')" class="text-red-500 text-xs mt-1">
                   {{ getFieldError('first_name') }}
                 </p>
               </div>
 
-              <!-- Last Name -->
+              <!-- Họ -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Last Name <span class="text-red-500">*</span>
+                  Họ <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="adminForm.last_name"
@@ -508,7 +506,7 @@ const getValidationClass = (fieldName) => {
                   required
                   class="w-full rounded-xl border px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:border-transparent transition-all duration-200"
                   :class="getValidationClass('last_name')"
-                  placeholder="Enter last name"
+                  placeholder="Nhập họ"
                 />
                 <p v-if="getFieldError('last_name')" class="text-red-500 text-xs mt-1">
                   {{ getFieldError('last_name') }}
@@ -516,13 +514,13 @@ const getValidationClass = (fieldName) => {
               </div>
             </div>
 
-            <!-- Contact Information -->
+            <!-- Thông tin liên hệ -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Phone Number -->
+              <!-- Số điện thoại -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Phone Number
-                  <span class="text-gray-400 font-normal">(Optional)</span>
+                  Số Điện Thoại
+                  <span class="text-gray-400 font-normal">(Không bắt buộc)</span>
                 </label>
                 <div class="relative">
                   <PhoneIcon
@@ -532,7 +530,7 @@ const getValidationClass = (fieldName) => {
                     v-model="adminForm.phone_number"
                     type="tel"
                     class="pl-10 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Enter phone number"
+                    placeholder="Nhập số điện thoại"
                   />
                 </div>
                 <p v-if="getFieldError('phone_number')" class="text-red-500 text-xs mt-1">
@@ -540,23 +538,23 @@ const getValidationClass = (fieldName) => {
                 </p>
               </div>
 
-              <!-- Admin Status -->
+              <!-- Trạng thái tài khoản -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Account Status <span class="text-red-500">*</span>
+                  Trạng Thái Tài Khoản <span class="text-red-500">*</span>
                 </label>
                 <select
                   v-model="adminForm.admin_status"
                   class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
                 </select>
-                <p class="text-gray-500 text-xs mt-1">Account will be created with this status</p>
+                <p class="text-gray-500 text-xs mt-1">Tài khoản sẽ được tạo với trạng thái này</p>
               </div>
             </div>
 
-            <!-- Form Actions -->
+            <!-- Hành động biểu mẫu -->
             <div class="flex flex-col sm:flex-row gap-4 pt-6">
               <button
                 type="submit"
@@ -565,11 +563,11 @@ const getValidationClass = (fieldName) => {
               >
                 <span v-if="loading" class="flex items-center justify-center">
                   <ArrowPathIcon class="h-4 w-4 animate-spin mr-2" />
-                  Creating Account...
+                  Đang tạo tài khoản...
                 </span>
                 <span v-else class="flex items-center justify-center">
                   <UserPlusIcon class="h-4 w-4 mr-2" />
-                  Create Admin Account
+                  Tạo Tài Khoản Quản Trị
                 </span>
               </button>
 
@@ -581,12 +579,12 @@ const getValidationClass = (fieldName) => {
               >
                 <span class="flex items-center justify-center">
                   <ArrowPathIcon class="h-4 w-4 mr-2" />
-                  Reset Form
+                  Đặt Lại Biểu Mẫu
                 </span>
               </button>
             </div>
 
-            <!-- Form Validation Summary -->
+            <!-- Tóm tắt xác thực biểu mẫu -->
             <div
               v-if="!formValidation.isValid"
               class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
@@ -595,17 +593,17 @@ const getValidationClass = (fieldName) => {
                 <ExclamationCircleIcon class="h-5 w-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 class="text-amber-800 dark:text-amber-300 font-medium text-sm">
-                    Please complete required fields:
+                    Vui lòng hoàn thiện các trường bắt buộc:
                   </h4>
                   <ul class="text-amber-700 dark:text-amber-400 text-xs mt-2 space-y-1">
-                    <li v-if="!formValidation.username">• Username (minimum 3 characters)</li>
-                    <li v-if="!formValidation.email">• Valid email address</li>
-                    <li v-if="!formValidation.password">• Password (minimum 6 characters)</li>
+                    <li v-if="!formValidation.username">• Tên đăng nhập (tối thiểu 3 ký tự)</li>
+                    <li v-if="!formValidation.email">• Địa chỉ email hợp lệ</li>
+                    <li v-if="!formValidation.password">• Mật khẩu (tối thiểu 6 ký tự)</li>
                     <li v-if="!formValidation.password_confirmation">
-                      • Password confirmation must match
+                      • Xác nhận mật khẩu phải khớp
                     </li>
-                    <li v-if="!formValidation.first_name">• First name (minimum 2 characters)</li>
-                    <li v-if="!formValidation.last_name">• Last name (minimum 2 characters)</li>
+                    <li v-if="!formValidation.first_name">• Tên (tối thiểu 2 ký tự)</li>
+                    <li v-if="!formValidation.last_name">• Họ (tối thiểu 2 ký tự)</li>
                   </ul>
                 </div>
               </div>
@@ -618,7 +616,7 @@ const getValidationClass = (fieldName) => {
 </template>
 
 <style scoped>
-/* Custom animations */
+/* Hoạt ảnh tùy chỉnh */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -634,25 +632,25 @@ const getValidationClass = (fieldName) => {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Custom focus states */
+/* Tùy chỉnh trạng thái focus */
 input:focus,
 select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Button hover effects */
+/* Hiệu ứng hover cho nút */
 button:hover:not(:disabled) {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive improvements */
+/* Cải tiến responsive */
 @media (max-width: 640px) {
   .grid-cols-2 {
     grid-template-columns: 1fr;
   }
 }
 
-/* Validation states */
+/* Trạng thái xác thực */
 .border-green-500 {
   border-color: #10b981;
 }
