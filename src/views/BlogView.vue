@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50 mt-27">
+  <div class="min-h-screen bg-gray-50 mt-27 lg:mt-30 md:mt-29 sm:mt-28">
     <TheHeader />
 
     <!-- Hero Section -->
     <div
-      class="relative text-white py-16 h-[300px] md:h-[300px] lg:h-[300px] sm:h-auto"
+      class="relative text-white py-16 h-64 md:h-64 lg:h-80 sm:h-auto"
       style="
-        background: url('https://res.cloudinary.com/dlhra4ihw/image/upload/v1747734951/o3jn0zgirfrmxttw5wkd.jpg')
+        background: url('https://www.vietnambooking.com/wp-content/uploads/2018/12/doc-mien-dat-nuoc-chiem-nguong-canh-dep-viet-nam-19122018-4.jpg')
           center/cover no-repeat;
       "
     >

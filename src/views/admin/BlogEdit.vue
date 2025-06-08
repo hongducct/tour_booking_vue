@@ -141,7 +141,7 @@
                 <div class="flex gap-2">
                   <input
                     v-model="newTag"
-                    @keyup.enter="addTag"
+                    @keydown.enter.prevent="addTag"
                     type="text"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                     placeholder="Nhập tag và nhấn Enter"
@@ -299,9 +299,7 @@
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                     placeholder="Nhập mẹo du lịch..."
                   />
-                  <BaseButton color="danger" small @click="removeTravelTip(index)">
-                    Xóa
-                  </BaseButton>
+                  <BaseButton color="danger" :icon="mdiDelete" small @click="removeTravelTip(index)" />
                 </div>
                 <BaseButton label="Thêm mẹo" color="info" small @click="addTravelTip" />
               </div>
@@ -513,7 +511,7 @@ import BaseButton from '@/components/admin/BaseButton.vue'
 import RichTextEditor from '@/components/blog/RichTextEditor.vue'
 import BlogImageUpload from '@/components/blog/BlogImageUpload.vue'
 import ImageInsertModal from '@/components/blog/ImageInsertModal.vue'
-import { mdiNewspaper, mdiArrowLeft, mdiRefresh, mdiContentSave, mdiCheck } from '@mdi/js'
+import { mdiNewspaper, mdiArrowLeft, mdiRefresh, mdiContentSave, mdiCheck, mdiDelete  } from '@mdi/js'
 import {
   DocumentTextIcon,
   PencilSquareIcon,
@@ -529,7 +527,40 @@ const route = useRoute()
 const router = useRouter()
 const adminToken = localStorage.getItem('adminToken')
 
-// Form data
+// Helper function to ensure array format
+function ensureArray(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      // If it's a comma-separated string, split it
+      return value
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item)
+    }
+  }
+  return []
+}
+
+// Helper function to safely parse JSON
+function safeJsonParse(value, fallback = []) {
+  if (Array.isArray(value)) return value
+  if (!value) return fallback
+
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : fallback
+  } catch {
+    return fallback
+  }
+}
+
+// Form data with proper initialization
 const form = ref({
   title: '',
   content: '',
@@ -597,29 +628,58 @@ async function fetchCategories() {
   }
 }
 
-// Tag management
+// Tag management with proper array handling
 function addTag() {
-  if (newTag.value.trim() && !form.value.tags.includes(newTag.value.trim())) {
-    form.value.tags.push(newTag.value.trim())
+  if (!newTag.value.trim()) return
+
+  // Ensure tags is an array
+  if (!Array.isArray(form.value.tags)) {
+    form.value.tags = []
+  }
+
+  const trimmedTag = newTag.value.trim()
+  if (!form.value.tags.includes(trimmedTag)) {
+    form.value.tags.push(trimmedTag)
     newTag.value = ''
     markAsChanged()
   }
 }
 
 function removeTag(index) {
-  form.value.tags.splice(index, 1)
-  markAsChanged()
+  // Ensure tags is an array
+  if (!Array.isArray(form.value.tags)) {
+    form.value.tags = []
+    return
+  }
+
+  if (index >= 0 && index < form.value.tags.length) {
+    form.value.tags.splice(index, 1)
+    markAsChanged()
+  }
 }
 
-// Travel tips management
+// Travel tips management with proper array handling
 function addTravelTip() {
+  // Ensure travel_tips is an array
+  if (!Array.isArray(form.value.travel_tips)) {
+    form.value.travel_tips = []
+  }
+
   form.value.travel_tips.push('')
   markAsChanged()
 }
 
 function removeTravelTip(index) {
-  form.value.travel_tips.splice(index, 1)
-  markAsChanged()
+  // Ensure travel_tips is an array
+  if (!Array.isArray(form.value.travel_tips)) {
+    form.value.travel_tips = []
+    return
+  }
+
+  if (index >= 0 && index < form.value.travel_tips.length) {
+    form.value.travel_tips.splice(index, 1)
+    markAsChanged()
+  }
 }
 
 // Get author name based on author_type
@@ -689,7 +749,7 @@ function insertImage(url, size) {
   }
 }
 
-// Fetch post data
+// Fetch post data with proper array handling
 async function fetchPost() {
   const postId = route.params.id
 
@@ -712,6 +772,8 @@ async function fetchPost() {
 
     if (response.data && response.data.data) {
       const post = response.data.data
+
+      // Properly handle array fields with safe parsing
       form.value = {
         title: post.title || '',
         content: post.content || '',
@@ -719,7 +781,7 @@ async function fetchPost() {
         blog_status: post.blog_status || 'draft',
         image: post.image || '',
         category_id: post.category_id || '',
-        tags: post.tags || [],
+        tags: ensureArray(post.tags),
         is_featured: post.is_featured || false,
         meta_description: post.meta_description || '',
         meta_keywords: post.meta_keywords || '',
@@ -727,7 +789,7 @@ async function fetchPost() {
         latitude: post.latitude || null,
         longitude: post.longitude || null,
         travel_season: post.travel_season || '',
-        travel_tips: post.travel_tips || [],
+        travel_tips: ensureArray(post.travel_tips),
         estimated_budget: post.estimated_budget || null,
         duration_days: post.duration_days || null,
         author_type: post.author_type || '',
@@ -737,7 +799,18 @@ async function fetchPost() {
         created_at: post.created_at || '',
         updated_at: post.updated_at || '',
       }
+
       hasUnsavedChanges.value = false
+
+      // Debug log to check data types
+      console.log('Form data after fetch:', {
+        tags: form.value.tags,
+        tagsType: typeof form.value.tags,
+        tagsIsArray: Array.isArray(form.value.tags),
+        travel_tips: form.value.travel_tips,
+        travelTipsType: typeof form.value.travel_tips,
+        travelTipsIsArray: Array.isArray(form.value.travel_tips),
+      })
     } else {
       throw new Error('Dữ liệu trả về không đúng định dạng')
     }
@@ -761,7 +834,7 @@ async function fetchPost() {
   }
 }
 
-// Update post
+// Update post with proper array handling
 async function updatePost() {
   if (!form.value.title.trim()) {
     updateError.value = 'Vui lòng nhập tiêu đề bài viết.'
@@ -785,13 +858,20 @@ async function updatePost() {
 
   try {
     const baseUrl = import.meta.env.VITE_API_BASE_URL
+
+    // Ensure arrays are properly formatted
+    const tags = Array.isArray(form.value.tags) ? form.value.tags : []
+    const travelTips = Array.isArray(form.value.travel_tips)
+      ? form.value.travel_tips.filter((tip) => tip && tip.trim())
+      : []
+
     const updateData = {
       title: form.value.title.trim(),
       content: form.value.content.trim(),
       excerpt: form.value.excerpt,
       blog_status: form.value.blog_status,
       category_id: form.value.category_id || null,
-      tags: form.value.tags,
+      tags: tags,
       is_featured: form.value.is_featured,
       meta_description: form.value.meta_description,
       meta_keywords: form.value.meta_keywords,
@@ -799,7 +879,7 @@ async function updatePost() {
       latitude: form.value.latitude,
       longitude: form.value.longitude,
       travel_season: form.value.travel_season,
-      travel_tips: form.value.travel_tips.filter((tip) => tip.trim()),
+      travel_tips: travelTips,
       estimated_budget: form.value.estimated_budget,
       duration_days: form.value.duration_days,
     }
@@ -808,6 +888,8 @@ async function updatePost() {
     if (form.value.image && form.value.image.trim()) {
       updateData.image = form.value.image.trim()
     }
+
+    console.log('Update data being sent:', updateData)
 
     await axios.put(`${baseUrl}/news/${route.params.id}`, updateData, {
       headers: {

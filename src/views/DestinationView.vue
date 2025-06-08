@@ -3,9 +3,9 @@
 
   <!-- Hero Section -->
   <div
-    class="relative w-full h-64 lg:h-80 bg-cover bg-center mt-24"
+    class="relative w-full h-64 lg:h-80 bg-cover bg-center mt-27 lg:mt-30 md:mt-29 sm:mt-28"
     style="
-      background-image: url('https://res.cloudinary.com/dlhra4ihw/image/upload/v1747734951/o3jn0zgirfrmxttw5wkd.jpg');
+      background-image: url('https://pantravel.vn/wp-content/uploads/2023/11/ruong-bac-thang-kiet-tac-thien-nhien-vi-dai-tu-ban-tay-con-nguoi.jpg');
     "
   >
     <div class="absolute inset-0 bg-black/50"></div>

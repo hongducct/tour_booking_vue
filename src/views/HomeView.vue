@@ -13,12 +13,18 @@ import ContactSection from '@/components/ContactSection.vue'
 import ChatBot from '@/components/ChatBot.vue'
 import ZaloChat from '@/components/ZaloChat.vue'
 
+// Import the updated components
+import FlightSearch from '@/components/FlightSearch.vue'
+import HotelSearch from '@/components/HotelSearch.vue'
+
 import { ref, onMounted, onUnmounted } from 'vue'
-import { ArrowUpIcon } from "@heroicons/vue/24/outline";
+import { ArrowUpIcon } from '@heroicons/vue/24/outline'
+
 const showScrollTop = ref(false)
+const activeTab = ref('flights') // 'flights' or 'hotels'
 
 const handleScroll = () => {
-  showScrollTop.value = window.scrollY > 300 // Hiển thị nút khi cuộn xuống quá 300px
+  showScrollTop.value = window.scrollY > 300
 }
 
 const scrollToTop = () => {
@@ -36,12 +42,18 @@ onUnmounted(() => {
 
 <template>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tour Booking Application" />
-  <meta name="keywords" content="tour, booking, travel, application" />
-  <meta name="author" content="Your Name" />
+  <meta
+    name="description"
+    content="Tour Booking Application - Đặt vé máy bay và khách sạn tại Việt Nam"
+  />
+  <meta
+    name="keywords"
+    content="tour, booking, travel, application, vé máy bay, khách sạn, vietnam"
+  />
+  <meta name="author" content="Travel Booking Vietnam" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="robots" content="index, follow" />
-  <meta name="google-site-verification" content="your-google-site-verification-code" />
+
   <main>
     <TheHeader />
     <HomeSlider class="mt-27" />
@@ -52,21 +64,74 @@ onUnmounted(() => {
         </h1>
         <p class="text-base sm:text-lg text-gray-700 font-medium">Phiêu lưu thôi, chờ chi!</p>
       </div>
-      <FormSearch />
+
+      <!-- General Search Form (keep if needed) -->
+
+      <!-- Flight and Hotel Search Tabs -->
+      <div class="my-10">
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-6">
+          <div class="bg-white rounded-lg p-1 shadow-md">
+            <button
+              @click="activeTab = 'tours'"
+              :class="[
+                'px-6 py-3 rounded-md font-medium transition-all duration-300',
+                activeTab === 'tours'
+                  ? 'bg-yellow-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
+              ]"
+            >
+              🗺️ Tour du lịch
+            </button>
+            <button
+              @click="activeTab = 'flights'"
+              :class="[
+                'px-6 py-3 rounded-md font-medium transition-all duration-300',
+                activeTab === 'flights'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
+              ]"
+            >
+              ✈️ Vé máy bay
+            </button>
+            <button
+              @click="activeTab = 'hotels'"
+              :class="[
+                'px-6 py-3 rounded-md font-medium transition-all duration-300',
+                activeTab === 'hotels'
+                  ? 'bg-green-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
+              ]"
+            >
+              🏨 Khách sạn
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="transition-all duration-300">
+          <FormSearch v-if="activeTab === 'tours'" />
+          <FlightSearch v-if="activeTab === 'flights'" />
+          <HotelSearch v-if="activeTab === 'hotels'" />
+        </div>
+      </div>
+
       <DestinationSection />
       <PackageSection />
       <BestGallerySection />
       <BlogSection />
       <ChatBot />
     </div>
+
     <ContactSection />
     <TheFooter />
     <ZaloChat />
+
     <!-- Scroll to Top Button -->
     <button
       v-if="showScrollTop"
       @click="scrollToTop"
-      class="fixed bottom-40 right-10 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105"
+      class="fixed bottom-40 right-10 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 z-50"
       aria-label="Scroll to Top"
     >
       <ArrowUpIcon class="h-6 w-6" />

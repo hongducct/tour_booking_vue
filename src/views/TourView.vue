@@ -378,6 +378,7 @@
             class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
             <option value="name">Tên A-Z</option>
+            <option value="name_desc">Tên Z-A</option>
             <option value="price-low">Giá thấp - cao</option>
             <option value="price-high">Giá cao - thấp</option>
             <option value="rating">Đánh giá cao nhất</option>
