@@ -450,7 +450,7 @@ const router = useRouter()
 const availableDates = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 12
-const sortBy = ref('name')
+const sortBy = ref('')
 const showCalendar = ref(false)
 const currentCalendarDate = ref(new Date())
 

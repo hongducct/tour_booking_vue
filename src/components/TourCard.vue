@@ -1,19 +1,41 @@
 <template>
-  <div class="package-wrap border rounded-lg shadow-xl/30 overflow-hidden bg-white">
-    <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`">
-      <img
-        :src="tour.images?.[0]?.image_url || 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'"
-        :alt="tour.name"
-        class="w-full h-64 object-cover"
-      />
+  <div
+    class="package-wrap border rounded-lg shadow-lg overflow-hidden bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+  >
+    <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`" class="block">
+      <div class="relative h-64 overflow-hidden">
+        <img
+          :src="getImageUrl()"
+          :alt="tour.name"
+          class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+        />
+        <!-- Category Badge -->
+        <div class="absolute top-3 left-3">
+          <span
+            class="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-medium"
+          >
+            {{ tour.category }}
+          </span>
+        </div>
+        <!-- Duration Badge -->
+        <div class="absolute top-3 right-3">
+          <span
+            class="bg-yellow-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium"
+          >
+            {{ tour.days }}N{{ tour.nights }}Đ
+          </span>
+        </div>
+      </div>
     </RouterLink>
 
+    <!-- Price Banner -->
     <div class="bg-yellow-500 text-white px-4 py-2 font-semibold text-sm">
       {{ formatPrice(tour.price) }} / người
     </div>
 
     <div class="p-4">
-      <div class="text-center text-sm text-gray-600 mb-2">
+      <!-- Tour Info -->
+      <div class="text-center text-sm text-gray-600 mb-3">
         <ul class="flex justify-around">
           <li class="flex items-center gap-1">
             <ClockIcon class="w-4 h-4" />
@@ -21,27 +43,42 @@
           </li>
           <li class="flex items-center gap-1">
             <UserGroupIcon class="w-4 h-4" />
+            <span class="text-xs">Nhóm</span>
           </li>
           <li class="flex items-center gap-1">
             <MapPinIcon class="w-4 h-4" />
-            <span>{{ tour.location?.name || 'Unknown' }}</span>
+            <span class="text-xs">{{ getLocationName() }}</span>
           </li>
         </ul>
       </div>
 
-      <h3 class="text-lg font-bold mb-2">
-        <RouterLink :to="`/tour/${createSlug(tour.id, tour.name)}`" class="hover:text-yellow-500">
+      <!-- Tour Title -->
+      <h3 class="text-lg font-bold mb-2 line-clamp-2">
+        <RouterLink
+          :to="`/tour/${createSlug(tour.id, tour.name)}`"
+          class="hover:text-yellow-500 transition-colors"
+        >
           {{ tour.name }}
         </RouterLink>
       </h3>
 
-      <div class="text-sm text-gray-700 mb-3">
-        <p>Điểm khởi hành: {{ tour.start_point || 'Unknown' }}</p>
-        <div class="flex items-center gap-1 text-yellow-400 text-sm">
+      <!-- Tour Details -->
+      <div class="text-sm text-gray-700 mb-3 space-y-1">
+        <p v-if="tour.start_point">
+          <span class="font-medium">Điểm khởi hành:</span> {{ tour.start_point }}
+        </p>
+
+        <!-- Rating -->
+        <div class="flex items-center gap-1">
           <template v-if="tour.average_rating && tour.review_count > 0">
-            <template v-for="n in 5" :key="n">
-              <component :is="getStarType(n, tour.average_rating)" class="w-4 h-4" />
-            </template>
+            <div class="flex items-center">
+              <template v-for="n in 5" :key="n">
+                <component
+                  :is="getStarType(n, tour.average_rating)"
+                  class="w-4 h-4 text-yellow-400"
+                />
+              </template>
+            </div>
             <span class="text-gray-600 text-xs ml-2">({{ tour.review_count }} đánh giá)</span>
           </template>
           <template v-else>
@@ -50,22 +87,23 @@
         </div>
       </div>
 
-      <div class="flex justify-between items-center">
+      <!-- Actions -->
+      <div class="flex justify-between items-center pt-3 border-t border-gray-100">
         <RouterLink
           :to="`/tour/${createSlug(tour.id, tour.name)}`"
-          class="text-yellow-500 hover:underline flex items-center gap-1"
+          class="text-yellow-500 hover:text-yellow-600 font-medium flex items-center gap-1 transition-colors"
         >
-          Book Now <ArrowRightIcon class="w-4 h-4" />
+          Đặt ngay <ArrowRightIcon class="w-4 h-4" />
         </RouterLink>
         <button
           @click="toggleWishlist"
-          class="flex items-center gap-1"
+          class="flex items-center gap-1 text-sm transition-colors"
           :class="
-            isInWishlist ? 'text-red-500 hover:text-gray-400' : 'text-gray-400 hover:text-red-500'
+            isInWishlist ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'
           "
         >
           <HeartIcon class="w-4 h-4" />
-          {{ isInWishlist ? 'Bỏ yêu thích' : 'Yêu thích' }}
+          <span class="hidden sm:inline">{{ isInWishlist ? 'Đã thích' : 'Yêu thích' }}</span>
         </button>
       </div>
     </div>
@@ -86,11 +124,35 @@ import {
 } from '@heroicons/vue/24/solid'
 import { StarIcon as StarOutline } from '@heroicons/vue/24/outline'
 
-const props = defineProps({ tour: Object })
+const props = defineProps({
+  tour: {
+    type: Object,
+    required: true,
+  },
+})
+
 const router = useRouter()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 const token = localStorage.getItem('userToken')
 const isInWishlist = ref(false)
+
+// Kiểm tra nếu tour đã có trong wishlist
+const checkWishlistStatus = async () => {
+  if (!token) return
+
+  try {
+    const res = await axios.get(`${baseUrl}/user/wishlist/check/${props.tour.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    isInWishlist.value = res.data.isInWishlist
+  } catch (err) {
+    console.error('Kiểm tra danh sách yêu thích thất bại:', err)
+  }
+}
+
+onMounted(() => {
+  checkWishlistStatus()
+})
 
 const createSlug = (id, name) => {
   return `${id}-${name
@@ -98,11 +160,25 @@ const createSlug = (id, name) => {
     .replace(/ /g, '-')
     .replace(/[^\w-]+/g, '')}`
 }
+
+const getImageUrl = () => {
+  if (props.tour.images && props.tour.images.length > 0) {
+    // Handle both array of strings and array of objects
+    const firstImage = props.tour.images[0]
+    return typeof firstImage === 'string' ? firstImage : firstImage.image_url
+  }
+  return 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749117226/mrsweu6xte5w9mgtmpo5.jpg'
+}
+
+const getLocationName = () => {
+  return props.tour.location?.name || props.tour.destination || 'Việt Nam'
+}
+
 const getStarType = (index, rating) => {
   if (index <= Math.floor(rating)) {
     return StarIcon // đầy
   } else if (index - rating < 1 && index - rating > 0) {
-    return HalfStar // nửa (xử lý thủ công)
+    return HalfStar // nửa
   } else {
     return StarOutline // rỗng
   }
@@ -145,22 +221,11 @@ const HalfStar = defineComponent({
 })
 
 const formatPrice = (price) => {
-  const parsed = parseFloat(price)
-  return parsed ? parsed.toLocaleString('vi-VN') + '₫' : '11,490,000₫'
-}
-
-// Kiểm tra nếu tour đã có trong wishlist
-const checkWishlistStatus = async () => {
-  if (!token) return
-
-  try {
-    const res = await axios.get(`${baseUrl}/user/wishlist/check/${props.tour.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    isInWishlist.value = res.data.isInWishlist
-  } catch (err) {
-    console.error('Kiểm tra danh sách yêu thích thất bại:', err)
+  if (!price || price === null) {
+    return 'Liên hệ'
   }
+  const parsed = parseFloat(price)
+  return parsed ? parsed.toLocaleString('vi-VN') + '₫' : 'Liên hệ'
 }
 
 // Thêm hoặc xóa tour khỏi wishlist
@@ -199,9 +264,13 @@ const toggleWishlist = async () => {
     alert('Không thể thực hiện thao tác. Vui lòng thử lại.')
   }
 }
-
-onMounted(() => {
-  checkWishlistStatus()
-})
-
 </script>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

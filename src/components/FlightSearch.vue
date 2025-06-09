@@ -95,8 +95,8 @@ const minReturnDate = computed(() => {
 
 // Payment methods
 const paymentMethods = [
-  { value: 'credit_card', label: 'Thẻ tín dụng/ghi nợ', icon: '💳' },
   { value: 'vnpay', label: 'VNPay', icon: '🏦' },
+  { value: 'credit_card', label: 'Thẻ tín dụng/ghi nợ', icon: '💳' },
   { value: 'momo', label: 'MoMo', icon: '📱' },
   { value: 'bank_transfer', label: 'Chuyển khoản ngân hàng', icon: '🏛️' },
 ]
@@ -703,7 +703,7 @@ const swapLocations = () => {
     <!-- Booking Modal -->
     <div
       v-if="showBookingModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4"
     >
       <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <!-- Modal Header -->
@@ -1117,5 +1117,9 @@ input[type='date'] {
 
 input[type='date']:focus::-webkit-calendar-picker-indicator {
   opacity: 1;
+}
+.fixed.inset-0.bg-black.bg-opacity-50.z-100 {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>

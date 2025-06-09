@@ -9,6 +9,7 @@ import PackageSection from '@/components/PackageSection.vue'
 import BestGallerySection from '@/components/BestGallerySection.vue'
 import BlogSection from '@/components/BlogSection.vue'
 import ContactSection from '@/components/ContactSection.vue'
+import MapsSection from '@/components/MapsSection.vue'
 
 import ChatBot from '@/components/ChatBot.vue'
 import ZaloChat from '@/components/ZaloChat.vue'
@@ -21,7 +22,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { ArrowUpIcon } from '@heroicons/vue/24/outline'
 
 const showScrollTop = ref(false)
-const activeTab = ref('flights') // 'flights' or 'hotels'
+const activeTab = ref('tours') // or 'flights' or 'hotels'
+
+// Lấy Google Maps API key từ biến môi trường
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 300
@@ -64,8 +68,6 @@ onUnmounted(() => {
         </h1>
         <p class="text-base sm:text-lg text-gray-700 font-medium">Phiêu lưu thôi, chờ chi!</p>
       </div>
-
-      <!-- General Search Form (keep if needed) -->
 
       <!-- Flight and Hotel Search Tabs -->
       <div class="my-10">
@@ -118,6 +120,10 @@ onUnmounted(() => {
 
       <DestinationSection />
       <PackageSection />
+
+      <!-- Maps Section -->
+      <MapsSection :api-key="GOOGLE_MAPS_API_KEY" />
+
       <BestGallerySection />
       <BlogSection />
       <ChatBot />
