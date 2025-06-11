@@ -27,10 +27,7 @@
       <div class="mb-8">
         <div class="flex flex-wrap gap-3 mb-6">
           <button
-            @click="
-              selectedCategory = null,
-              fetchNews(1)
-            "
+            @click="((selectedCategory = null), fetchNews(1))"
             :class="`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
               !selectedCategory
                 ? 'bg-blue-600 text-white shadow-lg'
@@ -42,10 +39,7 @@
           <button
             v-for="category in categories"
             :key="category.id"
-            @click="
-              selectedCategory = category.id,
-              fetchNews(1)
-            "
+            @click="((selectedCategory = category.id), fetchNews(1))"
             :class="`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
               selectedCategory === category.id
                 ? 'text-white shadow-lg'
@@ -273,7 +267,18 @@ const fetchNews = async (page = 1) => {
 
     const response = await axios.get(`${apiBaseUrl}/news?${params}`)
 
-    news.value = response.data.data || []
+    // Parse tags if they are JSON strings
+    news.value = (response.data.data || []).map((item) => {
+      if (typeof item.tags === 'string') {
+        try {
+          item.tags = JSON.parse(item.tags)
+        } catch (e) {
+          // fallback: try to split by comma if not valid JSON
+          item.tags = item.tags.split(',').map((tag) => tag.trim())
+        }
+      }
+      return item
+    })
     pagination.value = {
       current_page: response.data.meta?.current_page || 1,
       last_page: response.data.meta?.last_page || 1,

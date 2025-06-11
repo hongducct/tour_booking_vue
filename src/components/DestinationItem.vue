@@ -25,11 +25,12 @@
     <div class="absolute bottom-0 left-0 w-full p-5 text-white">
       <!-- Title -->
       <h3
-        class="font-bold mb-2"
+        class="font-bold mb-2 overflow-hidden text-white"
         :class="{
           'text-xl leading-tight': layout === 'vertical',
           'text-lg': layout === 'horizontal',
         }"
+        style="-webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; text-overflow: ellipsis;"
         v-html="destination.title"
       ></h3>
 

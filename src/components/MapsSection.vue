@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { MapPinIcon, GlobeAltIcon } from '@heroicons/vue/24/outline'
 import axios from 'axios'
+import { nextTick } from 'vue'
 
 const props = defineProps({
   apiKey: {
@@ -16,6 +17,12 @@ const isLoaded = ref(false)
 const selectedLocation = ref(null)
 const locations = ref([])
 const loading = ref(true)
+const showFullDescription = ref(false)
+const descRef = ref(null)
+const isLongDescription = ref(false)
+const weather = ref(null)
+const weatherLoading = ref(false)
+const weatherError = ref(null)
 
 // Lấy base URL từ biến môi trường
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
@@ -33,13 +40,11 @@ const fetchLocations = async () => {
   try {
     loading.value = true
     const res = await axios.get(`${apiBaseUrl}/locations`)
-
-    // Kiểm tra cấu trúc dữ liệu trả về
     if (res.data && res.data.data) {
       locations.value = res.data.data.map((location) => ({
         id: location.id,
         name: location.name,
-        description: location.description.replace(/<\/?p>/g, ''), // Remove <p> tags
+        description: location.description.replace(/<\/?p>/g, ''),
         lat: parseFloat(location.latitude),
         lng: parseFloat(location.longitude),
         image: location.image,
@@ -55,13 +60,36 @@ const fetchLocations = async () => {
   }
 }
 
+const fetchWeather = async (lat, lng) => {
+  try {
+    weatherLoading.value = true
+    weatherError.value = null
+    const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}&lang=vi`
+    const res = await axios.get(url)
+    if (res.data) {
+      weather.value = {
+        temp: Math.round(res.data.main.temp),
+        description: res.data.weather[0].description,
+        icon: `https://openweathermap.org/img/wn/${res.data.weather[0].icon}.png`,
+        humidity: res.data.main.humidity,
+        windSpeed: res.data.wind.speed,
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching weather:', err.message)
+    weatherError.value = 'Không thể tải dữ liệu thời tiết'
+  } finally {
+    weatherLoading.value = false
+  }
+}
+
 const loadGoogleMaps = () => {
   return new Promise((resolve, reject) => {
     if (window.google && window.google.maps) {
       resolve()
       return
     }
-
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&libraries=places`
     script.async = true
@@ -74,8 +102,6 @@ const loadGoogleMaps = () => {
 
 const initMap = () => {
   if (!mapContainer.value || locations.value.length === 0) return
-
-  // Tính toán center của bản đồ dựa trên trung bình các điểm
   const center = locations.value.reduce(
     (acc, loc) => {
       return {
@@ -85,7 +111,6 @@ const initMap = () => {
     },
     { lat: 0, lng: 0 },
   )
-
   map.value = new window.google.maps.Map(mapContainer.value, {
     zoom: 6,
     center: center,
@@ -137,11 +162,8 @@ const initMap = () => {
       },
     ],
   })
-
   const markers = []
   const infoWindows = []
-
-  // Add markers for each location
   locations.value.forEach((location) => {
     const marker = new window.google.maps.Marker({
       position: { lat: location.lat, lng: location.lng },
@@ -159,9 +181,7 @@ const initMap = () => {
         scaledSize: new window.google.maps.Size(40, 40),
       },
     })
-
     markers.push(marker)
-
     const infoWindow = new window.google.maps.InfoWindow({
       content: `
         <div class="p-3 max-w-xs">
@@ -173,20 +193,13 @@ const initMap = () => {
         </div>
       `,
     })
-
     infoWindows.push(infoWindow)
-
     marker.addListener('click', () => {
-      // Close all open info windows
       infoWindows.forEach((iw) => iw.close())
-
-      // Open this info window
       infoWindow.open(map.value, marker)
       selectedLocation.value = location
     })
   })
-
-  // Cluster markers if there are many close together
   if (window.MarkerClusterer) {
     new window.MarkerClusterer(map.value, markers, {
       imagePath:
@@ -201,17 +214,35 @@ const selectDestination = (location) => {
     map.value.setCenter({ lat: location.lat, lng: location.lng })
     map.value.setZoom(10)
   }
+  fetchWeather(location.lat, location.lng)
 }
 
-// Watch for changes in locations data
 watch(
-  locations,
-  () => {
-    if (isLoaded.value && locations.value.length > 0) {
-      initMap()
+  () => selectedLocation.value,
+  (newLocation) => {
+    if (newLocation) {
+      fetchWeather(newLocation.lat, newLocation.lng)
+    } else {
+      weather.value = null
     }
   },
-  { deep: true },
+  { immediate: true },
+)
+
+watch(
+  () => selectedLocation.value?.description,
+  async (desc) => {
+    await nextTick()
+    if (descRef.value) {
+      const el = descRef.value
+      const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 24
+      const maxHeight = lineHeight * 2
+      isLongDescription.value = el.scrollHeight > maxHeight + 2
+    } else {
+      isLongDescription.value = false
+    }
+  },
+  { immediate: true },
 )
 
 onMounted(async () => {
@@ -325,7 +356,41 @@ onUnmounted(() => {
                 <h4 class="text-xl font-bold text-gray-800 mb-2">
                   {{ selectedLocation.name }}
                 </h4>
-                <p class="text-gray-600 mb-4">{{ selectedLocation.description }}</p>
+                <div class="mb-4">
+                  <p
+                    class="text-gray-600"
+                    :class="{
+                      'line-clamp-2': !showFullDescription,
+                    }"
+                    v-html="selectedLocation.description"
+                    ref="descRef"
+                  ></p>
+                  <button
+                    v-if="isLongDescription"
+                    @click="showFullDescription = !showFullDescription"
+                    class="mt-2 text-blue-600 hover:underline focus:outline-none text-sm font-medium"
+                  >
+                    {{ showFullDescription ? 'Thu gọn' : 'Xem thêm' }}
+                  </button>
+                </div>
+                <!-- Thông tin thời tiết -->
+                <div v-if="weatherLoading" class="text-gray-600 text-sm mb-4">
+                  Đang tải dữ liệu thời tiết...
+                </div>
+                <div v-else-if="weatherError" class="text-red-600 text-sm mb-4">
+                  {{ weatherError }}
+                </div>
+                <div v-else-if="weather" class="flex items-center space-x-3 mb-4">
+                  <img :src="weather.icon" alt="Weather Icon" class="w-10 h-10" />
+                  <div>
+                    <p class="text-gray-800 font-semibold">
+                      {{ weather.temp }}°C - {{ weather.description }}
+                    </p>
+                    <p class="text-gray-600 text-sm">
+                      Độ ẩm: {{ weather.humidity }}% | Gió: {{ weather.windSpeed }} m/s
+                    </p>
+                  </div>
+                </div>
                 <div class="flex space-x-3">
                   <a
                     :href="selectedLocation.url"

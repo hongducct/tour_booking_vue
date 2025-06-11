@@ -92,10 +92,23 @@
               <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
                 {{ locationData.location.name }}
               </h1>
-              <div
-                class="text-lg text-gray-600 leading-relaxed prose max-w-none"
-                v-html="locationData.location.description"
-              ></div>
+              <div>
+                <div
+                  class="text-lg text-gray-600 leading-relaxed prose max-w-none overflow-hidden transition-all"
+                  :class="{
+                    'line-clamp-2': !showFullDescription,
+                  }"
+                  v-html="locationData.location.description"
+                  ref="descRef"
+                ></div>
+                <button
+                  v-if="isLongDescription"
+                  @click="showFullDescription = !showFullDescription"
+                  class="mt-2 text-blue-600 hover:underline focus:outline-none text-sm font-medium"
+                >
+                  {{ showFullDescription ? 'Thu gọn' : 'Xem thêm' }}
+                </button>
+              </div>
             </div>
 
             <!-- Map Section -->
@@ -198,6 +211,26 @@ const mapContainer = ref(null)
 const map = ref(null)
 const marker = ref(null)
 const mapLoaded = ref(false)
+const showFullDescription = ref(false)
+const descRef = ref(null)
+const isLongDescription = ref(false)
+
+watch(
+  () => locationData.value?.location?.description,
+  async (desc) => {
+    await nextTick()
+    if (descRef.value) {
+      // Check if the description overflows (more than 2 lines)
+      const el = descRef.value
+      const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 24
+      const maxHeight = lineHeight * 2
+      isLongDescription.value = el.scrollHeight > maxHeight + 2 // allow for rounding
+    } else {
+      isLongDescription.value = false
+    }
+  },
+  { immediate: true },
+)
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY

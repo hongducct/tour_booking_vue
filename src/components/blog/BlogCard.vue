@@ -152,7 +152,7 @@
             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 transition-all duration-200 cursor-pointer"
           >
             <TagIcon class="w-3 h-3 mr-1" />
-            {{ tag }}
+            #{{ tag }}
           </span>
           <span v-if="post.tags.length > 3" class="text-xs text-gray-500 px-2 py-1">
             +{{ post.tags.length - 3 }} thẻ khác

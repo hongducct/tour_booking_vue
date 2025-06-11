@@ -304,7 +304,27 @@ const fetchBlogDetail = async () => {
     ])
 
     const data = blogResponse.data.data
-    console.log('Blog detail data:', data)
+    // Parse tags if it's a stringified JSON or malformed array
+    let tags = []
+    if (typeof data.tags === 'string') {
+      try {
+        tags = JSON.parse(data.tags)
+        // If tags is a string after parsing, try splitting by comma
+        if (typeof tags === 'string') {
+          tags = tags.split(',').map((t) => t.trim())
+        }
+      } catch {
+        // Fallback: try to extract tags by splitting string
+        tags = data.tags
+          .replace(/[\[\]"]/g, '')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+      }
+    } else if (Array.isArray(data.tags)) {
+      tags = data.tags
+    }
+
     blog.value = {
       id: data.id,
       title: data.title,
@@ -320,10 +340,9 @@ const fetchBlogDetail = async () => {
       publishedAt: data.published_at,
       content: data.content || 'Nội dung đang cập nhật...',
       status: data.blog_status,
-      tags: data.tags || [],
+      tags,
       views: Math.floor(Math.random() * 1000) + 100,
     }
-    console.log('Blog data:', blog.value)
     const expectedPath = `/blog/${data.id}-${blog.value.slug}`
     if (route.path !== expectedPath) {
       router.replace(expectedPath)

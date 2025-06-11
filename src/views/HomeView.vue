@@ -118,11 +118,11 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <DestinationSection />
+      <!-- <DestinationSection /> -->
       <PackageSection />
-
       <!-- Maps Section -->
       <MapsSection :api-key="GOOGLE_MAPS_API_KEY" />
+
 
       <BestGallerySection />
       <BlogSection />
