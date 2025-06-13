@@ -263,8 +263,8 @@ const submitBooking = async () => {
   loading.value = true
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    console.log('Submitting booking with data:', bookingForm.value)
-    console.log('Selected payment method:', selectedPaymentMethod.value)
+    // console.log('Submitting booking with data:', bookingForm.value)
+    // console.log('Selected payment method:', selectedPaymentMethod.value)
     const bookingResponse = await axios.post(
       `${apiBaseUrl}/bookings`,
       {
