@@ -466,6 +466,7 @@ const getStartOfDayVietnam = (date) => {
   return new Date(vietnamDate.getTime() - 7 * 60 * 60 * 1000)
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.hongducct.id.vn';
 const shouldRefreshCache = () => {
   if (!dataCache.value.fetchedAt) return true
   const fiveMinutesAgo = Date.now() - 5 * 60 * 1000
@@ -476,14 +477,14 @@ const shouldRefreshCache = () => {
 const fetchInitialData = async () => {
   try {
     const adminToken = localStorage.getItem('adminToken')
-
+    
     // Fetch only essential data first
-    const bookingsPromise = axios.get('https://api.hongducct.id.vn/api/bookings', {
+    const bookingsPromise = axios.get(`${apiBaseUrl}/bookings`, {
       headers: { Authorization: `Bearer ${adminToken}` },
     })
 
     // Get today's data immediately from first page of users
-    const firstPageUsersPromise = axios.get('https://api.hongducct.id.vn/api/users?page=1', {
+    const firstPageUsersPromise = axios.get(`${apiBaseUrl}/users?page=1`, {
       headers: { Authorization: `Bearer ${adminToken}` },
     })
 
@@ -548,7 +549,7 @@ const fetchRemainingUsers = async (adminToken, lastPage) => {
     const remainingUsersPromises = []
     for (let page = 2; page <= lastPage; page++) {
       remainingUsersPromises.push(
-        axios.get(`https://api.hongducct.id.vn/api/users?page=${page}`, {
+        axios.get(`${apiBaseUrl}/users?page=${page}`, {
           headers: { Authorization: `Bearer ${adminToken}` },
         }),
       )
