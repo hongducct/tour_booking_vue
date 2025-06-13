@@ -1,6 +1,7 @@
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
+import Pusher from 'pusher-js'
 
 const isOpen = ref(false)
 const input = ref('')
@@ -8,14 +9,35 @@ const messages = ref([])
 const isLoading = ref(false)
 const messagesContainer = ref(null)
 const ignoreNextClick = ref(false)
+const chatMode = ref('ai') // 'ai' or 'human'
+const conversationId = ref(null)
+const tempUserId = ref(null)
+const pusher = ref(null)
+const channel = ref(null)
 
 const quickSuggestions = ref(['Tìm tour Hà Nội', 'Tour giá rẻ', 'Tour 3 ngày', 'Tour nổi bật'])
+
+// Generate or retrieve temp user ID for unauthenticated users
+const initializeTempUserId = () => {
+  if (!tempUserId.value) {
+    tempUserId.value = localStorage.getItem('temp_user_id') || generateUUID()
+    localStorage.setItem('temp_user_id', tempUserId.value)
+  }
+}
+
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
-    ignoreNextClick.value = true // Bỏ qua click ngoài ngay sau khi mở
-    if (messages.value.length === 0) {
+    ignoreNextClick.value = true
+    if (messages.value.length === 0 && chatMode.value === 'ai') {
       messages.value.push({
         role: 'assistant',
         content:
@@ -28,10 +50,13 @@ const toggleChat = () => {
         ],
       })
     }
+    initializeTempUserId()
+    subscribeToChannel()
+  } else {
+    unsubscribeFromChannel()
   }
 }
 
-// Đóng chatbot khi click ra ngoài
 const handleClickOutside = (event) => {
   if (ignoreNextClick.value) {
     ignoreNextClick.value = false
@@ -47,16 +72,73 @@ const handleClickOutside = (event) => {
     !button.contains(event.target)
   ) {
     isOpen.value = false
+    unsubscribeFromChannel()
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
+const subscribeToChannel = () => {
+  unsubscribeFromChannel() // Clean up existing connections
 
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+  if (conversationId.value) {
+    try {
+      pusher.value = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+        cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+        forceTLS: true,
+      })
+      channel.value = pusher.value.subscribe(`chat.${conversationId.value}`)
+      channel.value.bind('message.sent', (data) => {
+        if (data.sender_type !== 'user') {
+          messages.value.push({
+            role: data.sender_type,
+            content: data.message,
+            timestamp: data.timestamp,
+          })
+          scrollToBottom()
+        }
+      })
+    } catch (error) {
+      console.error('Error subscribing to channel:', error)
+    }
+  }
+}
+
+const unsubscribeFromChannel = () => {
+  if (channel.value && pusher.value) {
+    try {
+      channel.value.unbind_all()
+      if (conversationId.value) {
+        pusher.value.unsubscribe(`chat.${conversationId.value}`)
+      }
+      pusher.value.disconnect()
+    } catch (error) {
+      console.warn('Error unsubscribing or disconnecting:', error) // Chỉ log warning, không throw
+    } finally {
+      channel.value = null
+      pusher.value = null
+    }
+  }
+}
+
+const switchChatMode = (mode) => {
+  chatMode.value = mode
+  messages.value = []
+  conversationId.value = null
+  unsubscribeFromChannel()
+  if (mode === 'ai' && isOpen.value) {
+    messages.value.push({
+      role: 'assistant',
+      content:
+        'Xin chào! Tôi là trợ lý du lịch ảo. Tôi có thể giúp bạn tìm kiếm tour, kiểm tra giá cả, xem lịch trình và nhiều thông tin khác. Bạn muốn tìm hiểu về điều gì?',
+      suggestions: [
+        'Tìm tour theo địa điểm',
+        'Xem tour theo giá',
+        'Tour theo số ngày',
+        'Tour nổi bật nhất',
+      ],
+    })
+    quickSuggestions.value = ['Tìm tour Hà Nội', 'Tour giá rẻ', 'Tour 3 ngày', 'Tour nổi bật']
+  }
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -68,48 +150,59 @@ const scrollToBottom = () => {
 
 const sendMessage = async () => {
   if (!input.value.trim() || isLoading.value) return
-
   const userMessage = input.value.trim()
-  messages.value.push({ role: 'user', content: userMessage })
-  input.value = ''
   isLoading.value = true
-
+  input.value = ''
   scrollToBottom()
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL
 
   try {
-    const response = await axios.post(`${baseUrl}/chatbot/query`, {
-      message: userMessage,
-    })
-    console.log('ChatBot Response:', response.data)
-    const botMessage = {
-      role: 'assistant',
-      content: response.data.message || 'Xin lỗi, tôi không hiểu câu hỏi của bạn.',
-      data: response.data.data || null,
-      suggestions: response.data.suggestions || [],
-    }
-
-    console.log('Bot Message:', botMessage)
-
-    messages.value.push(botMessage)
-
-    if (response.data.suggestions && response.data.suggestions.length > 0) {
-      quickSuggestions.value = response.data.suggestions
+    if (chatMode.value === 'ai') {
+      const response = await axios.post(`${baseUrl}/chatbot/query`, {
+        message: userMessage,
+        conversation_id: conversationId.value,
+      })
+      messages.value.push({ role: 'user', content: userMessage })
+      const botMessage = {
+        role: 'assistant',
+        content: response.data.message || 'Xin lỗi, tôi không hiểu câu hỏi của bạn.',
+        data: response.data.data || null,
+        suggestions: response.data.suggestions || [],
+      }
+      messages.value.push(botMessage)
+      if (response.data.suggestions && response.data.suggestions.length > 0) {
+        quickSuggestions.value = response.data.suggestions
+      }
+    } else {
+      console.time('API Call')
+      const response = await axios.post(`${baseUrl}/chatbot/user-message`, {
+        message: userMessage,
+        conversation_id: conversationId.value,
+        temp_user_id: tempUserId.value,
+      })
+      console.timeEnd('API Call')
+      messages.value.push({ role: 'user', content: userMessage })
+      conversationId.value = response.data.conversation_id
+      subscribeToChannel()
+      const botMessage = {
+        role: 'system',
+        content: 'Tin nhắn đã được gửi đến admin. Bạn sẽ nhận được phản hồi sớm!',
+        suggestions: response.data.suggestions || [],
+      }
+      messages.value.push(botMessage)
+      quickSuggestions.value = response.data.suggestions || []
     }
   } catch (error) {
     console.error('ChatBot Error:', error)
-
-    let errorMessage = 'Đã xảy ra lỗi khi kết nối với server. Vui lòng thử lại sau.'
-
+    let errorMessage = 'Đã xảy ra lỗi khi gửi tin nhắn. Vui lòng thử lại sau.'
     if (error.response?.status === 422) {
       errorMessage = 'Tin nhắn không hợp lệ. Vui lòng thử lại.'
     } else if (error.response?.status === 500) {
       errorMessage = 'Server đang gặp sự cố. Vui lòng thử lại sau ít phút.'
     }
-
     messages.value.push({
-      role: 'assistant',
+      role: 'system',
       content: errorMessage,
       suggestions: ['Thử lại', 'Tìm tour nổi bật', 'Liên hệ hỗ trợ'],
     })
@@ -130,15 +223,12 @@ const getTourDetails = async (tourId) => {
 
   try {
     const response = await axios.get(`${baseUrl}/chatbot/tour/${tourId}`)
-
-    console.log('Tour Details Response:', response.data)
     const botMessage = {
       role: 'assistant',
       content: response.data.message || 'Thông tin chi tiết tour:',
       data: response.data.data || null,
       suggestions: response.data.suggestions || [],
     }
-
     messages.value.push(botMessage)
     scrollToBottom()
   } catch (error) {
@@ -155,11 +245,32 @@ const getTourDetails = async (tourId) => {
 
 const clearChat = () => {
   messages.value = []
+  conversationId.value = null
+  unsubscribeFromChannel()
   quickSuggestions.value = ['Tìm tour Hà Nội', 'Tour giá rẻ', 'Tour 3 ngày', 'Tour nổi bật']
+  if (chatMode.value === 'ai') {
+    messages.value.push({
+      role: 'assistant',
+      content:
+        'Xin chào! Tôi là trợ lý du lịch ảo. Tôi có thể giúp bạn tìm kiếm tour, kiểm tra giá cả, xem lịch trình và nhiều thông tin khác. Bạn muốn tìm hiểu về điều gì?',
+      suggestions: [
+        'Tìm tour theo địa điểm',
+        'Xem tour theo giá',
+        'Tour theo số ngày',
+        'Tour nổi bật nhất',
+      ],
+    })
+  }
 }
 
 onMounted(() => {
-  // You can add initialization logic here if needed
+  document.addEventListener('click', handleClickOutside)
+  initializeTempUserId()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  unsubscribeFromChannel()
 })
 </script>
 
@@ -169,7 +280,7 @@ onMounted(() => {
       @click="toggleChat"
       class="chatbot-button bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg transition-all duration-300"
     >
-      <span v-if="!isOpen">🤖 Chat với AI</span>
+      <span v-if="!isOpen">🤖 Chat với AI/Admin</span>
       <span v-else>✕ Đóng</span>
     </button>
 
@@ -177,18 +288,48 @@ onMounted(() => {
       v-if="isOpen"
       class="chatbot-popup mt-3 w-80 h-[500px] bg-white shadow-xl rounded-lg flex flex-col overflow-hidden z-50"
     >
-      <div class="bg-blue-600 text-white p-3 font-bold text-center">
-        🤖 Trợ lý AI - Travel Booking
+      <div
+        class="bg-blue-600 text-white p-3 font-bold text-center flex justify-between items-center"
+      >
+        <span
+          >🤖 {{ chatMode.value === 'ai' ? 'Trợ lý AI - Travel Booking' : 'Chat với Admin' }}</span
+        >
+        <div class="flex gap-2">
+          <button
+            @click="switchChatMode('ai')"
+            :class="chatMode.value === 'ai' ? 'bg-blue-800' : 'bg-blue-500'"
+            class="px-2 py-1 rounded text-xs hover:bg-blue-700"
+          >
+            AI
+          </button>
+          <button
+            @click="switchChatMode('human')"
+            :class="chatMode.value === 'human' ? 'bg-blue-800' : 'bg-blue-500'"
+            class="px-2 py-1 rounded text-xs hover:bg-blue-700"
+          >
+            Admin
+          </button>
+        </div>
       </div>
 
       <div class="flex-1 p-3 space-y-2 overflow-y-auto text-sm" ref="messagesContainer">
-        <div v-if="messages.length === 0" class="text-center text-gray-500 py-4">
+        <div
+          v-if="messages.length === 0 && chatMode.value === 'ai'"
+          class="text-center text-gray-500 py-4"
+        >
           <div class="mb-2">👋 Xin chào! Tôi có thể giúp bạn:</div>
           <div class="space-y-1 text-xs">
             <div>📍 Tìm tour theo địa điểm</div>
             <div>💰 Kiểm tra giá và lịch trình</div>
             <div>🗺️ Tư vấn tour phù hợp</div>
           </div>
+        </div>
+        <div
+          v-else-if="messages.length === 0 && chatMode.value === 'human'"
+          class="text-center text-gray-500 py-4"
+        >
+          <div class="mb-2">👋 Chat với nhân viên hỗ trợ</div>
+          <div class="text-xs">Gửi tin nhắn để bắt đầu trò chuyện với admin.</div>
         </div>
 
         <div
@@ -200,7 +341,9 @@ onMounted(() => {
             :class="
               msg.role === 'user'
                 ? 'bg-blue-100 text-blue-800 ml-4'
-                : 'bg-gray-100 text-gray-800 mr-4'
+                : msg.role === 'admin'
+                  ? 'bg-green-100 text-green-800 mr-4'
+                  : 'bg-gray-100 text-gray-800 mr-4'
             "
             class="inline-block px-3 py-2 rounded-lg max-w-[85%]"
           >
@@ -272,6 +415,9 @@ onMounted(() => {
                 </button>
               </div>
             </div>
+            <div v-if="msg.timestamp" class="text-xs text-gray-500 mt-1">
+              {{ new Date(msg.timestamp).toLocaleTimeString() }}
+            </div>
           </div>
         </div>
 
@@ -289,7 +435,7 @@ onMounted(() => {
                   style="animation-delay: 0.2s"
                 ></div>
               </div>
-              <span class="text-xs">Đang tìm kiếm...</span>
+              <span class="text-xs">Đang xử lý...</span>
             </div>
           </div>
         </div>
@@ -315,7 +461,7 @@ onMounted(() => {
           @keyup.enter="sendMessage"
           :disabled="isLoading"
           class="flex-1 border px-3 py-2 rounded text-sm focus:outline-none focus:ring focus:ring-blue-200 disabled:bg-gray-100"
-          placeholder="Nhập tin nhắn..."
+          :placeholder="chatMode === 'ai' ? 'Nhập tin nhắn...' : 'Nhắn tin với admin...'"
         />
         <button
           @click="sendMessage"

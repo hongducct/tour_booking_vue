@@ -39,6 +39,7 @@ import VoucherManager from '@/views/admin/VoucherManager.vue'
 import AdminSettings from '@/views/admin/AdminSettings.vue'
 import AdminProfile from '@/views/admin/AdminProfile.vue'
 import CreateAccountAdmin from '@/views/admin/CreateAccountAdmin.vue'
+import AdminChat from '@/views/admin/AdminChat.vue'
 
 // import AuthCallback from '../views/AuthCallback.vue'
 
@@ -160,6 +161,12 @@ const adminRoutes = [
         component: () => import('@/views/admin/Test.vue'),
         meta: { title: 'Admin Test' },
       },
+      {
+        path: 'chat',
+        name: 'AdminChat',
+        component: AdminChat,
+        meta: { title: 'Admin Chat' },
+      }
     ],
   },
 ]

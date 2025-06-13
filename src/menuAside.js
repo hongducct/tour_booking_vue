@@ -9,6 +9,7 @@ import {
   mdiTicketPercent,
   mdiAccount,
   mdiCog,
+  mdiChat,
 } from '@mdi/js'
 
 export default [
@@ -51,6 +52,11 @@ export default [
     to: '/admin/vouchers',
     icon: mdiTicketPercent ,
     label: 'Vouchers',
+  },
+  {
+    to: '/admin/chat',
+    icon: mdiChat,
+    label: 'Chat',
   },
   {
     to: '/admin/profile',

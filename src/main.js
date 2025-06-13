@@ -8,6 +8,10 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
+import { initWebSocket } from "./services/websocket"
+
+// Khởi tạo WebSocket trước khi mount ứng dụng
+initWebSocket()
 
 import { useMainStore } from '@/stores/main.js'
 
