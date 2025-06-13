@@ -6,7 +6,7 @@
     <input
       :type="type"
       :placeholder="placeholder"
-      v-model.number="inputValue"
+      v-model="inputValue"
       :required="required"
       :step="type === 'number' ? 'any' : undefined"
       :min="type === 'number' ? min : undefined"
@@ -16,13 +16,14 @@
         error ? 'border-red-500 focus:ring-red-500' : 'focus:ring-primary-500 dark:border-gray-600',
         'dark:bg-gray-800 dark:text-white',
       ]"
+      @input="handleInput"
     />
     <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -34,8 +35,8 @@ const props = defineProps({
     default: 'text',
   },
   error: [String, Array],
-  min: [Number, String], // Thêm để hỗ trợ min từ parent
-  max: [Number, String], // Thêm để hỗ trợ max từ parent
+  min: [Number, String],
+  max: [Number, String],
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -43,8 +44,15 @@ const emit = defineEmits(['update:modelValue'])
 const inputValue = computed({
   get: () => (props.modelValue !== null && props.modelValue !== undefined ? props.modelValue : ''),
   set: (val) => {
-    const parsedValue = props.type === 'number' ? parseFloat(val) || null : val
-    emit('update:modelValue', parsedValue)
+    handleInput(val)
   },
 })
+
+const handleInput = (val) => {
+  let parsedValue = val
+  if (props.type === 'number') {
+    parsedValue = val === '' ? null : parseFloat(val) // Giữ null khi rỗng
+  }
+  emit('update:modelValue', parsedValue)
+}
 </script>

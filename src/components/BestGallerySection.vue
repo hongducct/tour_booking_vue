@@ -281,37 +281,37 @@ const galleryImages = [
 // Featured Tours for Carousel with route instead of URL
 const featuredTours = [
   {
-    name: 'TOUR Thái Lan',
+    name: 'TOUR Mộc Châu',
     description:
-      'Khám phá vẻ đẹp của Thái Lan với các điểm đến hấp dẫn như Bangkok, Pattaya và Phuket.',
-    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
-    route: '/tour/thai-lan',
+      'Khám phá cao nguyên Mộc Châu với đồi chè xanh mướt, thác Dải Yếm, rừng thông bản Áng và mùa hoa rực rỡ quanh năm.',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749834311/ag8ycdmqaaavihccqrc3.jpg',
+    route: '/tour/38-du-lch-mc-chu-2-ngy-gi-tt-khi-hnh-t-h-ni',
   },
+  // {
+  //   name: 'TOUR Singapore',
+  //   description:
+  //     'Trải nghiệm kỳ quan hiện đại tại Đảo quốc Sư Tử với Gardens by the Bay, Marina Bay Sands.',
+  //   image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
+  //   route: '/tour/singapore',
+  // },
+  // {
+  //   name: 'TOUR Nhật Bản',
+  //   description:
+  //     'Khám phá đất nước mặt trời mọc với vẻ đẹp của núi Phú Sĩ, hoa anh đào và văn hóa độc đáo.',
+  //   image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
+  //   route: '/tour/nhat-ban',
+  // },
+  // {
+  //   name: 'TOUR Hàn Quốc',
+  //   description: 'Đắm chìm trong văn hóa K-Pop, ẩm thực và cảnh đẹp bốn mùa tại xứ sở kim chi.',
+  //   image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664770/lwnt0iuygqnh9oap4vom.jpg',
+  //   route: '/tour/han-quoc',
+  // },
   {
-    name: 'TOUR Singapore',
-    description:
-      'Trải nghiệm kỳ quan hiện đại tại Đảo quốc Sư Tử với Gardens by the Bay, Marina Bay Sands.',
-    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
-    route: '/tour/singapore',
-  },
-  {
-    name: 'TOUR Nhật Bản',
-    description:
-      'Khám phá đất nước mặt trời mọc với vẻ đẹp của núi Phú Sĩ, hoa anh đào và văn hóa độc đáo.',
-    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664769/mycuepx9mbdo2euwltvu.png',
-    route: '/tour/nhat-ban',
-  },
-  {
-    name: 'TOUR Hàn Quốc',
-    description: 'Đắm chìm trong văn hóa K-Pop, ẩm thực và cảnh đẹp bốn mùa tại xứ sở kim chi.',
-    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747664770/lwnt0iuygqnh9oap4vom.jpg',
-    route: '/tour/han-quoc',
-  },
-  {
-    name: 'TOUR Đài Loan',
-    description: 'Khám phá Đài Bắc và các điểm đến hấp dẫn với ẩm thực phong phú tại Đài Loan.',
-    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1747505256/k89qj8jxmaq3bxhycgr2.jpg',
-    route: '/tour/dai-loan',
+    name: 'TOUR SAPA',
+    description: 'Trải nghiệm vẻ đẹp hùng vĩ của núi rừng Tây Bắc, khám phá bản làng, ruộng bậc thang và chinh phục đỉnh Fansipan tại Sapa.',
+    image: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1749118300/ukqoludck12ihhe41dqa.jpg',
+    route: '/tour/42-tour-sapa-3n2-h-ni---sapa---fansipan---ct-ct---moana',
   },
 ]
 
