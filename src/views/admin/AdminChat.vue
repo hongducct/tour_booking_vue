@@ -571,3 +571,10 @@ onUnmounted(() => {
     </div>
   </LayoutAuthenticated>
 </template>
+<style scoped>
+textarea {
+  font-size: 16px; /* Đảm bảo font-size tối thiểu */
+  -webkit-text-size-adjust: 100%; /* Ngăn điều chỉnh kích thước văn bản */
+  -ms-text-size-adjust: 100%;
+}
+</style>
