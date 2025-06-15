@@ -121,6 +121,7 @@ const unsubscribeFromChannel = () => {
 
 const switchChatMode = (mode) => {
   chatMode.value = mode
+  console.log('chatMode:', chatMode.value)
   messages.value = []
   conversationId.value = null
   unsubscribeFromChannel()
@@ -156,7 +157,6 @@ const sendMessage = async () => {
   scrollToBottom()
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL
-
   try {
     if (chatMode.value === 'ai') {
       const response = await axios.post(`${baseUrl}/chatbot/query`, {
@@ -292,19 +292,19 @@ onUnmounted(() => {
         class="bg-blue-600 text-white p-3 font-bold text-center flex justify-between items-center"
       >
         <span
-          >🤖 {{ chatMode.value === 'ai' ? 'Trợ lý AI - Travel Booking' : 'Chat với Admin' }}</span
+          >🤖 {{ chatMode === 'ai' ? 'Trợ lý AI - Travel Booking' : 'Chat với Admin' }}</span
         >
         <div class="flex gap-2">
           <button
             @click="switchChatMode('ai')"
-            :class="chatMode.value === 'ai' ? 'bg-blue-800' : 'bg-blue-500'"
+            :class="chatMode === 'ai' ? 'bg-blue-800' : 'bg-blue-500'"
             class="px-2 py-1 rounded text-xs hover:bg-blue-700"
           >
             AI
           </button>
           <button
             @click="switchChatMode('human')"
-            :class="chatMode.value === 'human' ? 'bg-blue-800' : 'bg-blue-500'"
+            :class="chatMode === 'human' ? 'bg-blue-800' : 'bg-blue-500'"
             class="px-2 py-1 rounded text-xs hover:bg-blue-700"
           >
             Admin
@@ -314,7 +314,7 @@ onUnmounted(() => {
 
       <div class="flex-1 p-3 space-y-2 overflow-y-auto text-sm" ref="messagesContainer">
         <div
-          v-if="messages.length === 0 && chatMode.value === 'ai'"
+          v-if="messages.length === 0 && chatMode === 'ai'"
           class="text-center text-gray-500 py-4"
         >
           <div class="mb-2">👋 Xin chào! Tôi có thể giúp bạn:</div>
@@ -325,7 +325,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div
-          v-else-if="messages.length === 0 && chatMode.value === 'human'"
+          v-else-if="messages.length === 0 && chatMode === 'human'"
           class="text-center text-gray-500 py-4"
         >
           <div class="mb-2">👋 Chat với nhân viên hỗ trợ</div>
