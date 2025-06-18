@@ -540,4 +540,9 @@ textarea:focus {
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+.fixed.inset-0.bg-black.bg-opacity-50.z-50 {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.1);
+}
 </style>

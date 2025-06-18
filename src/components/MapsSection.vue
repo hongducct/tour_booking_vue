@@ -44,7 +44,7 @@ const fetchLocations = async () => {
       locations.value = res.data.data.map((location) => ({
         id: location.id,
         name: location.name,
-        description: location.description.replace(/<\/?p>/g, ''),
+        description: location.description,
         lat: parseFloat(location.latitude),
         lng: parseFloat(location.longitude),
         image: location.image,

@@ -265,12 +265,12 @@ import { RouterLink, useRouter } from 'vue-router'
 // Gallery Images
 const galleryImages = [
   {
-    src: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1750240312/ny2mltajalsvizdidngt.jpg',
-    alt: 'Ảnh đẹp Tour Cửa Lò - Trinh Nguyễn chia sẻ',
+    src: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1750265071/IMG_20230725_182913_cvn8xc.jpg',
+    alt: 'Ảnh đẹp Tour Đà Nẵng - Hồng Đức chia sẻ',
   },
   {
-    src: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1750239499/yhygawagnhwsk4kih08g.jpg',
-    alt: 'Ảnh đẹp Tour Sapa - Hồng Đức chia sẻ',
+    src: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1750270436/huyen_yrvlsa.jpg',
+    alt: 'Ảnh đẹp Tour Ninh Bình - Ngọc Huyền chia sẻ',
   },
   {
     src: 'https://res.cloudinary.com/dlhra4ihw/image/upload/v1750240086/rudlshtb7gdktzx7scin.jpg',
