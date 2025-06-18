@@ -63,9 +63,9 @@ export default [
     icon: mdiAccount,
     label: 'Hồ sơ',
   },
-  {
-    to: '/admin/settings',
-    icon: mdiCog,
-    label: 'Cài đặt',
-  },
+  // {
+  //   to: '/admin/settings',
+  //   icon: mdiCog,
+  //   label: 'Cài đặt',
+  // },
 ]

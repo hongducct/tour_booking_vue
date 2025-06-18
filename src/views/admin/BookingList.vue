@@ -196,7 +196,7 @@
             class="px-4 lg:px-5 py-4 bg-gray-100 dark:bg-gray-600/50 border-t border-gray-400 dark:border-gray-600"
           >
             <!-- Action Buttons Row -->
-            <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="grid grid-cols-2 gap-2 mb-3">
               <button
                 @click="viewBookingDetails(booking)"
                 class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
@@ -204,13 +204,13 @@
                 <EyeIcon class="w-3.5 h-3.5" />
                 <span class="hidden sm:inline">Chi tiết</span>
               </button>
-              <button
+              <!-- <button
                 @click="editBooking(booking.id)"
                 class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors duration-200"
               >
                 <PencilSquareIcon class="w-3.5 h-3.5" />
                 <span class="hidden sm:inline">Sửa</span>
-              </button>
+              </button> -->
               <button
                 @click="deleteBooking(booking.id)"
                 class="inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-200"

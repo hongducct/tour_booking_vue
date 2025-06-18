@@ -313,8 +313,7 @@ onMounted(() => {
 
                     <div class="bg-gray-50 rounded-lg p-4">
                       <h3 class="font-medium text-gray-900 mb-2">Mô tả tour</h3>
-                      <p class="text-gray-600 leading-relaxed">
-                        {{ booking.bookable.description }}
+                      <p class="text-gray-600 leading-relaxed" v-html="booking.bookable.description">
                       </p>
                     </div>
 

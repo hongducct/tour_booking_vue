@@ -48,10 +48,12 @@ const inputValue = computed({
   },
 })
 
-const handleInput = (val) => {
+const handleInput = (input) => {
+  // Handle both direct value and event object
+  const val = input.target ? input.target.value : input
   let parsedValue = val
   if (props.type === 'number') {
-    parsedValue = val === '' ? null : parseFloat(val) // Giữ null khi rỗng
+    parsedValue = val === '' ? null : parseFloat(val) // Keep null when empty
   }
   emit('update:modelValue', parsedValue)
 }

@@ -335,7 +335,7 @@
                     <div class="relative overflow-hidden rounded-xl">
                       <img
                         v-if="tour.images && tour.images.length > 0"
-                        :src="tour.images[0].image_url"
+                        :src="tour.images[0]"
                         :alt="tour.name"
                         class="w-full h-48 lg:h-36 object-cover hover:scale-105 transition-transform duration-300"
                         @error="handleImageError($event)"
@@ -384,8 +384,7 @@
                       </div>
                     </div>
 
-                    <p class="text-gray-600 leading-relaxed line-clamp-3">
-                      {{ tour.description }}
+                    <p class="text-gray-600 leading-relaxed line-clamp-3" v-html="tour.description">
                     </p>
                   </div>
                 </div>

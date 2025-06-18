@@ -1,9 +1,8 @@
-```vue
 <template>
   <TheHeader />
 
   <!-- Breadcrumb -->
-  <div class="bg-gray-100 py-4 mt-20">
+  <div class="bg-gray-100 py-4 mt-27 lg:mt-30 md:mt-29 sm:mt-28">
     <div class="container mx-auto px-4">
       <nav class="flex" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -127,6 +126,72 @@
         </div>
       </div>
 
+      <!-- Weather Information Section -->
+      <div
+        v-if="locationData.location.latitude && locationData.location.longitude"
+        class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200"
+      >
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+          <svg
+            class="w-6 h-6 text-blue-600 mr-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+            />
+          </svg>
+          Thông tin thời tiết hiện tại
+        </h3>
+
+        <div v-if="weatherLoading" class="flex items-center text-gray-600">
+          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+          Đang tải dữ liệu thời tiết...
+        </div>
+
+        <div v-else-if="weatherError" class="text-red-600">
+          {{ weatherError }}
+        </div>
+
+        <div v-else-if="weather" class="flex items-center space-x-6">
+          <img :src="weather.icon" alt="Weather Icon" class="w-20 h-20" />
+          <div class="flex-1">
+            <div class="flex items-center space-x-4 mb-3">
+              <span class="text-4xl font-bold text-gray-800">{{ weather.temp }}°C</span>
+              <span class="text-xl text-gray-600 capitalize">{{ weather.description }}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-6 text-gray-600">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                  />
+                </svg>
+                <span>Độ ẩm: {{ weather.humidity }}%</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-9 0a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2"
+                  />
+                </svg>
+                <span>Gió: {{ weather.windSpeed }} m/s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tours Section -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <div class="flex items-center justify-between mb-8">
@@ -215,6 +280,13 @@ const showFullDescription = ref(false)
 const descRef = ref(null)
 const isLongDescription = ref(false)
 
+// Weather related state
+const weather = ref(null)
+const weatherLoading = ref(false)
+const weatherError = ref(null)
+
+const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY
+
 watch(
   () => locationData.value?.location?.description,
   async (desc) => {
@@ -270,6 +342,30 @@ const loadGoogleMaps = () => {
     }
     document.head.appendChild(script)
   })
+}
+
+// Fetch weather data
+const fetchWeather = async (lat, lng) => {
+  try {
+    weatherLoading.value = true
+    weatherError.value = null
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${OPENWEATHER_API_KEY}&lang=vi`
+    const res = await axios.get(url)
+    if (res.data) {
+      weather.value = {
+        temp: Math.round(res.data.main.temp),
+        description: res.data.weather[0].description,
+        icon: `https://openweathermap.org/img/wn/${res.data.weather[0].icon}@2x.png`,
+        humidity: res.data.main.humidity,
+        windSpeed: res.data.wind.speed,
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching weather:', err.message)
+    weatherError.value = 'Không thể tải dữ liệu thời tiết'
+  } finally {
+    weatherLoading.value = false
+  }
 }
 
 // Initialize map
@@ -383,6 +479,11 @@ const initMap = async () => {
 
     mapLoaded.value = true
     console.log('Map initialized successfully')
+
+    // Fetch weather data
+    if (lat && lng) {
+      await fetchWeather(lat, lng)
+    }
   } catch (err) {
     console.error('Map initialization error:', err)
     mapLoaded.value = false
@@ -449,4 +550,3 @@ watch(
   margin: 0;
 }
 </style>
-```

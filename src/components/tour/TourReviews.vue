@@ -26,8 +26,43 @@
         </div>
       </div>
 
-      <!-- Review form for authenticated users -->
-      <div v-else>
+      <!-- Loading review eligibility -->
+      <div
+        v-else-if="checkingEligibility"
+        class="bg-gray-50 border-l-4 border-gray-400 p-4 rounded"
+      >
+        <div class="flex items-center">
+          <i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>
+          <p class="text-gray-700">Đang kiểm tra quyền đánh giá...</p>
+        </div>
+      </div>
+
+      <!-- Cannot review message -->
+      <div
+        v-else-if="!canUserReview && reviewEligibilityMessage"
+        class="bg-red-50 border-l-4 border-red-400 p-4 rounded"
+      >
+        <div class="flex items-start">
+          <i class="fas fa-exclamation-triangle text-red-400 mr-2 mt-1"></i>
+          <div>
+            <p class="text-red-700 font-medium">{{ reviewEligibilityMessage }}</p>
+            <p v-if="reviewableType === 'App\\Models\\Tour'" class="text-red-600 text-sm mt-2">
+              💡 <strong>Lưu ý:</strong> Bạn cần đặt tour và có trạng thái "Đã xác nhận" mới có thể
+              đánh giá.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review form for eligible users -->
+      <div v-else-if="canUserReview">
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded mb-4">
+          <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+            <p class="text-green-700">{{ reviewEligibilityMessage }}</p>
+          </div>
+        </div>
+
         <form @submit.prevent="submitReview" class="space-y-4">
           <!-- Rating Section -->
           <div>
@@ -180,7 +215,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -218,6 +253,11 @@ const isSubmitting = ref(false)
 const reviewError = ref('')
 const reviewSuccess = ref('')
 const newReviews = ref([])
+
+// New reactive data for review eligibility
+const checkingEligibility = ref(false)
+const canUserReview = ref(false)
+const reviewEligibilityMessage = ref('')
 
 const reviewForm = ref({
   rating: 0,
@@ -265,9 +305,65 @@ const resetForm = () => {
   hoverRating.value = 0
 }
 
+// New method to check review eligibility
+const checkReviewEligibility = async () => {
+  if (!isAuthenticated.value) {
+    canUserReview.value = false
+    reviewEligibilityMessage.value = ''
+    return
+  }
+
+  checkingEligibility.value = true
+  reviewError.value = ''
+
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    const token = localStorage.getItem('userToken') || localStorage.getItem('adminToken')
+
+    const response = await axios.post(
+      `${apiBaseUrl}/reviews/can-review`,
+      {
+        reviewable_id: props.reviewableId,
+        reviewable_type: props.reviewableType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    canUserReview.value = response.data.can_review
+    reviewEligibilityMessage.value = response.data.message
+  } catch (error) {
+    console.error('Error checking review eligibility:', error)
+
+    if (error.response?.status === 401) {
+      // Token expired
+      localStorage.removeItem('userToken')
+      localStorage.removeItem('adminToken')
+      isAuthenticated.value = false
+      canUserReview.value = false
+      reviewEligibilityMessage.value = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+    } else {
+      canUserReview.value = false
+      reviewEligibilityMessage.value =
+        error.response?.data?.message || 'Có lỗi xảy ra khi kiểm tra quyền đánh giá.'
+    }
+  } finally {
+    checkingEligibility.value = false
+  }
+}
+
 const submitReview = async () => {
   if (!reviewForm.value.rating) {
     reviewError.value = 'Vui lòng chọn số sao đánh giá'
+    return
+  }
+
+  if (!canUserReview.value) {
+    reviewError.value = 'Bạn không có quyền đánh giá mục này'
     return
   }
 
@@ -277,7 +373,7 @@ const submitReview = async () => {
 
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-    const token = localStorage.getItem('userToken')
+    const token = localStorage.getItem('userToken') || localStorage.getItem('adminToken')
 
     const response = await axios.post(
       `${apiBaseUrl}/reviews`,
@@ -287,7 +383,7 @@ const submitReview = async () => {
         rating: reviewForm.value.rating,
         title: reviewForm.value.title || null,
         comment: reviewForm.value.comment || null,
-        status: 'approved', // Default to pending
+        status: 'approved', // Default status
       },
       {
         headers: {
@@ -304,19 +400,23 @@ const submitReview = async () => {
         avatar: null,
       },
       created_at: new Date().toISOString(),
-      status: 'approved', // Show as pending until approved
+      status: 'approved',
     }
 
     newReviews.value.unshift(newReview)
-    reviewSuccess.value =
-      'Đánh giá của bạn đã được gửi thành công! Đánh giá sẽ hiển thị sau khi được duyệt.'
+    reviewSuccess.value = 'Đánh giá của bạn đã được gửi thành công!'
     resetForm()
+
+    // Update review eligibility (user can't review again)
+    canUserReview.value = false
+    reviewEligibilityMessage.value = 'Bạn đã đánh giá mục này rồi.'
 
     setTimeout(() => {
       reviewSuccess.value = ''
     }, 5000)
   } catch (error) {
     console.error('Error submitting review:', error)
+
     if (error.response?.status === 401) {
       reviewError.value = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
       localStorage.removeItem('userToken')
@@ -325,6 +425,11 @@ const submitReview = async () => {
     } else if (error.response?.status === 422) {
       const errors = error.response.data.errors
       reviewError.value = Object.values(errors).flat().join(', ')
+    } else if (error.response?.status === 403) {
+      reviewError.value =
+        error.response.data.message || 'Bạn không có quyền thực hiện hành động này.'
+      // Re-check eligibility
+      await checkReviewEligibility()
     } else {
       reviewError.value =
         error.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.'
@@ -334,11 +439,35 @@ const submitReview = async () => {
   }
 }
 
+// Watch for authentication changes
+watch(isAuthenticated, (newValue) => {
+  if (newValue) {
+    checkReviewEligibility()
+  } else {
+    canUserReview.value = false
+    reviewEligibilityMessage.value = ''
+  }
+})
+
+// Watch for props changes (if component is reused for different items)
+watch([() => props.reviewableId, () => props.reviewableType], () => {
+  if (isAuthenticated.value) {
+    checkReviewEligibility()
+  }
+})
+
 onMounted(() => {
+  // Check review eligibility on mount
+  if (isAuthenticated.value) {
+    checkReviewEligibility()
+  }
+
+  // Listen for storage changes (login/logout in other tabs)
   window.addEventListener('storage', (e) => {
     if (e.key === 'userToken' || e.key === 'adminToken') {
-      isAuthenticated.value =
+      const newAuthState =
         !!localStorage.getItem('userToken') || !!localStorage.getItem('adminToken')
+      isAuthenticated.value = newAuthState
     }
   })
 })
@@ -371,7 +500,8 @@ onMounted(() => {
 }
 
 .bg-green-50,
-.bg-red-50 {
+.bg-red-50,
+.bg-blue-50 {
   animation: slideIn 0.3s ease-out;
 }
 

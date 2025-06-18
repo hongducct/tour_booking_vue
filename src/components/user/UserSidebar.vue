@@ -1,4 +1,3 @@
-```vue
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -94,12 +93,12 @@ const menuItems = [
       },
     ],
   },
-  {
-    name: 'Cài đặt',
-    route: '/settings',
-    icon: Cog6ToothIcon,
-    description: 'Tùy chỉnh tài khoản',
-  },
+  // {
+  //   name: 'Cài đặt',
+  //   route: '/settings',
+  //   icon: Cog6ToothIcon,
+  //   description: 'Tùy chỉnh tài khoản',
+  // },
 ]
 
 const handleNavigation = (route) => {
@@ -336,4 +335,3 @@ button:focus-visible {
   animation: fadeIn 0.3s ease-out;
 }
 </style>
-```
