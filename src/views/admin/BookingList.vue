@@ -430,8 +430,7 @@
                     </div>
                     <div>
                       <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Mô tả</div>
-                      <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                        {{ selectedBooking.bookable.description }}
+                      <div class="text-gray-700 dark:text-gray-300 leading-relaxed" v-html="selectedBooking.bookable.description">
                       </div>
                     </div>
                   </div>
